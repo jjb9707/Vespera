@@ -19,5 +19,10 @@ impl Contract {
         vec![&env, String::from_str(&env, "Hello"), to]
     }
 }
-
+mod types;
+mod payment;
 mod test;
+
+// Only compile the payment tests during `cargo test`
+#[cfg(test)]
+mod payment_tests;
