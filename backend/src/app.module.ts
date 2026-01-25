@@ -5,6 +5,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AgreementsModule } from './modules/agreements/agreements.module';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
+import { HealthModule } from './health/health.module';
+import { AppDataSource } from './database/data-source';
 
 @Module({
   imports: [
@@ -25,6 +27,8 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
       logging: process.env.NODE_ENV === 'development',
     }),
     AgreementsModule,
+    TypeOrmModule.forRoot(AppDataSource.options),
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [
