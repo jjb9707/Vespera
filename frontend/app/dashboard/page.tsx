@@ -3,32 +3,32 @@
 import React from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import KPICards from "@/components/dashboard/KPICards";
-import RecentListings from "@/components/dashboard/RecentListings";
-import WalletCard from "@/components/dashboard/WalletCard";
-import RecentPayouts from "@/components/dashboard/RecentPayouts";
-import NewLeads from "@/components/dashboard/NewLeads";
+import RevenueChart from "@/components/dashboard/RevenueChart";
+import RecentActivity from "@/components/dashboard/RecentActivity";
+import PropertyPortfolio from "@/components/dashboard/PropertyPortfolio";
 
 export default function DashboardPage() {
   return (
     <DashboardLayout>
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Top KPI Cards */}
+      <div className="space-y-8">
+        {/* KPI Cards */}
         <KPICards />
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-          {/* Left Column - Listings (Takes 2/3) */}
+          {/* Revenue Chart - Takes 2 columns */}
           <div className="xl:col-span-2">
-            <RecentListings />
+            <RevenueChart />
           </div>
 
-          {/* Right Column - Widgets (Takes 1/3) */}
-          <div className="space-y-6">
-            <WalletCard />
-            <RecentPayouts />
-            <NewLeads />
+          {/* Recent Activity - Takes 1 column */}
+          <div>
+            <RecentActivity />
           </div>
         </div>
+
+        {/* Property Portfolio Table */}
+        <PropertyPortfolio />
       </div>
     </DashboardLayout>
   );
