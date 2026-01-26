@@ -9,4 +9,6 @@ pub enum DataKey {
     Agreement(String),
     /// Counter for total agreements
     AgreementCount,
+    /// Contract state (admin and config)
+    State,
 }

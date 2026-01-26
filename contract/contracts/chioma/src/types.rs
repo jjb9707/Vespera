@@ -45,4 +45,24 @@ pub struct PaymentSplit {
     pub platform_amount: i128,
     pub token: Address,
     pub payment_date: u64,
+    pub payer: Address,
+}
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct Config {
+    /// Fee percentage in basis points (e.g., 100 = 1%)
+    pub fee_bps: u32,
+    /// Address to collect fees
+    pub fee_collector: Address,
+    /// Whether the contract is paused
+    pub paused: bool,
+}
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ContractState {
+    pub admin: Address,
+    pub config: Config,
+    pub initialized: bool,
 }

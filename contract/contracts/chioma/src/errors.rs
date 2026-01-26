@@ -5,6 +5,12 @@ use soroban_sdk::contracterror;
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 #[repr(u32)]
 pub enum RentalError {
+    /// Contract already initialized
+    AlreadyInitialized = 1,
+    /// Invalid admin address
+    InvalidAdmin = 2,
+    /// Invalid configuration parameters
+    InvalidConfig = 3,
     /// Agreement with this ID already exists
     AgreementAlreadyExists = 4,
     /// Invalid amount provided

@@ -23,6 +23,82 @@ fn test_hello() {
     );
 }
 
+#[test]
+fn test_successful_initialization() {
+    let env = Env::default();
+    let contract_id = env.register(Contract, ());
+    let client = ContractClient::new(&env, &contract_id);
+
+    let admin = Address::generate(&env);
+    let fee_collector = Address::generate(&env);
+
+    env.mock_all_auths();
+
+    let config = Config {
+        fee_bps: 100, // 1%
+        fee_collector: fee_collector.clone(),
+        paused: false,
+    };
+
+    // Initialize contract
+    let result = client.try_initialize(&admin, &config);
+    assert!(result.is_ok());
+
+    // Verify state
+    let state = client.get_state().unwrap();
+    assert_eq!(state.admin, admin);
+    assert_eq!(state.config.fee_bps, 100);
+    assert_eq!(state.config.fee_collector, fee_collector);
+    assert_eq!(state.config.paused, false);
+    assert_eq!(state.initialized, true);
+}
+
+#[test]
+#[should_panic(expected = "Error(Contract, #1)")]
+fn test_double_initialization_fails() {
+    let env = Env::default();
+    let contract_id = env.register(Contract, ());
+    let client = ContractClient::new(&env, &contract_id);
+
+    let admin = Address::generate(&env);
+    let fee_collector = Address::generate(&env);
+
+    env.mock_all_auths();
+
+    let config = Config {
+        fee_bps: 100,
+        fee_collector: fee_collector.clone(),
+        paused: false,
+    };
+
+    // First initialization should succeed
+    client.initialize(&admin, &config);
+
+    // Second initialization should fail
+    client.initialize(&admin, &config);
+}
+
+#[test]
+#[should_panic(expected = "Error(Contract, #3)")]
+fn test_invalid_fee_bps() {
+    let env = Env::default();
+    let contract_id = env.register(Contract, ());
+    let client = ContractClient::new(&env, &contract_id);
+
+    let admin = Address::generate(&env);
+    let fee_collector = Address::generate(&env);
+
+    env.mock_all_auths();
+
+    let config = Config {
+        fee_bps: 10001, // Over 100%
+        fee_collector,
+        paused: false,
+    };
+
+    client.initialize(&admin, &config);
+}
+
 fn create_contract(env: &Env) -> ContractClient<'_> {
     let contract_id = env.register(Contract, ());
     ContractClient::new(env, &contract_id)
