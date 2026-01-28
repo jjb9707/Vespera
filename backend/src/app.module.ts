@@ -11,8 +11,10 @@ import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AgreementsModule } from './modules/agreements/agreements.module';
+import { AuditModule } from './modules/audit/audit.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
+import { DisputesModule } from './modules/disputes/disputes.module';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { HealthModule } from './health/health.module';
 import { PaymentModule } from './modules/payments/payment.module';
@@ -45,8 +47,10 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
       logging: process.env.NODE_ENV === 'development',
     }),
     AgreementsModule,
+    AuditModule,
     AuthModule,
     UsersModule,
+    DisputesModule,
     TypeOrmModule.forRoot(AppDataSource.options),
     HealthModule,
     PaymentModule,
