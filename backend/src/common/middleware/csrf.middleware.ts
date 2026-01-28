@@ -1,0 +1,145 @@
+import {
+  Injectable,
+  NestMiddleware,
+  UnauthorizedException,
+  Logger,
+} from '@nestjs/common';
+import { Request, Response, NextFunction } from 'express';
+import { ConfigService } from '@nestjs/config';
+import * as crypto from 'crypto';
+
+/**
+ * CSRF Protection Middleware using Double-Submit Cookie Pattern
+ * Generates and validates CSRF tokens for state-changing operations
+ */
+@Injectable()
+export class CsrfMiddleware implements NestMiddleware {
+  private readonly logger = new Logger(CsrfMiddleware.name);
+  private readonly enabled: boolean;
+  private readonly cookieName = 'XSRF-TOKEN';
+  private readonly headerName = 'X-XSRF-TOKEN';
+  private readonly secret: string;
+
+  constructor(private configService: ConfigService) {
+    this.enabled =
+      this.configService.get<string>('SECURITY_CSRF_ENABLED') === 'true';
+    this.secret =
+      this.configService.get<string>('SECURITY_SESSION_SECRET') ||
+      this.configService.get<string>('JWT_SECRET') ||
+      'default-csrf-secret-change-in-production';
+  }
+
+  use(req: Request, res: Response, next: NextFunction) {
+    if (!this.enabled) {
+      return next();
+    }
+
+    // Skip CSRF for safe methods
+    if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
+      // Generate token for GET requests (for forms)
+      this.generateToken(req, res);
+      return next();
+    }
+
+    // Skip CSRF for health checks and public endpoints
+    if (
+      req.path.startsWith('/health') ||
+      req.path.startsWith('/api/docs') ||
+      req.path.startsWith('/security.txt')
+    ) {
+      return next();
+    }
+
+    // Validate CSRF token for state-changing methods
+    const tokenFromHeader = req.headers[
+      this.headerName.toLowerCase()
+    ] as string;
+    const tokenFromCookie = req.cookies?.[this.cookieName];
+
+    if (!tokenFromHeader || !tokenFromCookie) {
+      this.logger.warn(
+        `CSRF token missing: header=${!!tokenFromHeader}, cookie=${!!tokenFromCookie}, path=${req.path}`,
+      );
+      throw new UnauthorizedException('CSRF token missing or invalid');
+    }
+
+    if (!this.validateToken(tokenFromHeader, tokenFromCookie)) {
+      this.logger.warn(`CSRF token mismatch for path: ${req.path}`);
+      throw new UnauthorizedException('CSRF token mismatch');
+    }
+
+    next();
+  }
+
+  /**
+   * Generate CSRF token and set it as a cookie
+   */
+  private generateToken(req: Request, res: Response): void {
+    const token = this.createToken();
+    const isProduction =
+      this.configService.get<string>('NODE_ENV') === 'production';
+
+    // Set cookie with secure flags
+    res.cookie(this.cookieName, token, {
+      httpOnly: false, // Must be readable by JavaScript for double-submit pattern
+      secure: isProduction, // Only send over HTTPS in production
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      path: '/',
+    });
+
+    // Also set in response header for convenience
+    res.setHeader('X-CSRF-Token', token);
+  }
+
+  /**
+   * Create a new CSRF token
+   */
+  private createToken(): string {
+    const randomBytes = crypto.randomBytes(32).toString('hex');
+    const timestamp = Date.now().toString();
+    const data = `${randomBytes}:${timestamp}`;
+    const hmac = crypto
+      .createHmac('sha256', this.secret)
+      .update(data)
+      .digest('hex');
+    return `${data}:${hmac}`;
+  }
+
+  /**
+   * Validate CSRF token using double-submit cookie pattern
+   */
+  private validateToken(headerToken: string, cookieToken: string): boolean {
+    // Tokens must match exactly (double-submit pattern)
+    if (headerToken !== cookieToken) {
+      return false;
+    }
+
+    // Verify HMAC signature
+    const parts = headerToken.split(':');
+    if (parts.length !== 3) {
+      return false;
+    }
+
+    const [randomBytes, timestamp, hmac] = parts;
+    const data = `${randomBytes}:${timestamp}`;
+    const expectedHmac = crypto
+      .createHmac('sha256', this.secret)
+      .update(data)
+      .digest('hex');
+
+    if (hmac !== expectedHmac) {
+      return false;
+    }
+
+    // Check token age (max 24 hours)
+    const tokenAge = Date.now() - parseInt(timestamp, 10);
+    const maxAge = 24 * 60 * 60 * 1000; // 24 hours
+
+    if (tokenAge > maxAge) {
+      return false;
+    }
+
+    return true;
+  }
+}
