@@ -32,7 +32,7 @@ export class StellarAccount {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @Column({ name: 'public_key', length: 56, unique: true })
+  @Column({ name: 'public_key', type: 'varchar', length: 56, unique: true })
   publicKey: string;
 
   @Exclude()
