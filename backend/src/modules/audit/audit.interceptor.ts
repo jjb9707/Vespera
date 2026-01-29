@@ -85,7 +85,7 @@ export class AuditInterceptor implements NestInterceptor {
 
     // Log sensitive GET requests
     const sensitivePaths = ['/users', '/admin', '/audit'];
-    return sensitivePaths.some(path => url.includes(path));
+    return sensitivePaths.some((path) => url.includes(path));
   }
 
   private async logRequest(
