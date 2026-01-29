@@ -18,9 +18,9 @@ import { DisputesModule } from './modules/disputes/disputes.module';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { HealthModule } from './health/health.module';
 import { PaymentModule } from './modules/payments/payment.module';
-import { AppDataSource } from './database/data-source';
 import { AuthRateLimitMiddleware } from './modules/auth/middleware/rate-limit.middleware';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { ProfileModule } from './modules/profile/profile.module';
 
 @Module({
   imports: [
@@ -51,10 +51,10 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     AuthModule,
     UsersModule,
     DisputesModule,
-    TypeOrmModule.forRoot(AppDataSource.options),
     HealthModule,
     PaymentModule,
     NotificationsModule,
+    ProfileModule,
   ],
   controllers: [AppController],
   providers: [
