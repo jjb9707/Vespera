@@ -68,7 +68,10 @@ describe('AuthController', () => {
 
       jest.spyOn(service, 'register').mockResolvedValue(mockAuthResponse);
 
-      const result = await controller.register(registerDto, { get: jest.fn(), ip: '127.0.0.1' } as any);
+      const result = await controller.register(registerDto, {
+        get: jest.fn(),
+        ip: '127.0.0.1',
+      } as any);
 
       expect(result).toEqual(mockAuthResponse);
       expect(service.register).toHaveBeenCalledWith(registerDto);
@@ -84,7 +87,10 @@ describe('AuthController', () => {
 
       jest.spyOn(service, 'login').mockResolvedValue(mockAuthResponse);
 
-      const result = await controller.login(loginDto, { get: jest.fn(), ip: '127.0.0.1' } as any);
+      const result = await controller.login(loginDto, {
+        get: jest.fn(),
+        ip: '127.0.0.1',
+      } as any);
 
       expect(result).toEqual(mockAuthResponse);
       expect(service.login).toHaveBeenCalledWith(loginDto);
