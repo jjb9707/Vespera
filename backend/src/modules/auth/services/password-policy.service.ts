@@ -139,6 +139,7 @@ export class PasswordPolicyService {
   /**
    * Check password history (prevent reuse of last 5 passwords)
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async checkPasswordHistory(
     _newPassword: string,
     _userId: string,

@@ -144,6 +144,7 @@ export class MfaService {
   /**
    * Verify TOTP token by MFA token (extracts userId from token)
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   verifyTotpTokenByMfaToken(
     _mfaToken: string,
     _token: string,

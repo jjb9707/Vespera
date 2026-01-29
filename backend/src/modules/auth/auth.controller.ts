@@ -178,7 +178,7 @@ export class AuthController {
       });
 
       // Don't return refreshToken in response body when using cookies
-
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const {
         refreshToken: _refreshToken,
         mfaRequired: _mfaRequired,
@@ -303,8 +303,9 @@ export class AuthController {
   ): Promise<{ accessToken: string }> {
     // Try to get refresh token from cookie first, then body
     const cookies = (req as Request & { cookies?: Record<string, string> })
-      .cookies;
-    const refreshToken = cookies?.refreshToken ?? refreshTokenDto.refreshToken;
+      .cookies as Record<string, string> | undefined;
+    const refreshToken: string | undefined =
+      cookies?.refreshToken ?? refreshTokenDto.refreshToken;
 
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token not provided');

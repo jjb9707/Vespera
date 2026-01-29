@@ -8,6 +8,10 @@ import { Request, Response, NextFunction } from 'express';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
 
+interface RequestWithCookies extends Request {
+  cookies?: Record<string, string>;
+}
+
 /**
  * CSRF Protection Middleware using Double-Submit Cookie Pattern
  * Generates and validates CSRF tokens for state-changing operations
@@ -34,42 +38,45 @@ export class CsrfMiddleware implements NestMiddleware {
     this.secret = secret ?? '';
   }
 
-  use(req: Request, res: Response, next: NextFunction) {
+  use(req: RequestWithCookies, res: Response, next: NextFunction) {
     if (!this.enabled) {
       return next();
     }
 
     // Skip CSRF for safe methods
-    if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
+    const method = req.method as string;
+    if (['GET', 'HEAD', 'OPTIONS'].includes(method)) {
       // Generate token for GET requests (for forms)
       this.generateToken(req, res);
       return next();
     }
 
     // Skip CSRF for health checks and public endpoints
+    const path = req.path as string;
     if (
-      req.path.startsWith('/health') ||
-      req.path.startsWith('/api/docs') ||
-      req.path.startsWith('/security.txt')
+      path.startsWith('/health') ||
+      path.startsWith('/api/docs') ||
+      path.startsWith('/security.txt')
     ) {
       return next();
     }
 
     // Validate CSRF token for state-changing methods
-    const tokenFromHeader = req.headers[
-      this.headerName.toLowerCase()
-    ] as string;
-    const tokenFromCookie = req.cookies?.[this.cookieName];
+    const headerKey = this.headerName.toLowerCase() as string;
+    const tokenFromHeader = req.headers[headerKey] as string | undefined;
+    const tokenFromCookie = req.cookies?.[this.cookieName] as
+      | string
+      | undefined;
 
     if (!tokenFromHeader || !tokenFromCookie) {
       this.logger.warn(
-        `CSRF token missing: header=${!!tokenFromHeader}, cookie=${!!tokenFromCookie}, path=${req.path}`,
+        `CSRF token missing: header=${!!tokenFromHeader}, cookie=${!!tokenFromCookie}, path=${path}`,
       );
       throw new UnauthorizedException('CSRF token missing or invalid');
     }
 
     if (!this.validateToken(tokenFromHeader, tokenFromCookie)) {
-      this.logger.warn(`CSRF token mismatch for path: ${req.path}`);
+      this.logger.warn(`CSRF token mismatch for path: ${path}`);
       throw new UnauthorizedException('CSRF token mismatch');
     }
 
@@ -79,7 +86,7 @@ export class CsrfMiddleware implements NestMiddleware {
   /**
    * Generate CSRF token and set it as a cookie
    */
-  private generateToken(req: Request, res: Response): void {
+  private generateToken(req: RequestWithCookies, res: Response): void {
     const token = this.createToken();
     const isProduction =
       this.configService.get<string>('NODE_ENV') === 'production';
@@ -121,12 +128,12 @@ export class CsrfMiddleware implements NestMiddleware {
     }
 
     // Verify HMAC signature
-    const parts = headerToken.split(':');
+    const parts: string[] = headerToken.split(':');
     if (parts.length !== 3) {
       return false;
     }
 
-    const [randomBytes, timestamp, hmac] = parts;
+    const [randomBytes, timestamp, hmac] = parts as [string, string, string];
     const data = `${randomBytes}:${timestamp}`;
     const expectedHmac = crypto
       .createHmac('sha256', this.secret)
