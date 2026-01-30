@@ -44,6 +44,12 @@ $ pnpm run start:dev
 $ pnpm run start:prod
 ```
 
+```Docker
+cd backend
+docker-compose up -d
+pnpm run migration:run
+```
+
 ## Run tests
 
 ```bash
