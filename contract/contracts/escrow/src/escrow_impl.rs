@@ -1,11 +1,11 @@
-/// Core escrow lifecycle logic: creation, funding, approvals, and release.
-/// Implements checks-effects-interactions pattern for reentrancy safety.
+//! Core escrow lifecycle logic: creation, funding, approvals, and release.
+//! Implements checks-effects-interactions pattern for reentrancy safety.
 use soroban_sdk::{Address, BytesN, Env, Vec};
 
-use super::access::AccessControl;
-use super::errors::EscrowError;
-use super::storage::EscrowStorage;
-use super::types::{Escrow, EscrowStatus, ReleaseApproval};
+use crate::access::AccessControl;
+use crate::errors::EscrowError;
+use crate::storage::EscrowStorage;
+use crate::types::{Escrow, EscrowStatus, ReleaseApproval};
 
 /// Core escrow contract implementation.
 pub struct EscrowContract;

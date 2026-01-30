@@ -1,7 +1,30 @@
-//! Data structures for the Chioma/Rental contract.
+//! Data structures for the Payment contract.
 use soroban_sdk::{contracttype, Address, Map, String};
 
-/// Status of a rental agreement throughout its lifecycle.
+/// Payment record for tracking individual payments
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct PaymentRecord {
+    pub agreement_id: String,
+    pub payment_number: u32,
+    pub amount: i128,
+    pub landlord_amount: i128,
+    pub agent_amount: i128,
+    pub timestamp: u64,
+    pub tenant: Address,
+}
+
+/// Payment split information for rent payments
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct PaymentSplit {
+    pub landlord_amount: i128,
+    pub platform_amount: i128,
+    pub token: Address,
+    pub payment_date: u64,
+}
+
+/// Agreement status enum (needed for payment validation)
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum AgreementStatus {
@@ -14,7 +37,7 @@ pub enum AgreementStatus {
     Disputed,
 }
 
-/// Represents a rental agreement between landlord and tenant.
+/// Rent agreement structure (needed for payment processing)
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct RentAgreement {
@@ -34,15 +57,4 @@ pub struct RentAgreement {
     pub payment_token: Address,
     pub next_payment_due: u64,
     pub payment_history: Map<u32, PaymentSplit>,
-}
-
-/// Payment split information for rent payments.
-/// Kept in chioma contract as it's part of agreement state.
-#[contracttype]
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct PaymentSplit {
-    pub landlord_amount: i128,
-    pub platform_amount: i128,
-    pub token: Address,
-    pub payment_date: u64,
 }

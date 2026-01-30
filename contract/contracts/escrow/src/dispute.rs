@@ -1,11 +1,11 @@
-/// Dispute resolution and admin override for the Escrow contract.
-/// Allows either party to freeze funds and requires admin to resolve.
+//! Dispute resolution and admin override for the Escrow contract.
+//! Allows either party to freeze funds and requires admin to resolve.
 use soroban_sdk::{Address, BytesN, Env, String};
 
-use super::access::AccessControl;
-use super::errors::EscrowError;
-use super::storage::EscrowStorage;
-use super::types::EscrowStatus;
+use crate::access::AccessControl;
+use crate::errors::EscrowError;
+use crate::storage::EscrowStorage;
+use crate::types::EscrowStatus;
 
 /// Dispute handling and resolution.
 pub struct DisputeHandler;

@@ -1,8 +1,8 @@
-/// Storage operations for the Escrow contract.
-/// Implements single-responsibility getter/setter helpers.
+//! Storage operations for the Escrow contract.
+//! Implements single-responsibility getter/setter helpers.
 use soroban_sdk::{BytesN, Env, Vec};
 
-use super::types::{DataKey, Escrow, ReleaseApproval};
+use crate::types::{DataKey, Escrow, ReleaseApproval};
 
 /// Escrow storage management.
 pub struct EscrowStorage;

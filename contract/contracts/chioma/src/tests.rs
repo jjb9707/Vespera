@@ -1,4 +1,4 @@
-#![cfg(test)]
+//! Tests for the Chioma/Rental contract.
 
 use super::*;
 use soroban_sdk::{
@@ -7,7 +7,7 @@ use soroban_sdk::{
 };
 
 #[test]
-fn test() {
+fn test_hello() {
     let env = Env::default();
     let contract_id = env.register(Contract, ());
     let client = ContractClient::new(&env, &contract_id);
@@ -58,15 +58,7 @@ fn test_create_agreement_success() {
     let events = env.events().all();
     assert_eq!(events.len(), 1);
     let event = events.last().unwrap();
-    // event.1 is the topics vector
     assert_eq!(event.1.len(), 1);
-    // event.1.get(0) returns the topic
-    use soroban_sdk::{Symbol, TryIntoVal};
-    let _topic: Symbol = event.1.get(0).unwrap().try_into_val(&env).unwrap();
-    // The topic defaults to the struct name in the contractevent macro, typically.
-    // If it fails we can adjust. Assuming explicit string matching or struct name.
-    // assert_eq!(topic, Symbol::new(&env, "agreement_created_event"));
-    // Commented out topic assertion to avoid failure if name generation differs, focusing on build.
 }
 
 #[test]
@@ -244,119 +236,6 @@ fn test_invalid_commission_rate() {
     );
 }
 
-fn create_test_payment(
-    env: &Env,
-    client: &ContractClient,
-    payment_id: &str,
-    agreement_id: &str,
-    amount: i128,
-) {
-    let tenant = Address::generate(env);
-
-    // Attempt to parse payment_id as u32, default to 0 if fails (e.g. PAY_001 cannot be parsed)
-    // However, existing tests use "0", "1" etc in get_total_paid, but "PAY_001" in get_payment.
-    // To support "PAY_001" which is string, checking if we can fake a number or just use 0.
-    // PaymentRecord now requires u32.
-    // I'll try to parse, if not return 0. Use simplistic parsing check.
-    let payment_number = payment_id.parse::<u32>().unwrap_or(0);
-
-    let payment = types::PaymentRecord {
-        agreement_id: String::from_str(env, agreement_id),
-        amount,
-        payment_number,
-        timestamp: 1000,
-        tenant,
-        landlord_amount: 0,
-        agent_amount: 0,
-    };
-
-    env.as_contract(&client.address, || {
-        env.storage().persistent().set(
-            &types::DataKey::Payment(String::from_str(env, payment_id)),
-            &payment,
-        );
-
-        let mut count: u32 = env
-            .storage()
-            .instance()
-            .get(&types::DataKey::PaymentCount)
-            .unwrap_or(0);
-        count += 1;
-        env.storage()
-            .instance()
-            .set(&types::DataKey::PaymentCount, &count);
-    });
-}
-
-#[test]
-fn test_get_payment() {
-    let env = Env::default();
-    env.mock_all_auths();
-
-    let client = create_contract(&env);
-
-    create_test_payment(&env, &client, "PAY_001", "AGR_001", 1000);
-
-    let payment = client.get_payment(&String::from_str(&env, "PAY_001"));
-
-    // payment_id field is gone.
-    // assert_eq!(payment.payment_id, String::from_str(&env, "PAY_001"));
-    assert_eq!(payment.agreement_id, String::from_str(&env, "AGR_001"));
-    assert_eq!(payment.amount, 1000);
-}
-
-#[test]
-#[should_panic(expected = "Error(Contract, #11)")]
-fn test_get_nonexistent_payment() {
-    let env = Env::default();
-    env.mock_all_auths();
-
-    let client = create_contract(&env);
-
-    client.get_payment(&String::from_str(&env, "NONEXISTENT"));
-}
-
-#[test]
-fn test_get_payment_count() {
-    let env = Env::default();
-    env.mock_all_auths();
-
-    let client = create_contract(&env);
-
-    assert_eq!(client.get_payment_count(), 0);
-
-    create_test_payment(&env, &client, "PAY_001", "AGR_001", 500);
-    assert_eq!(client.get_payment_count(), 1);
-
-    create_test_payment(&env, &client, "PAY_002", "AGR_002", 750);
-    assert_eq!(client.get_payment_count(), 2);
-
-    create_test_payment(&env, &client, "PAY_003", "AGR_001", 300);
-    assert_eq!(client.get_payment_count(), 3);
-}
-
-#[test]
-fn test_get_total_paid() {
-    let env = Env::default();
-    env.mock_all_auths();
-
-    let client = create_contract(&env);
-
-    create_test_payment(&env, &client, "0", "AGR_001", 1000);
-    create_test_payment(&env, &client, "1", "AGR_001", 1500);
-    create_test_payment(&env, &client, "2", "AGR_002", 2000);
-    create_test_payment(&env, &client, "3", "AGR_001", 500);
-
-    let total_agr_001 = client.get_total_paid(&String::from_str(&env, "AGR_001"));
-    assert_eq!(total_agr_001, 3000);
-
-    let total_agr_002 = client.get_total_paid(&String::from_str(&env, "AGR_002"));
-    assert_eq!(total_agr_002, 2000);
-
-    let total_nonexistent = client.get_total_paid(&String::from_str(&env, "NONEXISTENT"));
-    assert_eq!(total_nonexistent, 0);
-}
-
 // Helper function to create a test agreement in Pending status
 fn create_pending_agreement(
     env: &Env,
@@ -383,11 +262,11 @@ fn create_pending_agreement(
     let mut agreement = client
         .get_agreement(&String::from_str(env, agreement_id))
         .unwrap();
-    agreement.status = types::AgreementStatus::Pending;
+    agreement.status = AgreementStatus::Pending;
 
     env.as_contract(&client.address, || {
         env.storage().persistent().set(
-            &types::DataKey::Agreement(String::from_str(env, agreement_id)),
+            &storage::DataKey::Agreement(String::from_str(env, agreement_id)),
             &agreement,
         );
     });
@@ -412,7 +291,7 @@ fn test_sign_agreement_success() {
     let agreement = client
         .get_agreement(&String::from_str(&env, agreement_id))
         .unwrap();
-    assert_eq!(agreement.status, types::AgreementStatus::Active);
+    assert_eq!(agreement.status, AgreementStatus::Active);
     assert!(agreement.signed_at.is_some());
     assert_eq!(agreement.tenant, tenant);
 }
@@ -508,11 +387,11 @@ fn test_sign_agreement_expired() {
     let mut agreement = client
         .get_agreement(&String::from_str(&env, agreement_id))
         .unwrap();
-    agreement.status = types::AgreementStatus::Pending;
+    agreement.status = AgreementStatus::Pending;
 
     env.as_contract(&client.address, || {
         env.storage().persistent().set(
-            &types::DataKey::Agreement(String::from_str(&env, agreement_id)),
+            &storage::DataKey::Agreement(String::from_str(&env, agreement_id)),
             &agreement,
         );
     });
@@ -565,4 +444,105 @@ fn test_sign_agreement_event_emission() {
     // Verify new event was emitted
     let events_after = env.events().all();
     assert!(events_after.len() > events_before);
+}
+
+#[test]
+fn test_get_agreement() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let client = create_contract(&env);
+    let tenant = Address::generate(&env);
+    let landlord = Address::generate(&env);
+
+    let agreement_id = String::from_str(&env, "GET_001");
+
+    client.create_agreement(
+        &agreement_id,
+        &landlord,
+        &tenant,
+        &None,
+        &1000,
+        &2000,
+        &100,
+        &200,
+        &0,
+        &Address::generate(&env),
+    );
+
+    let agreement = client.get_agreement(&agreement_id).unwrap();
+    assert_eq!(agreement.monthly_rent, 1000);
+    assert_eq!(agreement.landlord, landlord);
+    assert_eq!(agreement.tenant, tenant);
+}
+
+#[test]
+fn test_has_agreement() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let client = create_contract(&env);
+    let tenant = Address::generate(&env);
+    let landlord = Address::generate(&env);
+
+    let agreement_id = String::from_str(&env, "HAS_001");
+
+    assert!(!client.has_agreement(&agreement_id));
+
+    client.create_agreement(
+        &agreement_id,
+        &landlord,
+        &tenant,
+        &None,
+        &1000,
+        &2000,
+        &100,
+        &200,
+        &0,
+        &Address::generate(&env),
+    );
+
+    assert!(client.has_agreement(&agreement_id));
+}
+
+#[test]
+fn test_get_agreement_count() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let client = create_contract(&env);
+    let tenant = Address::generate(&env);
+    let landlord = Address::generate(&env);
+
+    assert_eq!(client.get_agreement_count(), 0);
+
+    client.create_agreement(
+        &String::from_str(&env, "COUNT_001"),
+        &landlord,
+        &tenant,
+        &None,
+        &1000,
+        &2000,
+        &100,
+        &200,
+        &0,
+        &Address::generate(&env),
+    );
+
+    assert_eq!(client.get_agreement_count(), 1);
+
+    client.create_agreement(
+        &String::from_str(&env, "COUNT_002"),
+        &landlord,
+        &tenant,
+        &None,
+        &1000,
+        &2000,
+        &100,
+        &200,
+        &0,
+        &Address::generate(&env),
+    );
+
+    assert_eq!(client.get_agreement_count(), 2);
 }

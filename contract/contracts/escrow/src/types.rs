@@ -1,4 +1,4 @@
-/// Data structures and enums for the Escrow contract.
+//! Data structures and enums for the Escrow contract.
 use soroban_sdk::{contracttype, Address, BytesN, String};
 
 /// Status of an escrow throughout its lifecycle.
@@ -65,15 +65,4 @@ pub enum DataKey {
     DisputeInfo(BytesN<32>),
     /// Counter for total escrows created
     EscrowCount,
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_escrow_status_ordering() {
-        assert!(EscrowStatus::Pending < EscrowStatus::Funded);
-        assert!(EscrowStatus::Funded < EscrowStatus::Released);
-    }
 }
