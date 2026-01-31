@@ -1,5 +1,5 @@
 //! Contract events for the Chioma/Rental contract.
-use soroban_sdk::{contractevent, symbol_short, Address, Env, String, Symbol};
+use soroban_sdk::{contractevent, Address, Env, String};
 
 // ... existing events ...
 
@@ -20,7 +20,14 @@ pub struct AgreementSigned {
     pub signed_at: u64,
 }
 
+/// Event emitted when contract is initialized
+#[contractevent]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ContractInitialized {
+    pub admin: Address,
+}
+
 /// Emitted when contract is initialized
 pub(crate) fn contract_initialized(env: &Env, admin: Address) {
-    env.events().publish((symbol_short!("init"),), (admin,));
+    ContractInitialized { admin }.publish(env);
 }
