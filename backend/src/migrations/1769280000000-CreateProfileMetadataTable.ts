@@ -6,7 +6,9 @@ import {
   TableIndex,
 } from 'typeorm';
 
-export class CreateProfileMetadataTable1769280000000 implements MigrationInterface {
+export class CreateProfileMetadataTable1769280000000
+  implements MigrationInterface
+{
   name = 'CreateProfileMetadataTable1769280000000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {

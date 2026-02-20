@@ -208,7 +208,9 @@ export class AnchorService {
 
         await this.anchorTransactionRepo.save(transaction);
       } catch (error) {
-        this.logger.error(`Failed to fetch transaction status: ${error.message}`);
+        this.logger.error(
+          `Failed to fetch transaction status: ${error.message}`,
+        );
       }
     }
 
