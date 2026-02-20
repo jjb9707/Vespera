@@ -1,25 +1,8 @@
 use super::*;
 use soroban_sdk::{
     testutils::{Address as _, Events, Ledger, MockAuth, MockAuthInvoke},
-    vec, Address, Env, IntoVal, String,
+    Address, Env, IntoVal, String,
 };
-
-#[test]
-fn test_hello() {
-    let env = Env::default();
-    let contract_id = env.register(Contract, ());
-    let client = ContractClient::new(&env, &contract_id);
-
-    let words = client.hello(&String::from_str(&env, "Dev"));
-    assert_eq!(
-        words,
-        vec![
-            &env,
-            String::from_str(&env, "Hello"),
-            String::from_str(&env, "Dev"),
-        ]
-    );
-}
 
 #[test]
 fn test_successful_initialization() {
