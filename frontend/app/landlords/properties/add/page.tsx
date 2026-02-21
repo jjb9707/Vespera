@@ -63,20 +63,25 @@ export default function AddPropertyPage() {
               const isCompleted = step.id < currentStep;
 
               return (
-                <div key={step.id} className="relative z-10 flex flex-col items-center">
+                <div
+                  key={step.id}
+                  className="relative z-10 flex flex-col items-center"
+                >
                   <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors duration-300 ${isActive
+                    className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors duration-300 ${
+                      isActive
                         ? 'bg-brand-blue text-white ring-4 ring-brand-blue/20'
                         : isCompleted
                           ? 'bg-emerald-500 text-white'
                           : 'bg-white text-neutral-400 border-2 border-neutral-200'
-                      }`}
+                    }`}
                   >
                     {isCompleted ? <CheckCircle2 size={20} /> : step.id}
                   </div>
                   <span
-                    className={`mt-3 text-sm font-semibold ${isActive ? 'text-brand-blue' : 'text-neutral-500'
-                      }`}
+                    className={`mt-3 text-sm font-semibold ${
+                      isActive ? 'text-brand-blue' : 'text-neutral-500'
+                    }`}
                   >
                     {step.title}
                   </span>
@@ -136,7 +141,14 @@ export default function AddPropertyPage() {
                     Included Amenities
                   </h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {['WiFi', 'Parking', 'Pool', 'Gym', 'Laundry', 'Furnished'].map((amenity) => (
+                    {[
+                      'WiFi',
+                      'Parking',
+                      'Pool',
+                      'Gym',
+                      'Laundry',
+                      'Furnished',
+                    ].map((amenity) => (
                       <label
                         key={amenity}
                         className="flex items-center space-x-3 p-4 border border-neutral-200 rounded-xl cursor-pointer hover:bg-neutral-50 transition-colors"
@@ -145,7 +157,9 @@ export default function AddPropertyPage() {
                           type="checkbox"
                           className="w-5 h-5 rounded border-neutral-300 text-brand-blue focus:ring-brand-blue"
                         />
-                        <span className="text-neutral-700 font-medium">{amenity}</span>
+                        <span className="text-neutral-700 font-medium">
+                          {amenity}
+                        </span>
                       </label>
                     ))}
                   </div>
@@ -160,7 +174,8 @@ export default function AddPropertyPage() {
                     Property Images
                   </label>
                   <p className="text-xs text-neutral-500 mb-4">
-                    Images will be uploaded to IPFS (Pinata) for immutable storage.
+                    Images will be uploaded to IPFS (Pinata) for immutable
+                    storage.
                   </p>
 
                   <div className="border-2 border-dashed border-neutral-300 rounded-2xl p-12 text-center hover:bg-neutral-50 hover:border-brand-blue/50 transition-colors cursor-pointer group">
@@ -185,10 +200,11 @@ export default function AddPropertyPage() {
               type="button"
               onClick={handleBack}
               disabled={currentStep === 1 || isSubmitting}
-              className={`px-6 py-3 font-semibold rounded-lg transition-colors ${currentStep === 1
+              className={`px-6 py-3 font-semibold rounded-lg transition-colors ${
+                currentStep === 1
                   ? 'text-neutral-300 cursor-not-allowed'
                   : 'text-neutral-600 hover:bg-neutral-100'
-                }`}
+              }`}
             >
               Back
             </button>
@@ -203,20 +219,20 @@ export default function AddPropertyPage() {
                 <ChevronRight size={20} />
               </button>
             ) : (
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="flex items-center justify-center space-x-2 px-8 py-3 bg-brand-blue text-white font-semibold rounded-lg hover:bg-brand-blue-dark transition-all shadow-xl shadow-brand-blue/20 disabled:opacity-70 disabled:cursor-not-allowed"
-                >
-                  {isSubmitting ? (
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : (
-                      <>
-                        <CheckCircle2 size={20} />
-                        <span>Publish Data to IPFS</span>
-                      </>
-                  )}
-                </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="flex items-center justify-center space-x-2 px-8 py-3 bg-brand-blue text-white font-semibold rounded-lg hover:bg-brand-blue-dark transition-all shadow-xl shadow-brand-blue/20 disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <CheckCircle2 size={20} />
+                    <span>Publish Data to IPFS</span>
+                  </>
+                )}
+              </button>
             )}
           </div>
         </form>
