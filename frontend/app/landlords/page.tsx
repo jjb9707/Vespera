@@ -13,7 +13,9 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-neutral-900 tracking-tight">Overview</h1>
+          <h1 className="text-3xl font-bold text-neutral-900 tracking-tight">
+            Overview
+          </h1>
           <p className="text-neutral-500 mt-1">
             Here&apos;s what&apos;s happening with your properties today.
           </p>

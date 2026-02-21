@@ -11,7 +11,12 @@ interface KPICardProps {
   };
 }
 
-export default function KPICard({ title, value, icon: Icon, trend }: KPICardProps) {
+export default function KPICard({
+  title,
+  value,
+  icon: Icon,
+  trend,
+}: KPICardProps) {
   return (
     <div className="bg-white/70 backdrop-blur-md rounded-2xl p-6 border border-white/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300 group relative overflow-hidden">
       {/* Decorative gradient orb */}
@@ -25,12 +30,12 @@ export default function KPICard({ title, value, icon: Icon, trend }: KPICardProp
           <Icon size={20} />
         </div>
       </div>
-      
+
       <div className="relative">
         <p className="text-3xl font-bold text-neutral-900 tracking-tight">
           {value}
         </p>
-        
+
         {trend && (
           <div className="mt-2 flex items-center space-x-1">
             <span
