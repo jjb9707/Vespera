@@ -43,7 +43,7 @@ export default function PropertiesPage() {
           status: 'maintenance',
           monthlyRent: 2200,
           tenants: 1,
-        }
+        },
       ];
       setProperties(mockData as unknown as never[]);
       setIsLoading(false);
@@ -94,7 +94,7 @@ export default function PropertiesPage() {
       ) : (
         <div className="pt-2">
           <PropertiesTable properties={properties} />
-            </div>
+        </div>
       )}
     </div>
   );

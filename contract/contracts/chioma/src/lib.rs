@@ -17,7 +17,6 @@ pub use agreement::{
     sign_agreement, validate_agreement_params,
 };
 pub use errors::RentalError;
-pub use events::{AgreementCreatedEvent, AgreementSigned, ConfigUpdated};
 pub use storage::DataKey;
 pub use types::{AgreementStatus, Config, ContractState, PaymentSplit, RentAgreement};
 
@@ -37,7 +36,7 @@ impl Contract {
     /// * `AlreadyInitialized` - If the contract has already been initialized
     /// * `InvalidConfig` - If the configuration parameters are invalid
     pub fn initialize(env: Env, admin: Address, config: Config) -> Result<(), RentalError> {
-        if env.storage().instance().has(&DataKey::State) {
+        if env.storage().persistent().has(&DataKey::Initialized) {
             return Err(RentalError::AlreadyInitialized);
         }
 
@@ -47,16 +46,21 @@ impl Contract {
             return Err(RentalError::InvalidConfig);
         }
 
+        env.storage().persistent().set(&DataKey::Initialized, &true);
+        env.storage()
+            .persistent()
+            .extend_ttl(&DataKey::Initialized, 500000, 500000);
+
         let state = ContractState {
             admin: admin.clone(),
-            config,
+            config: config.clone(),
             initialized: true,
         };
 
         env.storage().instance().set(&DataKey::State, &state);
         env.storage().instance().extend_ttl(500000, 500000);
 
-        events::contract_initialized(&env, admin);
+        events::contract_initialized(&env, admin, config);
 
         Ok(())
     }
@@ -85,7 +89,7 @@ impl Contract {
         env.storage().instance().set(&DataKey::State, &state);
         env.storage().instance().extend_ttl(500000, 500000);
 
-        events::config_updated(&env, old_config, new_config);
+        events::config_updated(&env, state.admin, old_config, new_config);
 
         Ok(())
     }
