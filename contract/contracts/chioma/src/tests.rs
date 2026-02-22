@@ -883,7 +883,7 @@ fn test_contract_paused_operations() {
     // Manually set to Pending (as create_agreement sets it to Draft)
     let mut agreement = client.get_agreement(&agreement_id).unwrap();
     agreement.status = AgreementStatus::Pending;
-    
+
     // We need to use env.as_contract to write to storage
     env.as_contract(&client.address, || {
         env.storage().persistent().set(
