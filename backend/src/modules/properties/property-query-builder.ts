@@ -135,7 +135,8 @@ export class PropertyQueryBuilder {
   applySearchFilter(search?: string): this {
     if (search) {
       this.queryBuilder.andWhere(
-        '(LOWER(property.title) LIKE LOWER(:search) OR LOWER(property.description) LIKE LOWER(:search))',
+        '(LOWER(property.title) LIKE LOWER(:search) OR ' +
+          'LOWER(property.description) LIKE LOWER(:search))',
         { search: `%${search}%` },
       );
     }
@@ -148,7 +149,9 @@ export class PropertyQueryBuilder {
   applyAmenitiesFilter(amenities?: string[]): this {
     if (amenities && amenities.length > 0) {
       this.queryBuilder.andWhere(
-        'EXISTS (SELECT 1 FROM property_amenities pa WHERE pa.property_id = property.id AND LOWER(pa.name) IN (:...amenities))',
+        'EXISTS (SELECT 1 FROM property_amenities pa ' +
+          'WHERE pa.property_id = property.id AND ' +
+          'LOWER(pa.name) IN (:...amenities))',
         { amenities: amenities.map((a) => a.toLowerCase()) },
       );
     }
@@ -158,7 +161,10 @@ export class PropertyQueryBuilder {
   /**
    * Apply sorting
    */
-  applySorting(sortBy: string = 'createdAt', sortOrder: 'ASC' | 'DESC' = 'DESC'): this {
+  applySorting(
+    sortBy: string = 'createdAt',
+    sortOrder: 'ASC' | 'DESC' = 'DESC',
+  ): this {
     const validSortFields = [
       'createdAt',
       'updatedAt',
@@ -168,11 +174,11 @@ export class PropertyQueryBuilder {
       'area',
       'title',
     ];
-    
+
     const actualSortBy = validSortFields.includes(sortBy)
       ? sortBy
       : 'createdAt';
-    
+
     this.queryBuilder.orderBy(`property.${actualSortBy}`, sortOrder);
     return this;
   }
