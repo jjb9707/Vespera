@@ -8,6 +8,16 @@ import PropertyCard from '@/components/properties/PropertyCard';
 import SearchFilters from '@/components/properties/SearchFilters';
 import { Plus, Minus, Compass } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
+
+const PropertiesMap = dynamic(() => import('@/components/properties/PropertiesMap'), {
+  ssr: false,
+  loading: () => (
+    <div className="absolute inset-0 bg-blue-50 flex items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-blue"></div>
+    </div>
+  ),
+});
 
 export default function PropertyListing() {
   const [searchAsIMove, setSearchAsIMove] = useState(true);
@@ -35,6 +45,8 @@ export default function PropertyListing() {
       image:
         'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=500&h=400&fit=crop',
       verified: true,
+      lat: 40.7128,
+      lng: -74.0060,
     },
     {
       id: 2,
@@ -48,6 +60,8 @@ export default function PropertyListing() {
       image:
         'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=500&h=400&fit=crop',
       verified: true,
+      lat: 51.5014,
+      lng: -0.1919,
     },
     {
       id: 3,
@@ -61,6 +75,8 @@ export default function PropertyListing() {
       image:
         'https://images.unsplash.com/photo-1493857671505-72967e2e2760?w=500&h=400&fit=crop',
       verified: false,
+      lat: 35.6620,
+      lng: 139.7038,
     },
     {
       id: 4,
@@ -74,6 +90,8 @@ export default function PropertyListing() {
       image:
         'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=500&h=400&fit=crop',
       verified: true,
+      lat: 25.1124,
+      lng: 55.1390,
     },
     {
       id: 5,
@@ -87,6 +105,8 @@ export default function PropertyListing() {
       image:
         'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=500&h=400&fit=crop',
       verified: false,
+      lat: 52.4811,
+      lng: 13.4357,
     },
     {
       id: 6,
@@ -100,6 +120,8 @@ export default function PropertyListing() {
       image:
         'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=500&h=400&fit=crop',
       verified: true,
+      lat: -33.8908,
+      lng: 151.2743,
     },
   ];
 
@@ -215,56 +237,21 @@ export default function PropertyListing() {
             </div>
           </div>
 
-          {/* Right Sidebar - Map */}
-          <div className="w-full lg:w-3/5 xl:w-1/2 h-96 lg:h-[calc(100vh-100px)] bg-blue-200 relative top-20 lg:top-24 lg:sticky">
-            {/* Map Background */}
-            <div className="absolute inset-0 bg-linear-to-br from-blue-100 to-blue-200">
-              <div className="absolute inset-0 opacity-50 bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><rect fill=%22white%22 width=%22100%22 height=%22100%22/><path d=%22M0 50 Q25 25 50 50 T100 50%22 stroke=%22%23e5e7eb%22 fill=%22none%22/></svg>')]" />
-            </div>
+          {/* Right Sidebar - Interactive Map */}
+          <div className="w-full lg:w-3/5 xl:w-1/2 h-96 lg:h-[calc(100vh-100px)] bg-blue-50 relative top-20 lg:top-24 lg:sticky overflow-hidden">
+            <PropertiesMap properties={filteredProperties} />
 
-            {/* Price Markers */}
-            {priceMarkers.map((marker, index) => (
-              <div
-                key={index}
-                className="absolute transform -translate-x-1/2 -translate-y-1/2"
-                style={{ top: marker.top, left: marker.left }}
-              >
-                {marker.price === '$3,800' ? (
-                  <div className="bg-blue-600 text-white px-4 py-2 rounded-full font-bold text-xs sm:text-sm shadow-lg">
-                    {marker.price}
-                  </div>
-                ) : (
-                  <div className="bg-white text-blue-600 px-3 py-1 rounded-lg font-bold text-xs sm:text-sm shadow-md border border-blue-200">
-                    {marker.price}
-                  </div>
-                )}
-              </div>
-            ))}
-
-            {/* Search as I Move Checkbox */}
-            <div className="absolute top-4 right-4 bg-white rounded-full px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-2 shadow-lg z-10">
+            {/* Search as I Move Checkbox Overlay */}
+            <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md rounded-full px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-2 shadow-lg z-10 border border-black/5">
               <input
                 type="checkbox"
                 checked={searchAsIMove}
                 onChange={(e) => setSearchAsIMove(e.target.checked)}
-                className="w-4 h-4 rounded cursor-pointer accent-blue-600"
+                className="w-4 h-4 rounded cursor-pointer accent-brand-blue"
               />
               <label className="text-gray-700 text-xs sm:text-sm font-medium cursor-pointer select-none">
                 Search as I move the map
               </label>
-            </div>
-
-            {/* Map Controls */}
-            <div className="absolute bottom-4 right-4 flex flex-col gap-2 z-10">
-              <button className="bg-white rounded-lg p-2 hover:bg-gray-100 transition shadow-md hover:shadow-lg">
-                <Plus className="w-5 h-5 text-gray-700" />
-              </button>
-              <button className="bg-white rounded-lg p-2 hover:bg-gray-100 transition shadow-md hover:shadow-lg">
-                <Minus className="w-5 h-5 text-gray-700" />
-              </button>
-              <button className="bg-white rounded-lg p-2 hover:bg-gray-100 transition shadow-md hover:shadow-lg">
-                <Compass className="w-5 h-5 text-gray-700" />
-              </button>
             </div>
           </div>
         </div>
