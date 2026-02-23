@@ -21,10 +21,14 @@
     "typeorm": "typeorm-ts-node-commonjs",
     "migration:generate": "npm run typeorm migration:generate -- -d src/database/data-source.ts",
     "migration:run": "npm run typeorm migration:run -- -d src/database/data-source.ts",
-    "migration:revert": "npm run typeorm migration:revert -- -d src/database/data-source.ts"
+    "migration:revert": "npm run typeorm migration:revert -- -d src/database/data-source.ts",
+    "seed:currencies": "ts-node src/database/seeds/seed-currencies.ts",
+    "seed:admin": "ts-node src/commands/index.ts admin",
+    "seed:admin:prod": "NODE_ENV=production ts-node src/commands/index.ts admin --force"
   },
   "dependencies": {
     "@nestjs/axios": "^3.1.3",
+    "@nestjs/cache-manager": "^3.1.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
@@ -37,9 +41,12 @@
     "@nestjs/terminus": "^10.2.3",
     "@nestjs/throttler": "^6.5.0",
     "@nestjs/typeorm": "^11.0.0",
+    "@sentry/nestjs": "^10.39.0",
     "@stellar/stellar-sdk": "^12.2.0",
     "axios": "^1.6.7",
     "bcrypt": "^5.1.1",
+    "cache-manager": "^7.2.8",
+    "cache-manager-redis-yet": "^5.1.5",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.3",
     "csurf": "^1.11.0",

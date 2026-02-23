@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * Verification script: ensure all Next.js Image components have descriptive alt text.
+ * Verification script: ensure all Next.js Image components have descriptive
+ * alt text.
  * Scans .tsx, .jsx, .ts, .js in frontend (excluding node_modules, .next).
  * Exits with code 1 if any violations are found.
  */
@@ -40,8 +41,10 @@ function getAllFiles(dir, fileList = []) {
 }
 
 function hasImageImport(content) {
-  return /import\s+(\w+,\s*)?Image\s+from\s+['"]next\/image['"]/.test(content) ||
-    /import\s+Image\s+from\s+['"]next\/image['"]/.test(content);
+  return (
+    /import\s+(\w+,\s*)?Image\s+from\s+['"]next\/image['"]/.test(content) ||
+    /import\s+Image\s+from\s+['"]next\/image['"]/.test(content)
+  );
 }
 
 function findImageUsages(content, filePath) {
@@ -57,13 +60,16 @@ function findImageUsages(content, filePath) {
     const lineNum = content.slice(0, startPos).split(/\r?\n/).length;
 
     // Check for alt prop: alt="..." or alt={"..."} or alt={expression}
-    const altMatch = tagContent.match(/alt\s*=\s*\{([^}]+)\}|alt\s*=\s*["']([^"']*)["']/s);
+    const altMatch = tagContent.match(
+      /alt\s*=\s*\{([^}]+)\}|alt\s*=\s*["']([^"']*)["']/s,
+    );
     if (!altMatch) {
       violations.push({
         file: filePath,
         line: lineNum,
         message: 'Missing alt prop on Image component',
-        suggestion: 'Add an alt prop that describes the image (e.g. alt="Description of image")',
+        suggestion:
+          'Add an alt prop that describes the image (e.g. alt="Description of image")',
       });
       continue;
     }
@@ -89,13 +95,15 @@ function findImageUsages(content, filePath) {
         file: filePath,
         line: lineNum,
         message: 'Empty alt text (use alt="" only for decorative images)',
-        suggestion: 'Use descriptive text or alt="" if image is purely decorative',
+        suggestion:
+          'Use descriptive text or alt="" if image is purely decorative',
       });
       continue;
     }
 
     const altLower = altValue.toLowerCase();
-    const singleWordGeneric = GENERIC_ALT_VALUES.has(altLower) || GENERIC_ALT_VALUES.has(altValue);
+    const singleWordGeneric =
+      GENERIC_ALT_VALUES.has(altLower) || GENERIC_ALT_VALUES.has(altValue);
     const tooShort = altValue.length <= 2;
     const isGeneric = singleWordGeneric || tooShort;
 
@@ -104,7 +112,8 @@ function findImageUsages(content, filePath) {
         file: filePath,
         line: lineNum,
         message: `Alt text may be too generic: "${altValue}"`,
-        suggestion: 'Use a more descriptive alt (e.g. "Sarah Jenks profile avatar")',
+        suggestion:
+          'Use a more descriptive alt (e.g. "Sarah Jenks profile avatar")',
       });
     }
   }
@@ -120,7 +129,10 @@ function main() {
     const content = fs.readFileSync(filePath, 'utf8');
     if (!hasImageImport(content)) continue;
 
-    const violations = findImageUsages(content, path.relative(FRONTEND_DIR, filePath));
+    const violations = findImageUsages(
+      content,
+      path.relative(FRONTEND_DIR, filePath),
+    );
     allViolations.push(...violations);
   }
 
