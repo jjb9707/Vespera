@@ -39,7 +39,7 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
                 },
                 {
-                  "u32": 3
+                  "u32": 2
                 },
                 {
                   "bytes": "0000000000000000000000000000000000000000000000000000000000000000"
@@ -114,7 +114,7 @@
                         "symbol": "account_type"
                       },
                       "val": {
-                        "u32": 3
+                        "u32": 2
                       }
                     },
                     {

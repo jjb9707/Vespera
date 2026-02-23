@@ -4,9 +4,9 @@ use soroban_sdk::{contracttype, Address, Bytes, String};
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum AccountType {
+    Tenant = 0,
     Landlord = 1,
-    Tenant = 2,
-    Agent = 3,
+    Agent = 2,
 }
 
 /// On-chain user profile structure (SEP-29 compliant)
