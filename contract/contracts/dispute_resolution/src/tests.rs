@@ -1,6 +1,6 @@
 use super::*;
-use crate::dispute::{AgreementStatus, RentAgreement};
-use soroban_sdk::{contract, contractimpl, testutils::Address as _, Address, Env, Map, String};
+use crate::dispute::RentAgreement;
+use soroban_sdk::{contract, contractimpl, testutils::Address as _, Address, Env, String};
 
 /// Mock chioma contract that returns a valid RentAgreement for testing.
 #[contract]
@@ -20,41 +20,6 @@ impl MockChiomaContract {
 fn create_contract(env: &Env) -> DisputeResolutionContractClient<'_> {
     let contract_id = env.register(DisputeResolutionContract, ());
     DisputeResolutionContractClient::new(env, &contract_id)
-}
-
-/// Register a mock chioma contract and pre-store a RentAgreement with Active status.
-/// Returns the mock contract address and the tenant/landlord addresses used.
-fn setup_mock_chioma(env: &Env) -> (Address, Address, Address) {
-    let mock_id = env.register(MockChiomaContract, ());
-    let tenant = Address::generate(env);
-    let landlord = Address::generate(env);
-    let token = Address::generate(env);
-
-    let agreement = RentAgreement {
-        agreement_id: String::from_str(env, "agreement_001"),
-        landlord: landlord.clone(),
-        tenant: tenant.clone(),
-        agent: None,
-        monthly_rent: 1000i128,
-        security_deposit: 2000i128,
-        start_date: 0,
-        end_date: 100,
-        agent_commission_rate: 0,
-        status: AgreementStatus::Active,
-        total_rent_paid: 0,
-        payment_count: 0,
-        signed_at: Some(0),
-        payment_token: token,
-        next_payment_due: 30,
-        payment_history: Map::new(env),
-    };
-
-    // Store the mock agreement in the mock contract's storage
-    env.as_contract(&mock_id, || {
-        env.storage().instance().set(&0u32, &agreement);
-    });
-
-    (mock_id, tenant, landlord)
 }
 
 #[test]
