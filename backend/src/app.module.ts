@@ -32,6 +32,8 @@ import { redisStore } from 'cache-manager-redis-yet';
 import { SentryModule } from '@sentry/nestjs/setup';
 import { StorageModule } from './modules/storage/storage.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
+import { FeedbackModule } from './modules/feedback/feedback.module';
+import { DeveloperModule } from './modules/developer/developer.module';
 
 @Module({
   imports: [
@@ -120,6 +122,8 @@ import { ReviewsModule } from './modules/reviews/reviews.module';
     SecurityModule,
     StorageModule,
     ReviewsModule,
+    FeedbackModule,
+    DeveloperModule,
     // Maintenance module
     require('./modules/maintenance/maintenance.module').MaintenanceModule,
     // KYC module
