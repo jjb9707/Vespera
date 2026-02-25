@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { Mail, Lock, User, UserCheck } from 'lucide-react';
 import { useAuth } from '@/store/authStore';
 import FormInput from '@/components/auth/FormInput';
+import WalletConnectButton from '@/components/auth/WalletConnectButton';
 
 const signupSchema = z.object({
   firstName: z
@@ -122,11 +123,10 @@ export default function SignupPage() {
                     onClick={() =>
                       setValue('role', role, { shouldValidate: true })
                     }
-                    className={`py-2.5 px-4 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                      selectedRole === role
+                    className={`py-2.5 px-4 rounded-lg text-sm font-semibold transition-all duration-200 ${selectedRole === role
                         ? 'bg-white text-brand-blue shadow-sm'
                         : 'text-white/70 hover:text-white'
-                    }`}
+                      }`}
                   >
                     {role.charAt(0) + role.slice(1).toLowerCase()}
                   </button>
@@ -225,7 +225,15 @@ export default function SignupPage() {
             </button>
           </form>
 
-          <p className="text-center text-white/60 text-sm mt-6">
+          <div className="my-6 flex items-center gap-3">
+            <div className="h-px flex-1 bg-white/20"></div>
+            <span className="text-sm font-medium text-white/50 tracking-wider">OR</span>
+            <div className="h-px flex-1 bg-white/20"></div>
+          </div>
+
+          <WalletConnectButton className="mb-6" />
+
+          <p className="text-center text-white/60 text-sm mt-2">
             Already have an account?{' '}
             <Link
               href="/login"
