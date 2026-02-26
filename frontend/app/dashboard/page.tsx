@@ -81,9 +81,7 @@ export default function TenantDashboardOverview() {
             </span>
           </div>
           <div className="mt-4">
-            <p className="text-sm font-medium text-neutral-500">
-              Active Lease
-            </p>
+            <p className="text-sm font-medium text-neutral-500">Active Lease</p>
             <h3 className="text-xl font-bold tracking-tight text-neutral-900 mt-1">
               12 Months
             </h3>
@@ -93,9 +91,7 @@ export default function TenantDashboardOverview() {
                 style={{ width: '60%' }}
               ></div>
             </div>
-            <p className="text-xs text-neutral-500 mt-2">
-              7 months remaining
-            </p>
+            <p className="text-xs text-neutral-500 mt-2">7 months remaining</p>
           </div>
         </div>
 
@@ -139,11 +135,21 @@ export default function TenantDashboardOverview() {
           <table className="w-full text-left text-sm whitespace-nowrap">
             <thead className="bg-neutral-50/50 text-neutral-500">
               <tr>
-                <th className="px-6 py-4 font-semibold uppercase tracking-wider text-[10px]">Agreement ID</th>
-                <th className="px-6 py-4 font-semibold uppercase tracking-wider text-[10px]">Property</th>
-                <th className="px-6 py-4 font-semibold uppercase tracking-wider text-[10px]">Monthly Rent</th>
-                <th className="px-6 py-4 font-semibold uppercase tracking-wider text-[10px]">Next Due</th>
-                <th className="px-6 py-4 font-semibold uppercase tracking-wider text-[10px] text-right">Status</th>
+                <th className="px-6 py-4 font-semibold uppercase tracking-wider text-[10px]">
+                  Agreement ID
+                </th>
+                <th className="px-6 py-4 font-semibold uppercase tracking-wider text-[10px]">
+                  Property
+                </th>
+                <th className="px-6 py-4 font-semibold uppercase tracking-wider text-[10px]">
+                  Monthly Rent
+                </th>
+                <th className="px-6 py-4 font-semibold uppercase tracking-wider text-[10px]">
+                  Next Due
+                </th>
+                <th className="px-6 py-4 font-semibold uppercase tracking-wider text-[10px] text-right">
+                  Status
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-50">
@@ -166,12 +172,13 @@ export default function TenantDashboardOverview() {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <span
-                      className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${agreement.status === 'Active'
-                        ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
-                        : agreement.status === 'Pending'
-                          ? 'bg-amber-50 text-amber-700 border-amber-100'
-                          : 'bg-neutral-50 text-neutral-600 border-neutral-100'
-                        }`}
+                      className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                        agreement.status === 'Active'
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                          : agreement.status === 'Pending'
+                            ? 'bg-amber-50 text-amber-700 border-amber-100'
+                            : 'bg-neutral-50 text-neutral-600 border-neutral-100'
+                      }`}
                     >
                       {agreement.status}
                     </span>
@@ -185,4 +192,3 @@ export default function TenantDashboardOverview() {
     </div>
   );
 }
-

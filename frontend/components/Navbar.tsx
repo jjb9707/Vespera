@@ -42,15 +42,17 @@ const Navbar = ({ theme = 'dark' }: NavbarProps) => {
 
   return (
     <nav
-      className={`top-0 left-0 right-0 z-50 transition-all duration-300 sticky ${isScrolled ? 'glass py-3' : 'bg-transparent py-6'
-        }`}
+      className={`top-0 left-0 right-0 z-50 transition-all duration-300 sticky ${
+        isScrolled ? 'glass py-3' : 'bg-transparent py-6'
+      }`}
     >
       <div className="container mx-auto px-4 sm:px-6 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2">
           <span
-            className={`text-2xl font-bold tracking-tight ${isLight ? 'text-blue-900' : 'text-white'
-              }`}
+            className={`text-2xl font-bold tracking-tight ${
+              isLight ? 'text-blue-900' : 'text-white'
+            }`}
           >
             Chioma
           </span>
@@ -66,9 +68,10 @@ const Navbar = ({ theme = 'dark' }: NavbarProps) => {
                 key={link.name}
                 href={link.href}
                 className={`relative text-sm font-medium transition-colors
-                  ${active
-                    ? `${isLight ? 'text-black border-b-2 border-black' : 'text-white border-b-2 border-white'} pb-1`
-                    : `${isLight ? 'text-black hover:text-blue-900' : 'text-white/80 hover:text-white'}`
+                  ${
+                    active
+                      ? `${isLight ? 'text-black border-b-2 border-black' : 'text-white border-b-2 border-white'} pb-1`
+                      : `${isLight ? 'text-black hover:text-blue-900' : 'text-white/80 hover:text-white'}`
                   }
                 `}
               >
@@ -82,8 +85,11 @@ const Navbar = ({ theme = 'dark' }: NavbarProps) => {
         <div className="hidden md:flex items-center space-x-6">
           <Link
             href="/login"
-            className={`${isLight ? 'text-blue-600 hover:text-blue-800' : 'text-white hover:text-white/80'
-              } text-sm font-semibold transition-colors`}
+            className={`${
+              isLight
+                ? 'text-blue-600 hover:text-blue-800'
+                : 'text-white hover:text-white/80'
+            } text-sm font-semibold transition-colors`}
           >
             Log In
           </Link>
@@ -97,8 +103,9 @@ const Navbar = ({ theme = 'dark' }: NavbarProps) => {
 
         {/* Mobile Menu Button - min 44px touch target */}
         <button
-          className={`md:hidden p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center -mr-1 rounded-lg active:bg-white/10 ${isLight ? 'text-blue-900' : 'text-white'
-            }`}
+          className={`md:hidden p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center -mr-1 rounded-lg active:bg-white/10 ${
+            isLight ? 'text-blue-900' : 'text-white'
+          }`}
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           aria-label="Toggle menu"
         >
@@ -109,8 +116,9 @@ const Navbar = ({ theme = 'dark' }: NavbarProps) => {
       {/* Mobile Navigation Drawer */}
       {isMobileMenuOpen && (
         <div
-          className={`md:hidden absolute top-full left-0 right-0 border-t border-white/10 animate-in fade-in slide-in-from-top-4 duration-300 ${isLight ? 'bg-white/95 backdrop-blur-md' : 'glass-dark'
-            }`}
+          className={`md:hidden absolute top-full left-0 right-0 border-t border-white/10 animate-in fade-in slide-in-from-top-4 duration-300 ${
+            isLight ? 'bg-white/95 backdrop-blur-md' : 'glass-dark'
+          }`}
         >
           <div className="flex flex-col p-6 space-y-4">
             {NAV_LINKS.map((link) => {
@@ -122,9 +130,10 @@ const Navbar = ({ theme = 'dark' }: NavbarProps) => {
                   href={link.href}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={`text-lg font-medium w-fit
-                    ${active
-                      ? `${isLight ? 'text-blue-900 border-b-2 border-blue-900' : 'text-white border-b-2 border-white'} pb-1`
-                      : `${isLight ? 'text-blue-900' : 'text-white'}`
+                    ${
+                      active
+                        ? `${isLight ? 'text-blue-900 border-b-2 border-blue-900' : 'text-white border-b-2 border-white'} pb-1`
+                        : `${isLight ? 'text-blue-900' : 'text-white'}`
                     }
                   `}
                 >
