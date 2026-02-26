@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import Footer from '@/components/Footer';
-import Navbar from '@/components/Properties-navbar';
+import Navbar from '@/components/Navbar';
 import PropertyCardSkeleton from '@/components/PropertyCardSkeleton';
 
 // Dynamically import the map component to avoid SSR issues
@@ -170,7 +170,7 @@ export default function PropertyListing() {
 
   return (
     <>
-      <Navbar />
+      <Navbar theme="light" />
       <div className="overflow-x-hidden">
         {/* Header/Search Bar */}
         <header className="sticky top-0 z-40 bg-white border-b border-gray-200">
@@ -208,22 +208,20 @@ export default function PropertyListing() {
                   <div className="flex items-center gap-0 border border-gray-300 rounded-lg overflow-hidden">
                     <button
                       onClick={() => setViewMode('list')}
-                      className={`min-h-[44px] min-w-[44px] flex items-center justify-center px-3 py-2 text-sm transition ${
-                        viewMode === 'list'
+                      className={`min-h-[44px] min-w-[44px] flex items-center justify-center px-3 py-2 text-sm transition ${viewMode === 'list'
                           ? 'bg-blue-600 text-white'
                           : 'bg-white text-gray-700 hover:bg-gray-50'
-                      }`}
+                        }`}
                       title="List View"
                     >
                       <List className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => setViewMode('split')}
-                      className={`min-h-[44px] min-w-[44px] flex items-center justify-center px-3 py-2 text-sm transition ${
-                        viewMode === 'split'
+                      className={`min-h-[44px] min-w-[44px] flex items-center justify-center px-3 py-2 text-sm transition ${viewMode === 'split'
                           ? 'bg-blue-600 text-white'
                           : 'bg-white text-gray-700 hover:bg-gray-50'
-                      }`}
+                        }`}
                       title="Split View"
                     >
                       <div className="flex gap-0.5">
@@ -233,11 +231,10 @@ export default function PropertyListing() {
                     </button>
                     <button
                       onClick={() => setViewMode('map')}
-                      className={`min-h-[44px] min-w-[44px] flex items-center justify-center px-3 py-2 text-sm transition ${
-                        viewMode === 'map'
+                      className={`min-h-[44px] min-w-[44px] flex items-center justify-center px-3 py-2 text-sm transition ${viewMode === 'map'
                           ? 'bg-blue-600 text-white'
                           : 'bg-white text-gray-700 hover:bg-gray-50'
-                      }`}
+                        }`}
                       title="Map View"
                     >
                       <Map className="w-4 h-4" />
@@ -259,20 +256,18 @@ export default function PropertyListing() {
 
         {/* Main Content */}
         <div
-          className={`flex gap-0 ${
-            viewMode === 'split'
+          className={`flex gap-0 ${viewMode === 'split'
               ? 'flex-col lg:flex-row'
               : viewMode === 'list'
                 ? 'flex-col'
                 : 'flex-col'
-          }`}
+            }`}
         >
           {/* Left Sidebar - Listings */}
           {(viewMode === 'list' || viewMode === 'split') && (
             <div
-              className={`overflow-y-auto max-h-[calc(100vh-100px)] ${
-                viewMode === 'split' ? 'w-full lg:w-2/5 xl:w-1/2' : 'w-full'
-              }`}
+              className={`overflow-y-auto max-h-[calc(100vh-100px)] ${viewMode === 'split' ? 'w-full lg:w-2/5 xl:w-1/2' : 'w-full'
+                }`}
             >
               <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Heading */}
@@ -444,11 +439,10 @@ export default function PropertyListing() {
           {/* Map View */}
           {(viewMode === 'map' || viewMode === 'split') && (
             <div
-              className={`h-96 lg:h-[calc(100vh-100px)] relative ${
-                viewMode === 'split'
+              className={`h-96 lg:h-[calc(100vh-100px)] relative ${viewMode === 'split'
                   ? 'w-full lg:w-3/5 xl:w-1/2 lg:sticky lg:top-24'
                   : 'w-full'
-              }`}
+                }`}
             >
               <PropertyMapView
                 properties={properties}
