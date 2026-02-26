@@ -19,7 +19,7 @@ export class NotificationsService {
     type: string,
   ): Promise<Notification> {
     const notification = this.notificationRepository.create({
-      user: { id: userId } as Notification['user'],
+      userId,
       title,
       message,
       type,
@@ -55,7 +55,7 @@ export class NotificationsService {
   async getUnreadCount(userId: string): Promise<number> {
     return this.notificationRepository.count({
       where: {
-        user: { id: userId },
+        userId,
         isRead: false,
       },
     });
@@ -66,7 +66,7 @@ export class NotificationsService {
     userId: string,
   ): Promise<Notification> {
     const notification = await this.notificationRepository.findOne({
-      where: { id: notificationId, user: { id: userId } },
+      where: { id: notificationId, userId },
     });
 
     if (!notification) {
@@ -79,7 +79,7 @@ export class NotificationsService {
 
   async markAllAsRead(userId: string): Promise<void> {
     await this.notificationRepository.update(
-      { user: { id: userId }, isRead: false },
+      { userId, isRead: false },
       { isRead: true },
     );
   }
@@ -90,13 +90,13 @@ export class NotificationsService {
   ): Promise<void> {
     await this.notificationRepository.delete({
       id: notificationId,
-      user: { id: userId },
+      userId,
     });
   }
 
   async clearAll(userId: string): Promise<void> {
     await this.notificationRepository.delete({
-      user: { id: userId },
+      userId,
     });
   }
 }
