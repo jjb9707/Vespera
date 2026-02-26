@@ -37,7 +37,7 @@ export class Payment {
   })
   amount: number;
 
-  @Column({ name: 'payment_date', type: 'timestamp' })
+  @Column({ name: 'payment_date', type: 'datetime' })
   paymentDate: Date;
 
   @Column({ name: 'payment_method', length: 50, nullable: true })
