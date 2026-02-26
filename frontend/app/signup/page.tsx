@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Mail, Lock, User, UserCheck } from 'lucide-react';
@@ -35,7 +35,7 @@ export default function SignupPage() {
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<SignupFormData>({
@@ -43,7 +43,7 @@ export default function SignupPage() {
     defaultValues: { role: 'TENANT' },
   });
 
-  const selectedRole = watch('role');
+  const selectedRole = useWatch({ control, name: 'role' });
 
   useEffect(() => {
     if (!isAuthenticated || !user) return;
@@ -123,10 +123,11 @@ export default function SignupPage() {
                     onClick={() =>
                       setValue('role', role, { shouldValidate: true })
                     }
-                    className={`py-2.5 px-4 rounded-lg text-sm font-semibold transition-all duration-200 ${selectedRole === role
+                    className={`py-2.5 px-4 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                      selectedRole === role
                         ? 'bg-white text-brand-blue shadow-sm'
                         : 'text-white/70 hover:text-white'
-                      }`}
+                    }`}
                   >
                     {role.charAt(0) + role.slice(1).toLowerCase()}
                   </button>
@@ -227,7 +228,9 @@ export default function SignupPage() {
 
           <div className="my-6 flex items-center gap-3">
             <div className="h-px flex-1 bg-white/20"></div>
-            <span className="text-sm font-medium text-white/50 tracking-wider">OR</span>
+            <span className="text-sm font-medium text-white/50 tracking-wider">
+              OR
+            </span>
             <div className="h-px flex-1 bg-white/20"></div>
           </div>
 

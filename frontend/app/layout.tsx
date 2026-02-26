@@ -99,7 +99,10 @@ export default function RootLayout({
       <body className="antialiased">
         <AuthHydrator />
         {children}
-        <Toaster position="bottom-right" toastOptions={{ className: 'font-medium' }} />
+        <Toaster
+          position="bottom-right"
+          toastOptions={{ className: 'font-medium' }}
+        />
       </body>
     </html>
   );
