@@ -85,13 +85,15 @@ import { JobQueueService } from './common/services/job-queue.service';
       inject: [],
       useFactory: () => {
         const isTest = process.env.NODE_ENV === 'test';
+        const openapiGenerate = process.env.OPENAPI_GENERATE === 'true';
         if (isTest && process.env.DB_TYPE === 'sqlite') {
           return {
             type: 'sqlite',
             database: ':memory:',
             namingStrategy: new SnakeNamingStrategy(),
             entities: [__dirname + '/modules/**/*.entity{.ts,.js}'],
-            synchronize: true, // Auto-create schema for in-memory DB
+            // Skip schema sync when only generating OpenAPI (faster, fewer failure points)
+            synchronize: !openapiGenerate,
             logging: false,
           };
         }

@@ -7,6 +7,15 @@
 if (typeof globalThis.crypto === 'undefined') {
   (globalThis as any).crypto = require('crypto');
 }
+// Log unhandled errors so CI shows the real failure
+function logAndExit(label: string, err: unknown) {
+  const e = err instanceof Error ? err : new Error(String(err));
+  console.error(`[openapi:generate] ${label}:`, e.message);
+  if (e.stack) console.error(e.stack);
+  process.exit(1);
+}
+process.on('unhandledRejection', (reason) => logAndExit('Unhandled Rejection', reason));
+process.on('uncaughtException', (err) => logAndExit('Uncaught Exception', err));
 import { NestFactory } from '@nestjs/core';
 import { VersioningType } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
@@ -15,7 +24,17 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 async function generate() {
-  const app = await NestFactory.create(AppModule, { logger: false });
+  // abortOnError: false so bootstrap errors are thrown instead of process.exit(1)
+  let app;
+  try {
+    app = await NestFactory.create(AppModule, {
+      logger: false,
+      abortOnError: false,
+    });
+  } catch (err) {
+    logAndExit('NestFactory.create failed', err);
+  }
+  if (!app) process.exit(1);
   app.setGlobalPrefix('api', {
     exclude: ['health', 'health/detailed', 'security.txt', '.well-known'],
   });

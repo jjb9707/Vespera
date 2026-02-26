@@ -78,6 +78,20 @@ jobs:
     name: API Docs & Contract
     needs: test
     continue-on-error: true
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: chioma
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -98,19 +112,29 @@ jobs:
         run: cd backend && pnpm install --frozen-lockfile
 
       - name: Generate OpenAPI spec
-        run: cd backend && pnpm run openapi:generate
+        run: cd backend && pnpm run openapi:generate 2>&1
         env:
           OPENAPI_GENERATE: "true"
           OPENAPI_OUTPUT: openapi.json
           NODE_ENV: test
+          NODE_OPTIONS: "--unhandled-rejections=strict"
           RATE_LIMIT_TTL: "60000"
           RATE_LIMIT_MAX: "100"
           RATE_LIMIT_AUTH_TTL: "60000"
           RATE_LIMIT_AUTH_MAX: "5"
           RATE_LIMIT_STRICT_TTL: "60000"
           RATE_LIMIT_STRICT_MAX: "10"
-          DB_TYPE: sqlite
-          DB_DATABASE: ":memory:"
+          DB_TYPE: postgres
+          DB_HOST: localhost
+          DB_PORT: "5432"
+          DB_USERNAME: postgres
+          DB_PASSWORD: postgres
+          DB_NAME: chioma
+          JWT_SECRET: "openapi-generate-dummy-secret-not-for-production"
+          CHIOMA_CONTRACT_ID: "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE"
+          ESCROW_CONTRACT_ID: "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE"
+          DISPUTE_CONTRACT_ID: "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE"
+          RENT_OBLIGATION_CONTRACT_ID: "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE"
 
       - name: Verify OpenAPI spec exists and is valid JSON
         run: |
