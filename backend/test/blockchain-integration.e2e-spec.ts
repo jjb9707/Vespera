@@ -10,8 +10,8 @@ import * as StellarSdk from '@stellar/stellar-sdk';
 
 describe('Blockchain Integration (e2e)', () => {
   let app: INestApplication | undefined;
-  let agreementsService: AgreementsService;
-  let chiomaContract: ChiomaContractService;
+  let _agreementsService: AgreementsService;
+  let _chiomaContract: ChiomaContractService;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -34,8 +34,9 @@ describe('Blockchain Integration (e2e)', () => {
     app = moduleFixture.createNestApplication();
     await app.init();
 
-    agreementsService = moduleFixture.get<AgreementsService>(AgreementsService);
-    chiomaContract = moduleFixture.get<ChiomaContractService>(
+    _agreementsService =
+      moduleFixture.get<AgreementsService>(AgreementsService);
+    _chiomaContract = moduleFixture.get<ChiomaContractService>(
       ChiomaContractService,
     );
   });
@@ -49,7 +50,7 @@ describe('Blockchain Integration (e2e)', () => {
       const landlordKeypair = StellarSdk.Keypair.random();
       const tenantKeypair = StellarSdk.Keypair.random();
 
-      const agreementDto = {
+      const _agreementDto = {
         propertyId: 'test-property',
         landlordId: 'test-landlord',
         tenantId: 'test-tenant',
