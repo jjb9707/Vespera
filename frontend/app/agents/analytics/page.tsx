@@ -15,9 +15,7 @@ export default function AnalyticsPage() {
         <div className="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center mb-4">
           <PieChart size={28} className="text-brand-blue" />
         </div>
-        <h2 className="text-lg font-semibold text-neutral-800">
-          No data yet
-        </h2>
+        <h2 className="text-lg font-semibold text-neutral-800">No data yet</h2>
         <p className="text-sm text-neutral-500 mt-1 max-w-xs">
           Your performance analytics will appear here as activity builds up.
         </p>
