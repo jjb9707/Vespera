@@ -136,7 +136,9 @@ export default function Topbar({ pageTitle }: { pageTitle: string }) {
         >
           <div>
             <div className="flex items-center justify-between p-4 border-b border-gray-300">
-              <Link href="/" className="text-lg font-bold text-[#1e40af]">Chioma</Link>
+              <Link href="/" className="text-lg font-bold text-[#1e40af]">
+                Chioma
+              </Link>
               <button onClick={() => setMobileOpen(false)}>
                 <FaTimes />
               </button>

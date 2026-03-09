@@ -279,290 +279,282 @@ export default function AgentAnalyticsPage() {
     <>
       <div className="max-w-7xl mx-auto space-y-8">
         {/* ── Page Header ── */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-bold text-neutral-900">Analytics</h1>
-              <p className="text-sm text-neutral-500 mt-0.5">
-                Track your performance and commission earnings
-              </p>
-            </div>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-neutral-900">Analytics</h1>
+            <p className="text-sm text-neutral-500 mt-0.5">
+              Track your performance and commission earnings
+            </p>
+          </div>
 
-            <div className="flex items-center gap-3">
-              {/* Year Filter */}
-              <div className="relative">
-                <select
-                  value={yearFilter}
-                  onChange={(e) => setYearFilter(e.target.value)}
-                  className="appearance-none bg-white border border-neutral-200 rounded-lg pl-4 pr-9 py-2.5 text-sm font-medium text-neutral-700 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all cursor-pointer"
-                >
-                  <option value="2024">2024</option>
-                  <option value="2023">2023</option>
-                  <option value="2022">2022</option>
-                </select>
-                <Calendar
-                  size={14}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none"
-                />
-              </div>
-
-              {/* Export Button */}
-              <button
-                onClick={() => setShowExportModal(true)}
-                className="flex items-center gap-2 bg-white border border-neutral-200 hover:border-neutral-300 text-neutral-700 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all hover:shadow-sm"
+          <div className="flex items-center gap-3">
+            {/* Year Filter */}
+            <div className="relative">
+              <select
+                value={yearFilter}
+                onChange={(e) => setYearFilter(e.target.value)}
+                className="appearance-none bg-white border border-neutral-200 rounded-lg pl-4 pr-9 py-2.5 text-sm font-medium text-neutral-700 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all cursor-pointer"
               >
-                <Download size={16} />
-                Export Report
-              </button>
-            </div>
-          </div>
-
-          {/* ── KPI Summary Cards ── */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {kpiSummary.map((kpi, i) => {
-              const Icon = kpi.icon;
-              return (
-                <div
-                  key={i}
-                  className="bg-white rounded-2xl p-5 border border-neutral-100 shadow-sm"
-                >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                        {kpi.label}
-                      </p>
-                      <p className="text-2xl font-bold text-neutral-900 mt-1.5">
-                        {kpi.value}
-                      </p>
-                    </div>
-                    <div className={`p-2.5 rounded-xl ${kpi.iconBg}`}>
-                      <Icon size={18} className={kpi.iconColor} />
-                    </div>
-                  </div>
-                  <div
-                    className={`flex items-center gap-1 mt-3 text-sm font-semibold ${kpi.positive ? 'text-emerald-600' : 'text-red-500'}`}
-                  >
-                    {kpi.positive ? (
-                      <TrendingUp size={14} />
-                    ) : (
-                      <TrendingDown size={14} />
-                    )}
-                    <span>{kpi.change} vs last year</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* ── Commission Earnings Chart ── */}
-          <div className="bg-white rounded-2xl border border-neutral-100 shadow-sm p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-              <div>
-                <h2 className="text-base font-bold text-neutral-900">
-                  Monthly Commission Earnings
-                </h2>
-                <p className="text-sm text-neutral-500 mt-0.5">
-                  Total for {yearFilter}:{' '}
-                  <span className="font-semibold text-neutral-700">
-                    ${totalCommission.toLocaleString()}
-                  </span>
-                </p>
-              </div>
-              <div className="flex items-center gap-5 text-xs font-medium text-neutral-500">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-3 h-3 rounded-full bg-blue-500 inline-block" />
-                  Earned
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-3 h-3 rounded-full bg-neutral-200 inline-block" />
-                  Target
-                </div>
-              </div>
-            </div>
-            <ResponsiveContainer width="100%" height={280}>
-              <LineChart
-                data={monthlyEarnings}
-                margin={{ top: 5, right: 10, left: 0, bottom: 0 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis
-                  dataKey="month"
-                  tick={{ fontSize: 12, fill: '#94a3b8' }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  tick={{ fontSize: 12, fill: '#94a3b8' }}
-                  axisLine={false}
-                  tickLine={false}
-                  tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
-                />
-                <Tooltip content={<CustomEarningsTooltip />} />
-                <Line
-                  type="monotone"
-                  dataKey="target"
-                  stroke="#e2e8f0"
-                  strokeWidth={2}
-                  strokeDasharray="5 5"
-                  dot={false}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="commission"
-                  stroke="#3b82f6"
-                  strokeWidth={2.5}
-                  dot={{ r: 4, fill: '#3b82f6', strokeWidth: 0 }}
-                  activeDot={{ r: 6, fill: '#3b82f6' }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* ── Conversion Funnel + Listing Performance ── */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Conversion Funnel */}
-            <div className="bg-white rounded-2xl border border-neutral-100 shadow-sm p-6">
-              <div className="mb-5">
-                <h2 className="text-base font-bold text-neutral-900">
-                  Conversion Funnel
-                </h2>
-                <p className="text-sm text-neutral-500 mt-0.5">
-                  Overall conversion rate:{' '}
-                  <span className="font-semibold text-emerald-600">
-                    {conversionRate}%
-                  </span>
-                </p>
-              </div>
-
-              <div className="space-y-3">
-                {conversionData.map((item, i) => {
-                  const pct = Math.round(
-                    (item.value / conversionData[0].value) * 100,
-                  );
-                  const prevValue =
-                    i > 0 ? conversionData[i - 1].value : item.value;
-                  const dropOff =
-                    i > 0
-                      ? Math.round(((prevValue - item.value) / prevValue) * 100)
-                      : null;
-
-                  return (
-                    <div key={item.name}>
-                      <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-sm font-medium text-neutral-700">
-                          {item.name}
-                        </span>
-                        <div className="flex items-center gap-3">
-                          {dropOff !== null && (
-                            <span className="text-xs text-red-400 font-medium">
-                              −{dropOff}%
-                            </span>
-                          )}
-                          <span className="text-sm font-bold text-neutral-900 tabular-nums w-12 text-right">
-                            {item.value.toLocaleString()}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="h-2.5 bg-neutral-100 rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all duration-700"
-                          style={{
-                            width: `${pct}%`,
-                            backgroundColor: item.fill,
-                          }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+                <option value="2022">2022</option>
+              </select>
+              <Calendar
+                size={14}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none"
+              />
             </div>
 
-            {/* Listing Performance */}
-            <div className="bg-white rounded-2xl border border-neutral-100 shadow-sm p-6">
-              <div className="mb-5">
-                <h2 className="text-base font-bold text-neutral-900">
-                  Listing Performance
-                </h2>
-                <p className="text-sm text-neutral-500 mt-0.5">
-                  Views, inquiries and contracts per listing
-                </p>
-              </div>
-              <ResponsiveContainer width="100%" height={240}>
-                <BarChart
-                  data={listingPerformance}
-                  margin={{ top: 0, right: 0, left: -20, bottom: 0 }}
-                  barSize={10}
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                  <XAxis
-                    dataKey="name"
-                    tick={{ fontSize: 11, fill: '#94a3b8' }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    tick={{ fontSize: 11, fill: '#94a3b8' }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      borderRadius: '12px',
-                      border: '1px solid #f1f5f9',
-                      fontSize: '12px',
-                    }}
-                  />
-                  <Legend
-                    wrapperStyle={{ fontSize: '12px', paddingTop: '12px' }}
-                  />
-                  <Bar dataKey="views" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                  <Bar
-                    dataKey="inquiries"
-                    fill="#8b5cf6"
-                    radius={[4, 4, 0, 0]}
-                  />
-                  <Bar
-                    dataKey="contracts"
-                    fill="#10b981"
-                    radius={[4, 4, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* ── Export CTA Banner ── */}
-          <div className="bg-gradient-to-r from-blue-600 to-blue-500 rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-white/20 rounded-xl">
-                <FileText size={22} className="text-white" />
-              </div>
-              <div>
-                <p className="text-white font-bold text-base">
-                  Need your earnings for tax season?
-                </p>
-                <p className="text-blue-100 text-sm mt-0.5">
-                  Export a full report — CSV, PDF, or Excel — in one click.
-                </p>
-              </div>
-            </div>
+            {/* Export Button */}
             <button
               onClick={() => setShowExportModal(true)}
-              className="shrink-0 bg-white text-blue-700 hover:bg-blue-50 px-5 py-2.5 rounded-xl text-sm font-bold transition-colors flex items-center gap-2 shadow-lg"
+              className="flex items-center gap-2 bg-white border border-neutral-200 hover:border-neutral-300 text-neutral-700 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all hover:shadow-sm"
             >
               <Download size={16} />
-              Export Now
+              Export Report
             </button>
           </div>
         </div>
 
-        {/* ── Export Modal ── */}
-        {showExportModal && (
-          <ExportModal
-            onClose={() => setShowExportModal(false)}
-            onExport={handleExport}
-          />
-        )}
+        {/* ── KPI Summary Cards ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {kpiSummary.map((kpi, i) => {
+            const Icon = kpi.icon;
+            return (
+              <div
+                key={i}
+                className="bg-white rounded-2xl p-5 border border-neutral-100 shadow-sm"
+              >
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                      {kpi.label}
+                    </p>
+                    <p className="text-2xl font-bold text-neutral-900 mt-1.5">
+                      {kpi.value}
+                    </p>
+                  </div>
+                  <div className={`p-2.5 rounded-xl ${kpi.iconBg}`}>
+                    <Icon size={18} className={kpi.iconColor} />
+                  </div>
+                </div>
+                <div
+                  className={`flex items-center gap-1 mt-3 text-sm font-semibold ${kpi.positive ? 'text-emerald-600' : 'text-red-500'}`}
+                >
+                  {kpi.positive ? (
+                    <TrendingUp size={14} />
+                  ) : (
+                    <TrendingDown size={14} />
+                  )}
+                  <span>{kpi.change} vs last year</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* ── Commission Earnings Chart ── */}
+        <div className="bg-white rounded-2xl border border-neutral-100 shadow-sm p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+            <div>
+              <h2 className="text-base font-bold text-neutral-900">
+                Monthly Commission Earnings
+              </h2>
+              <p className="text-sm text-neutral-500 mt-0.5">
+                Total for {yearFilter}:{' '}
+                <span className="font-semibold text-neutral-700">
+                  ${totalCommission.toLocaleString()}
+                </span>
+              </p>
+            </div>
+            <div className="flex items-center gap-5 text-xs font-medium text-neutral-500">
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded-full bg-blue-500 inline-block" />
+                Earned
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded-full bg-neutral-200 inline-block" />
+                Target
+              </div>
+            </div>
+          </div>
+          <ResponsiveContainer width="100%" height={280}>
+            <LineChart
+              data={monthlyEarnings}
+              margin={{ top: 5, right: 10, left: 0, bottom: 0 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+              <XAxis
+                dataKey="month"
+                tick={{ fontSize: 12, fill: '#94a3b8' }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                tick={{ fontSize: 12, fill: '#94a3b8' }}
+                axisLine={false}
+                tickLine={false}
+                tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
+              />
+              <Tooltip content={<CustomEarningsTooltip />} />
+              <Line
+                type="monotone"
+                dataKey="target"
+                stroke="#e2e8f0"
+                strokeWidth={2}
+                strokeDasharray="5 5"
+                dot={false}
+              />
+              <Line
+                type="monotone"
+                dataKey="commission"
+                stroke="#3b82f6"
+                strokeWidth={2.5}
+                dot={{ r: 4, fill: '#3b82f6', strokeWidth: 0 }}
+                activeDot={{ r: 6, fill: '#3b82f6' }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* ── Conversion Funnel + Listing Performance ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Conversion Funnel */}
+          <div className="bg-white rounded-2xl border border-neutral-100 shadow-sm p-6">
+            <div className="mb-5">
+              <h2 className="text-base font-bold text-neutral-900">
+                Conversion Funnel
+              </h2>
+              <p className="text-sm text-neutral-500 mt-0.5">
+                Overall conversion rate:{' '}
+                <span className="font-semibold text-emerald-600">
+                  {conversionRate}%
+                </span>
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              {conversionData.map((item, i) => {
+                const pct = Math.round(
+                  (item.value / conversionData[0].value) * 100,
+                );
+                const prevValue =
+                  i > 0 ? conversionData[i - 1].value : item.value;
+                const dropOff =
+                  i > 0
+                    ? Math.round(((prevValue - item.value) / prevValue) * 100)
+                    : null;
+
+                return (
+                  <div key={item.name}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-sm font-medium text-neutral-700">
+                        {item.name}
+                      </span>
+                      <div className="flex items-center gap-3">
+                        {dropOff !== null && (
+                          <span className="text-xs text-red-400 font-medium">
+                            −{dropOff}%
+                          </span>
+                        )}
+                        <span className="text-sm font-bold text-neutral-900 tabular-nums w-12 text-right">
+                          {item.value.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="h-2.5 bg-neutral-100 rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-700"
+                        style={{
+                          width: `${pct}%`,
+                          backgroundColor: item.fill,
+                        }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Listing Performance */}
+          <div className="bg-white rounded-2xl border border-neutral-100 shadow-sm p-6">
+            <div className="mb-5">
+              <h2 className="text-base font-bold text-neutral-900">
+                Listing Performance
+              </h2>
+              <p className="text-sm text-neutral-500 mt-0.5">
+                Views, inquiries and contracts per listing
+              </p>
+            </div>
+            <ResponsiveContainer width="100%" height={240}>
+              <BarChart
+                data={listingPerformance}
+                margin={{ top: 0, right: 0, left: -20, bottom: 0 }}
+                barSize={10}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                <XAxis
+                  dataKey="name"
+                  tick={{ fontSize: 11, fill: '#94a3b8' }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  tick={{ fontSize: 11, fill: '#94a3b8' }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: '12px',
+                    border: '1px solid #f1f5f9',
+                    fontSize: '12px',
+                  }}
+                />
+                <Legend
+                  wrapperStyle={{ fontSize: '12px', paddingTop: '12px' }}
+                />
+                <Bar dataKey="views" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="inquiries" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="contracts" fill="#10b981" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* ── Export CTA Banner ── */}
+        <div className="bg-gradient-to-r from-blue-600 to-blue-500 rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-white/20 rounded-xl">
+              <FileText size={22} className="text-white" />
+            </div>
+            <div>
+              <p className="text-white font-bold text-base">
+                Need your earnings for tax season?
+              </p>
+              <p className="text-blue-100 text-sm mt-0.5">
+                Export a full report — CSV, PDF, or Excel — in one click.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => setShowExportModal(true)}
+            className="shrink-0 bg-white text-blue-700 hover:bg-blue-50 px-5 py-2.5 rounded-xl text-sm font-bold transition-colors flex items-center gap-2 shadow-lg"
+          >
+            <Download size={16} />
+            Export Now
+          </button>
+        </div>
+      </div>
+
+      {/* ── Export Modal ── */}
+      {showExportModal && (
+        <ExportModal
+          onClose={() => setShowExportModal(false)}
+          onExport={handleExport}
+        />
+      )}
     </>
   );
 }

@@ -39,7 +39,10 @@ export default function Sidebar() {
     // Tablet (md): collapsed icon-only sidebar
     // Mobile (sm): hidden (mobile drawer is handled by Topbar)
     <aside className="hidden md:flex md:flex-col md:w-20 lg:w-56 h-screen bg-white shadow">
-      <Link href="/" className="p-4 lg:p-10 text-2xl lg:text-3xl font-bold text-[#1e40af] flex items-center justify-center lg:justify-start">
+      <Link
+        href="/"
+        className="p-4 lg:p-10 text-2xl lg:text-3xl font-bold text-[#1e40af] flex items-center justify-center lg:justify-start"
+      >
         <span className="hidden lg:block">Chioma</span>
         <span className="lg:hidden">C</span>
       </Link>
