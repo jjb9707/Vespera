@@ -108,8 +108,7 @@ import { RateLimitHeadersMiddleware } from './modules/rate-limiting/middleware/r
             database: ':memory:',
             namingStrategy: new SnakeNamingStrategy(),
             entities: [__dirname + '/modules/**/*.entity{.ts,.js}'],
-            // Skip schema sync when only generating OpenAPI (faster, fewer failure points)
-            synchronize: !openapiGenerate,
+            synchronize: true,
             logging: false,
           };
         }
