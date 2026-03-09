@@ -17,7 +17,7 @@
     "test:cov": "jest --coverage --forceExit",
     "test:leaks": "jest --detectOpenHandles --forceExit",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json --runInBand",
+    "test:e2e": "DB_TYPE=postgres jest --config ./test/jest-e2e.json --runInBand",
     "ci": "pnpm run lint && npx prettier --check \"src/**/*.ts\" \"test/**/*.ts\" && pnpm exec tsc --noEmit && pnpm run test && pnpm run test:cov",
     "ci:local": "./scripts/ci-local.sh",
     "openapi:generate": "OPENAPI_GENERATE=true ts-node -r tsconfig-paths/register scripts/generate-openapi.ts",
@@ -78,7 +78,7 @@
     "express": "^5.2.1",
     "helmet": "^8.1.0",
     "ioredis": "^5.9.3",
-    "multer": "^2.0.2",
+    "multer": "^2.1.1",
     "nodemailer": "^8.0.1",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
@@ -109,7 +109,6 @@
     "@nestjs/testing": "^11.0.1",
     "@swc/cli": "^0.6.0",
     "@swc/core": "^1.10.7",
-    "@types/bcrypt": "^5.0.2",
     "@types/csurf": "^1.11.5",
     "@types/express": "^5.0.0",
     "@types/helmet": "^4.0.0",
@@ -155,7 +154,9 @@
     "moduleNameMapper": {
       "^bcryptjs$": "<rootDir>/test/mocks/bcryptjs.ts",
       "^@nestjs/passport$": "<rootDir>/test/mocks/nestjs-passport.ts",
-      "^@nestjs/terminus$": "<rootDir>/test/mocks/nestjs-terminus.ts"
+      "^@nestjs/terminus$": "<rootDir>/test/mocks/nestjs-terminus.ts",
+      "^passport-jwt$": "<rootDir>/test/mocks/nestjs-passport.ts",
+      "^passport$": "<rootDir>/test/mocks/nestjs-passport.ts"
     },
     "collectCoverageFrom": [
       "**/*.(t|j)s"
@@ -168,9 +169,10 @@
     ]
   },
   "overrides": {
-    "tar": "7.5.8",
+    "tar": "^7.5.10",
     "minimatch": "^9.0.8",
-    "serialize-javascript": "^7.0.3"
+    "serialize-javascript": "^7.0.3",
+    "multer": "^2.1.1"
   },
   "packageManager": "pnpm@10.28.2+sha512.41872f037ad22f7348e3b1debbaf7e867cfd448f2726d9cf74c08f19507c31d2c8e7a11525b983febc2df640b5438dee6023ebb1f84ed43cc2d654d2bc326264",
   "pnpm": {
@@ -190,10 +192,11 @@
     },
     "overrides": {
       "axios": "1.13.5",
-      "tar": "7.5.8",
+      "tar": "^7.5.10",
       "@isaacs/brace-expansion": "5.0.1",
       "minimatch": "^9.0.8",
-      "serialize-javascript": "^7.0.3"
+      "serialize-javascript": "^7.0.3",
+      "multer": "^2.1.1"
     }
   }
 }

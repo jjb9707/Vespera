@@ -33,6 +33,37 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Error Handling Architecture
+
+The frontend now includes a centralized, typed error handling system with route and component boundaries.
+
+### What is in place
+
+- `lib/errors/*`: shared error types, classifiers, message catalog, logging, and retry helpers.
+- `components/error/ErrorFallback.tsx`: accessible reusable fallback UI with retry + safe navigation.
+- `components/error/ClientErrorBoundary.tsx`: component-level React boundary for critical UI regions.
+- `app/error.tsx`, `app/landlords/error.tsx`, `app/dashboard/error.tsx`, `app/tenant/error.tsx`: route-level recoverable boundaries.
+- `components/error/ErrorMonitoringProvider.tsx`: captures `window.onerror` and unhandled promise rejections.
+- `components/error/NetworkStatusBanner.tsx`: offline detection with visible recovery action.
+
+### Usage conventions
+
+- Prefer `classifyUnknownError(...)` in `catch` blocks to normalize unknown failures.
+- Use `appError.userMessage` for user-facing feedback.
+- Use `logError(...)` to report structured context and preserve debugging metadata.
+- Wrap risky/critical component sections with `ClientErrorBoundary` for local recovery.
+- Keep form-level failures accessible via `role="alert"` and `aria-live` (see `FormErrorAlert`).
+
+### Optional external reporting
+
+To connect a real monitoring provider (Sentry, Datadog, etc.), set a browser reporter function:
+
+```ts
+window.__CHIOMA_ERROR_REPORTER__ = (payload) => {
+  // Forward payload to your monitoring endpoint
+};
+```
+
 ## Pipeline Validation with Makefile
 
 ### Frontend Pipeline Checks
@@ -79,109 +110,57 @@ The Makefile mirrors the GitHub Actions workflow in `.github/workflows/frontend-
 2. **Testing** - Unit tests (Jest) and E2E tests (Cypress) if installed
 3. **Build** - Production build verification
 
-   ### Backend Pipeline Checks
+### Backend Pipeline Checks
 
-   The backend also includes a comprehensive Makefile for CI/CD validation.
+The backend also includes a comprehensive Makefile for CI/CD validation.
 
-   #### Backend Quick Start
+#### Backend Quick Start
 
-   ```bash
-   cd ../backend
+```bash
+cd ../backend
 
-   # Run full CI pipeline (matches GitHub Actions)
-   make ci
+# Run full CI pipeline (matches GitHub Actions)
+make ci
 
-   # Run all backend workflows (CI + security)
-   make all
+# Run all backend workflows (CI + security)
+make all
 
-   # Get help with all available commands
-   make help
-   ```
+# Get help with all available commands
+make help
+```
 
-   #### Key Backend Commands
+#### Key Backend Commands
 
-   ```bash
-   # Main pipeline commands
-   make ci              # Full CI pipeline: install, format-check, lint, typecheck, test-cov, build
-   make security-ci     # Security pipeline: install, security-lint, security-test, build
-   make all             # Run all CI/CD pipelines
+```bash
+# Main pipeline commands
+make ci              # Full CI pipeline: install, format-check, lint, typecheck, test-cov, build
+make security-ci     # Security pipeline: install, security-lint, security-test, build
+make all             # Run all CI/CD pipelines
 
-   # Individual checks
-   make lint            # Run ESLint
-   make format-check    # Check Prettier formatting
-   make typecheck       # TypeScript type checking
-   make test            # Run unit tests
-   make test-cov        # Run tests with coverage
-   make test-e2e        # Run E2E tests (requires PostgreSQL)
-   make build           # Build the application
+# Individual checks
+make lint            # Run ESLint
+make format-check    # Check Prettier formatting
+make typecheck       # TypeScript type checking
+make test            # Run unit tests
+make test-cov        # Run tests with coverage
+make test-e2e        # Run E2E tests (requires PostgreSQL)
+make build           # Build the application
 
-   # Pre-commit workflow
-   make pre-commit      # Run format-check, lint, typecheck, test
-   ```
+# Pre-commit workflow
+make pre-commit      # Run format-check, lint, typecheck, test
+```
 
-   ### Before Creating a PR
+### Before Creating a PR
 
-   Run these commands to ensure your PR will pass all pipeline checks:
+Run these commands to ensure your PR will pass all pipeline checks:
 
-   ```bash
-   # Frontend checks
-   cd frontend
-   make check
+```bash
+# Frontend checks
+cd frontend
+make check
+```
 
-   The makefile is designed to replicate the exact same checks that run in GitHub Actions, giving you confidence that your PR will pass the CI/CD pipeline.
-   ```
-
-   ### Backend Pipeline Checks
-
-   The backend also includes a comprehensive Makefile for CI/CD validation.
-
-   #### Backend Quick Start
-
-   ```bash
-   cd ../backend
-
-   # Run full CI pipeline (matches GitHub Actions)
-   make ci
-
-   # Run all backend workflows (CI + security)
-   make all
-
-   # Get help with all available commands
-   make help
-   ```
-
-   #### Key Backend Commands
-
-   ```bash
-   # Main pipeline commands
-   make ci              # Full CI pipeline: install, format-check, lint, typecheck, test-cov, build
-   make security-ci     # Security pipeline: install, security-lint, security-test, build
-   make all             # Run all CI/CD pipelines
-
-   # Individual checks
-   make lint            # Run ESLint
-   make format-check    # Check Prettier formatting
-   make typecheck       # TypeScript type checking
-   make test            # Run unit tests
-   make test-cov        # Run tests with coverage
-   make test-e2e        # Run E2E tests (requires PostgreSQL)
-   make build           # Build the application
-
-   # Pre-commit workflow
-   make pre-commit      # Run format-check, lint, typecheck, test
-   ```
-
-   ### Before Creating a PR
-
-   Run these commands to ensure your PR will pass all pipeline checks:
-
-   ```bash
-   # Frontend checks
-   cd frontend
-   make check
-
-   The makefile is designed to replicate the exact same checks that run in GitHub Actions, giving you confidence that your PR will pass the CI/CD pipeline.
-   ```
+The makefile is designed to replicate the exact same checks that run in GitHub Actions, giving you confidence that your PR will pass the CI/CD pipeline.
 
 ## Learn More
 

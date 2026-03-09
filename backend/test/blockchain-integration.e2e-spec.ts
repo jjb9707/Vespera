@@ -23,12 +23,16 @@ describe('Blockchain Integration (e2e)', () => {
         }),
         CacheModule.register({
           isGlobal: true,
-          store: 'memory',
           ttl: 600,
+          max: 100,
         }),
         TypeOrmModule.forRoot({
-          type: 'sqlite',
-          database: ':memory:',
+          type: 'postgres',
+          host: process.env.DB_HOST || 'localhost',
+          port: parseInt(process.env.DB_PORT || '5432'),
+          username: process.env.DB_USERNAME || 'postgres',
+          password: process.env.DB_PASSWORD || 'password',
+          database: process.env.DB_NAME || 'chioma_test',
           entities: [__dirname + '/../src/**/*.entity{.ts,.js}'],
           synchronize: true,
         }),
@@ -73,6 +77,21 @@ describe('Blockchain Integration (e2e)', () => {
       };
 
       // This test requires testnet setup and funded accounts
+      // const agreementDto = {
+      //   propertyId: 'test-property',
+      //   landlordId: 'test-landlord',
+      //   tenantId: 'test-tenant',
+      //   landlordStellarPubKey: landlordKeypair.publicKey(),
+      //   tenantStellarPubKey: tenantKeypair.publicKey(),
+      //   monthlyRent: '1000',
+      //   securityDeposit: '2000',
+      //   agentCommissionRate: 10,
+      //   startDate: new Date().toISOString(),
+      //   endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+      //   termsAndConditions: 'Test terms',
+      //   paymentToken: 'NATIVE',
+      // };
+
       // const agreement = await agreementsService.create(agreementDto);
       // expect(agreement.blockchainAgreementId).toBeDefined();
       // expect(agreement.transactionHash).toBeDefined();

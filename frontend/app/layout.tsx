@@ -1,7 +1,10 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { AuthHydrator } from '@/store/AuthHydrator';
+import { QueryProvider } from '@/lib/query/provider';
+import { StoreHydrator } from '@/store/StoreHydrator';
 import { Toaster } from 'react-hot-toast';
+import ErrorMonitoringProvider from '@/components/error/ErrorMonitoringProvider';
+import NetworkStatusBanner from '@/components/error/NetworkStatusBanner';
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -97,12 +100,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <AuthHydrator />
-        {children}
-        <Toaster
-          position="bottom-right"
-          toastOptions={{ className: 'font-medium' }}
-        />
+        <QueryProvider>
+          <StoreHydrator />
+          <ErrorMonitoringProvider />
+          <NetworkStatusBanner />
+          {children}
+          <Toaster
+            position="bottom-right"
+            toastOptions={{ className: 'font-medium' }}
+          />
+        </QueryProvider>
       </body>
     </html>
   );

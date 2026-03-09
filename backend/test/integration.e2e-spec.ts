@@ -2,6 +2,8 @@
  * Integration E2E: critical paths across modules.
  * Covers feedback, developer portal, and public endpoints.
  */
+process.env.NODE_ENV = 'test';
+
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';

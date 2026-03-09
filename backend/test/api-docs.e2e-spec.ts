@@ -2,6 +2,8 @@
  * API Documentation & Contract E2E tests.
  * Ensures OpenAPI docs are served and spec is valid; critical endpoints respond with expected contract.
  */
+process.env.NODE_ENV = 'test';
+
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';

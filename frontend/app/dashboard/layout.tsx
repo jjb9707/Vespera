@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { Menu, Wallet, Search, User } from 'lucide-react';
 import { NotificationBell } from '@/components/notifications';
 import { Sidebar } from '@/components/dashboard/Sidebar';
+import { dashboardNavItems } from '@/data/dashboard-nav-items';
+import { ClientErrorBoundary } from '@/components/error/ClientErrorBoundary';
 
 export default function TenantDashboardLayout({
   children,
@@ -15,7 +17,11 @@ export default function TenantDashboardLayout({
   return (
     <div className="min-h-screen bg-neutral-50 font-sans text-neutral-900 flex flex-col lg:flex-row">
       {/* Sidebar Component */}
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        navItems={dashboardNavItems}
+      />
 
       {/* Main Content Area */}
       <div className="flex-1 lg:ml-64 flex flex-col min-w-0">
@@ -79,9 +85,15 @@ export default function TenantDashboardLayout({
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 w-full max-w-7xl mx-auto overflow-x-hidden">
-          {children}
-        </main>
+        <ClientErrorBoundary
+          source="app/dashboard/layout.tsx-main"
+          fallbackTitle="Dashboard content crashed"
+          fallbackDescription="We could not render this dashboard view. Retry to continue."
+        >
+          <main className="flex-1 p-4 sm:p-6 lg:p-8 w-full max-w-7xl mx-auto overflow-x-hidden">
+            {children}
+          </main>
+        </ClientErrorBoundary>
       </div>
     </div>
   );

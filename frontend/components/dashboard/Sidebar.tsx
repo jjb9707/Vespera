@@ -3,59 +3,21 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  LayoutDashboard,
-  FileText,
-  Wallet,
-  Settings,
-  LogOut,
-  BellRing,
-  User,
-} from 'lucide-react';
+import { LogOut } from 'lucide-react';
+import { navItems } from '@/types/sidebar-items';
 
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  navItems: navItems[];
 }
 
-const navItems = [
-  {
-    name: 'Overview',
-    href: '/dashboard',
-    icon: LayoutDashboard,
-  },
-  {
-    name: 'Agreements',
-    href: '/dashboard/documents',
-    icon: FileText,
-  },
-  {
-    name: 'Payments',
-    href: '/dashboard/payments',
-    icon: Wallet,
-  },
-  {
-    name: 'Notifications',
-    href: '/dashboard/notifications',
-    icon: BellRing,
-  },
-  {
-    name: 'Profile',
-    href: '/dashboard/profile',
-    icon: User,
-  },
-  {
-    name: 'Settings',
-    href: '/dashboard/settings',
-    icon: Settings,
-  },
-];
-
-export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
+export const Sidebar = ({ isOpen, onClose, navItems }: SidebarProps) => {
   const pathname = usePathname();
 
   const isActive = (href: string) => {
     if (href === '/dashboard') return pathname === '/dashboard';
+    if (href === '/tenant') return pathname === '/tenant';
     return pathname.startsWith(href);
   };
 
