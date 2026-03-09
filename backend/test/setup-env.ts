@@ -1,9 +1,15 @@
+// CRITICAL: Set DB_TYPE FIRST before any imports or code
+process.env.DB_TYPE = 'postgres';
+process.env.NODE_ENV = 'test';
+
 // Polyfill global crypto for Jest (TypeORM uses crypto.randomUUID())
 if (typeof globalThis.crypto === 'undefined') {
   const nodeCrypto = require('node:crypto');
   (globalThis as typeof globalThis & { crypto: Crypto }).crypto =
     nodeCrypto.webcrypto ?? nodeCrypto;
 }
+
+console.log('setup-env.ts: DB_TYPE set to', process.env.DB_TYPE);
 
 // Rate limiting configuration
 process.env.RATE_LIMIT_TTL = '60000';
@@ -22,7 +28,7 @@ process.env.JWT_EXPIRATION = '15m';
 process.env.JWT_REFRESH_EXPIRATION = '7d';
 
 // Database configuration
-process.env.DB_TYPE = 'postgres';
+// Already set at top of file
 process.env.DB_HOST = 'localhost';
 process.env.DB_PORT = '5432';
 process.env.DB_USERNAME = 'postgres';
@@ -41,7 +47,7 @@ process.env.PAYMENT_METADATA_SECRET = 'test-payment-secret';
 
 // Use PostgreSQL for E2E tests
 // The GitHub Actions workflow provides a PostgreSQL service
-process.env.NODE_ENV = 'test';
+// Already set at top: process.env.NODE_ENV = 'test';
 
 // Required by AuthModule (JWT strategy / auth service)
 if (!process.env.JWT_SECRET)

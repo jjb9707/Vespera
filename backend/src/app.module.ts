@@ -46,28 +46,28 @@ import { RateLimitHeadersMiddleware } from './modules/rate-limiting/middleware/r
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    CacheModule.registerAsync({
-      isGlobal: true,
-      inject: [],
-      useFactory: async () => {
-        if (process.env.NODE_ENV === 'test') {
-          return {
-            ttl: 600,
-            max: 100,
-          };
-        }
-        return {
-          store: await redisStore({
-            socket: {
-              host: process.env.REDIS_HOST || 'localhost',
-              port: parseInt(process.env.REDIS_PORT || '6379'),
-            },
-            password: process.env.REDIS_PASSWORD || undefined,
-            ttl: 600, // Default TTL in seconds
-          }),
-        };
-      },
-    }),
+    process.env.NODE_ENV === 'test'
+      ? CacheModule.register({
+          isGlobal: true,
+          ttl: 600,
+          max: 100,
+        })
+      : CacheModule.registerAsync({
+          isGlobal: true,
+          inject: [],
+          useFactory: async () => {
+            return {
+              store: await redisStore({
+                socket: {
+                  host: process.env.REDIS_HOST || 'localhost',
+                  port: parseInt(process.env.REDIS_PORT || '6379'),
+                },
+                password: process.env.REDIS_PASSWORD || undefined,
+                ttl: 600, // Default TTL in seconds
+              }),
+            };
+          },
+        }),
     ThrottlerModule.forRoot([
       {
         name: 'default',
@@ -90,9 +90,20 @@ import { RateLimitHeadersMiddleware } from './modules/rate-limiting/middleware/r
       useFactory: () => {
         const isTest = process.env.NODE_ENV === 'test';
         const openapiGenerate = process.env.OPENAPI_GENERATE === 'true';
+        const dbType = process.env.DB_TYPE;
+
+        console.log('[TypeORM Config] Called with:', {
+          NODE_ENV: process.env.NODE_ENV,
+          isTest,
+          DB_TYPE: dbType,
+          OPENAPI_GENERATE: openapiGenerate,
+        });
 
         // For OpenAPI generation, return a minimal config that doesn't connect to DB
         if (openapiGenerate) {
+          console.log(
+            '[TypeORM Config] Returning SQLite for OpenAPI generation',
+          );
           return {
             type: 'sqlite',
             database: ':memory:',
@@ -103,7 +114,10 @@ import { RateLimitHeadersMiddleware } from './modules/rate-limiting/middleware/r
           };
         }
 
-        if (isTest && process.env.DB_TYPE === 'sqlite') {
+        if (isTest && dbType === 'sqlite') {
+          console.log(
+            '[TypeORM Config] Returning SQLite for tests (DB_TYPE=sqlite)',
+          );
           return {
             type: 'sqlite',
             database: ':memory:',
@@ -113,8 +127,9 @@ import { RateLimitHeadersMiddleware } from './modules/rate-limiting/middleware/r
             logging: false,
           };
         }
-        return {
-          type: 'postgres',
+        console.log('[TypeORM Config] Returning PostgreSQL');
+        const config = {
+          type: 'postgres' as const,
           host: process.env.DB_HOST,
           port: parseInt(process.env.DB_PORT || '5432'),
           username: process.env.DB_USERNAME,
@@ -126,6 +141,14 @@ import { RateLimitHeadersMiddleware } from './modules/rate-limiting/middleware/r
           synchronize: isTest,
           logging: process.env.NODE_ENV === 'development',
         };
+        console.log('[TypeORM Config] PostgreSQL config:', {
+          type: config.type,
+          host: config.host,
+          port: config.port,
+          username: config.username,
+          database: config.database,
+        });
+        return config;
       },
     }),
     AgreementsModule,
