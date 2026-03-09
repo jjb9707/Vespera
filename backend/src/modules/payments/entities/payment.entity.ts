@@ -40,7 +40,7 @@ export class Payment {
   userId: string;
 
   @Column({ nullable: true, type: 'varchar' })
-  agreementId: string | null; // Reference to agreement
+  agreementId: string | null; // Reference to agreement (no FK constraint)
 
   @Column('decimal', { precision: 12, scale: 2 })
   amount: number;

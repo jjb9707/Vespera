@@ -26,12 +26,12 @@ process.env.JWT_EXPIRATION = '15m';
 process.env.JWT_REFRESH_EXPIRATION = '7d';
 
 // Database configuration
-// Already set at top of file
-process.env.DB_HOST = 'localhost';
-process.env.DB_PORT = '5432';
-process.env.DB_USERNAME = 'postgres';
-process.env.DB_PASSWORD = 'password';
-process.env.DB_NAME = 'chioma_test';
+// Use environment variables if set (for CI), otherwise use local defaults
+if (!process.env.DB_HOST) process.env.DB_HOST = 'localhost';
+if (!process.env.DB_PORT) process.env.DB_PORT = '5433';
+if (!process.env.DB_USERNAME) process.env.DB_USERNAME = 'chioma_dev';
+if (!process.env.DB_PASSWORD) process.env.DB_PASSWORD = 'dev_password';
+if (!process.env.DB_NAME) process.env.DB_NAME = 'chioma_test';
 
 // Stellar configuration
 process.env.STELLAR_NETWORK = 'testnet';

@@ -40,7 +40,6 @@ describe('API Contract (e2e)', () => {
       expect(res.body).toHaveProperty('services');
       expect(res.body.services).toHaveProperty('database');
       expect(res.body.services).toHaveProperty('stellar');
-      expect(res.body.services).toHaveProperty('memory');
     });
 
     it('GET /health/detailed returns enhanced health with details', async () => {

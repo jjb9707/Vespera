@@ -7,7 +7,7 @@ import {
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_FILTER } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AgreementsModule } from './modules/agreements/agreements.module';
@@ -18,6 +18,7 @@ import { PropertiesModule } from './modules/properties/properties.module';
 import { StellarModule } from './modules/stellar/stellar.module';
 import { DisputesModule } from './modules/disputes/disputes.module';
 import { MonitoringModule } from './modules/monitoring/monitoring.module';
+import { ThrottlerExceptionFilter } from './common/filters/throttler-exception.filter';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { PaymentModule } from './modules/payments/payment.module';
 import { ProfileModule } from './modules/profile/profile.module';
@@ -113,7 +114,7 @@ import { RateLimitHeadersMiddleware } from './modules/rate-limiting/middleware/r
             logging: false,
           };
         }
-        return {
+        const config = {
           type: 'postgres' as const,
           host: process.env.DB_HOST,
           port: parseInt(process.env.DB_PORT || '5432'),
@@ -174,6 +175,10 @@ import { RateLimitHeadersMiddleware } from './modules/rate-limiting/middleware/r
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: ThrottlerExceptionFilter,
     },
   ],
 })
