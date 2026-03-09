@@ -91,7 +91,7 @@ export default function MessagesPage() {
                 <h2 className="text-sm font-semibold text-neutral-900 truncate">
                   {otherUser
                     ? `${otherUser.firstName} ${otherUser.lastName}`
-                    : activeRoom.name ?? 'Chat'}
+                    : (activeRoom.name ?? 'Chat')}
                 </h2>
                 <div className="flex items-center gap-1.5">
                   {typingUsers.size > 0 ? (
@@ -152,8 +152,8 @@ export default function MessagesPage() {
               Your messages
             </h3>
             <p className="text-sm text-neutral-500 text-center max-w-xs">
-              Select a conversation from the sidebar, or start a new chat from
-              a property or profile page.
+              Select a conversation from the sidebar, or start a new chat from a
+              property or profile page.
             </p>
           </div>
         )}

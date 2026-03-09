@@ -50,7 +50,9 @@ export function ChatSidebar({
       ? `${other.firstName} ${other.lastName}`.toLowerCase()
       : '';
     const last = room.lastMessage?.content?.toLowerCase() ?? '';
-    return name.includes(query.toLowerCase()) || last.includes(query.toLowerCase());
+    return (
+      name.includes(query.toLowerCase()) || last.includes(query.toLowerCase())
+    );
   });
 
   return (
@@ -144,7 +146,7 @@ export function ChatSidebar({
                     >
                       {other
                         ? `${other.firstName} ${other.lastName}`
-                        : room.name ?? 'Chat'}
+                        : (room.name ?? 'Chat')}
                     </span>
                     {lastMsg && (
                       <span className="text-[11px] text-neutral-400 ml-2 shrink-0">

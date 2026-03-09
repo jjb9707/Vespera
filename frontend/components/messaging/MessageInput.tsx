@@ -11,7 +11,11 @@ interface MessageInputProps {
 
 const TYPING_DEBOUNCE_MS = 1500;
 
-export function MessageInput({ onSend, onTyping, disabled = false }: MessageInputProps) {
+export function MessageInput({
+  onSend,
+  onTyping,
+  disabled = false,
+}: MessageInputProps) {
   const [value, setValue] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -99,7 +103,11 @@ export function MessageInput({ onSend, onTyping, disabled = false }: MessageInpu
             onKeyDown={handleKeyDown}
             disabled={disabled}
             rows={1}
-            placeholder={disabled ? 'Select a conversation…' : 'Type a message… (Enter to send)'}
+            placeholder={
+              disabled
+                ? 'Select a conversation…'
+                : 'Type a message… (Enter to send)'
+            }
             className="w-full resize-none rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:border-blue-400 focus:bg-white transition-all leading-relaxed disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label="Message input"
             aria-multiline="true"
@@ -123,9 +131,15 @@ export function MessageInput({ onSend, onTyping, disabled = false }: MessageInpu
       </div>
 
       <p className="text-[10px] text-neutral-400 mt-2 ml-12">
-        Press <kbd className="px-1 py-0.5 bg-neutral-100 rounded text-[10px]">Enter</kbd> to send
-        &nbsp;·&nbsp;
-        <kbd className="px-1 py-0.5 bg-neutral-100 rounded text-[10px]">Shift + Enter</kbd> for new line
+        Press{' '}
+        <kbd className="px-1 py-0.5 bg-neutral-100 rounded text-[10px]">
+          Enter
+        </kbd>{' '}
+        to send &nbsp;·&nbsp;
+        <kbd className="px-1 py-0.5 bg-neutral-100 rounded text-[10px]">
+          Shift + Enter
+        </kbd>{' '}
+        for new line
       </p>
     </div>
   );

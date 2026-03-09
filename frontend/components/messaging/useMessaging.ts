@@ -4,10 +4,14 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useAuthStore } from '@/store/authStore';
 import { apiClient } from '@/lib/api-client';
-import type { ChatRoom, Message, SendMessagePayload, TypingPayload } from './types';
+import type {
+  ChatRoom,
+  Message,
+  SendMessagePayload,
+  TypingPayload,
+} from './types';
 
-const SOCKET_URL =
-  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 interface UseMessagingReturn {
   rooms: ChatRoom[];

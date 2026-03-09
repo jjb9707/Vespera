@@ -167,7 +167,9 @@ export function MessageList({
                   </div>
 
                   {/* Bubble */}
-                  <div className={`max-w-[70%] group ${isMine ? 'items-end' : 'items-start'} flex flex-col`}>
+                  <div
+                    className={`max-w-[70%] group ${isMine ? 'items-end' : 'items-start'} flex flex-col`}
+                  >
                     {/* Sender name — only on first message in sequence for received */}
                     {!isMine && isFirstInSequence && (
                       <span className="text-[11px] font-medium text-neutral-500 mb-1 ml-1">
@@ -232,7 +234,11 @@ export function MessageList({
 
       {/* Typing indicator */}
       {typingUsers.size > 0 && (
-        <div className="flex items-end gap-2 mt-3" aria-live="polite" aria-label="Someone is typing">
+        <div
+          className="flex items-end gap-2 mt-3"
+          aria-live="polite"
+          aria-label="Someone is typing"
+        >
           <div className="w-8 shrink-0" />
           <div className="bg-neutral-100 rounded-2xl rounded-bl-sm px-4 py-3 flex items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-neutral-400 animate-bounce [animation-delay:0ms]" />
