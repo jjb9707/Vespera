@@ -23,7 +23,12 @@ export class AgentTransaction {
   @Column({ default: false })
   completed: boolean;
 
-  @Column({ name: 'blockchain_hash', length: 64, nullable: true })
+  @Column({
+    name: 'blockchain_hash',
+    type: 'varchar',
+    length: 64,
+    nullable: true,
+  })
   blockchainHash: string | null;
 
   @CreateDateColumn({ name: 'created_at' })
