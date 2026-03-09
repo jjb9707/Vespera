@@ -51,8 +51,8 @@ import { RateLimitHeadersMiddleware } from './modules/rate-limiting/middleware/r
       useFactory: async () => {
         if (process.env.NODE_ENV === 'test') {
           return {
-            store: 'memory',
             ttl: 600,
+            max: 100,
           };
         }
         return {
