@@ -161,13 +161,7 @@ export default function TenantReviewsPage() {
   );
 }
 
-function InfoCard({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
+function InfoCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">

@@ -196,7 +196,9 @@ export default function TenantDisputesPage() {
                           value={dispute.disputeType.replace('_', ' ')}
                         />
                         <MiniStat
-                          icon={<FilePlus2 className="h-4 w-4 text-amber-600" />}
+                          icon={
+                            <FilePlus2 className="h-4 w-4 text-amber-600" />
+                          }
                           label="Evidence"
                           value={`${dispute.evidenceCount}`}
                         />
@@ -210,29 +212,29 @@ export default function TenantDisputesPage() {
                       </div>
                     </div>
 
-                  <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-slate-100 pt-4 text-xs text-slate-500">
-                    <span>
-                      Opened{' '}
-                      {format(new Date(dispute.createdAt), 'MMM d, yyyy')}
-                    </span>
-                    <span>
-                      Last updated{' '}
-                      {format(new Date(dispute.updatedAt), 'MMM d, yyyy')}
-                    </span>
-                    {typeof dispute.requestedAmount === 'number' ? (
+                    <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-slate-100 pt-4 text-xs text-slate-500">
                       <span>
-                        Requested amount{' '}
-                        {formatCurrency(dispute.requestedAmount)}
+                        Opened{' '}
+                        {format(new Date(dispute.createdAt), 'MMM d, yyyy')}
                       </span>
-                    ) : null}
-                  </div>
-
-                  {dispute.resolution ? (
-                    <div className="mt-4 rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
-                      <span className="font-semibold">Resolution:</span>{' '}
-                      {dispute.resolution}
+                      <span>
+                        Last updated{' '}
+                        {format(new Date(dispute.updatedAt), 'MMM d, yyyy')}
+                      </span>
+                      {typeof dispute.requestedAmount === 'number' ? (
+                        <span>
+                          Requested amount{' '}
+                          {formatCurrency(dispute.requestedAmount)}
+                        </span>
+                      ) : null}
                     </div>
-                  ) : null}
+
+                    {dispute.resolution ? (
+                      <div className="mt-4 rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+                        <span className="font-semibold">Resolution:</span>{' '}
+                        {dispute.resolution}
+                      </div>
+                    ) : null}
                   </div>
                 </article>
               ))}
