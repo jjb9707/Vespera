@@ -159,10 +159,10 @@ export default function PropertyListing() {
 
   return (
     <>
-      <Navbar theme="light" />
-      <div className="overflow-x-hidden">
+      <Navbar />
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
         {/* Header/Search Bar */}
-        <header className="sticky top-0 z-40 bg-white border-b border-gray-200">
+        <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/80 border-b border-slate-200/50 shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
             <div className="flex flex-col gap-4 md:gap-0">
               <SearchFilters
@@ -172,27 +172,27 @@ export default function PropertyListing() {
 
               {/* Filter Buttons and Actions */}
               <div className="flex flex-wrap items-center gap-2 md:gap-3">
-                <button className="px-4 py-2 text-sm border border-gray-300 rounded-full hover:bg-gray-50 transition">
+                <button className="px-4 py-2 text-sm border border-slate-300 rounded-lg hover:bg-slate-50 transition-all font-medium text-slate-700">
                   Price Range
                 </button>
-                <button className="px-4 py-2 text-sm bg-blue-100 text-blue-700 rounded-full border border-blue-300 hover:bg-blue-200 transition font-medium">
+                <button className="px-4 py-2 text-sm bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all font-medium shadow-sm">
                   Property Type
                 </button>
-                <button className="px-4 py-2 text-sm border border-gray-300 rounded-full hover:bg-gray-50 transition">
+                <button className="px-4 py-2 text-sm border border-slate-300 rounded-lg hover:bg-slate-50 transition-all font-medium text-slate-700">
                   Beds & Baths
                 </button>
-                <button className="px-4 py-2 text-sm border border-gray-300 rounded-full hover:bg-gray-50 transition hidden sm:inline-block">
+                <button className="px-4 py-2 text-sm border border-slate-300 rounded-lg hover:bg-slate-50 transition-all font-medium text-slate-700 hidden sm:inline-block">
                   Amenities
                 </button>
                 <div className="flex items-center gap-2 ml-auto shrink-0">
                   {/* View Toggle */}
-                  <div className="flex items-center gap-0 border border-gray-300 rounded-lg overflow-hidden">
+                  <div className="flex items-center gap-0 border border-slate-300 rounded-lg overflow-hidden bg-white shadow-sm">
                     <button
                       onClick={() => setViewMode('list')}
-                      className={`min-h-[44px] min-w-[44px] flex items-center justify-center px-3 py-2 text-sm transition ${
+                      className={`min-h-[44px] min-w-[44px] flex items-center justify-center px-3 py-2 text-sm transition-all ${
                         viewMode === 'list'
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-white text-gray-700 hover:bg-gray-50'
+                          ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white'
+                          : 'bg-white text-slate-700 hover:bg-slate-50'
                       }`}
                       title="List View"
                     >
@@ -200,10 +200,10 @@ export default function PropertyListing() {
                     </button>
                     <button
                       onClick={() => setViewMode('split')}
-                      className={`min-h-[44px] min-w-[44px] flex items-center justify-center px-3 py-2 text-sm transition ${
+                      className={`min-h-[44px] min-w-[44px] flex items-center justify-center px-3 py-2 text-sm transition-all ${
                         viewMode === 'split'
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-white text-gray-700 hover:bg-gray-50'
+                          ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white'
+                          : 'bg-white text-slate-700 hover:bg-slate-50'
                       }`}
                       title="Split View"
                     >
@@ -214,21 +214,21 @@ export default function PropertyListing() {
                     </button>
                     <button
                       onClick={() => setViewMode('map')}
-                      className={`min-h-[44px] min-w-[44px] flex items-center justify-center px-3 py-2 text-sm transition ${
+                      className={`min-h-[44px] min-w-[44px] flex items-center justify-center px-3 py-2 text-sm transition-all ${
                         viewMode === 'map'
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-white text-gray-700 hover:bg-gray-50'
+                          ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white'
+                          : 'bg-white text-slate-700 hover:bg-slate-50'
                       }`}
                       title="Map View"
                     >
                       <Map className="w-4 h-4" />
                     </button>
                   </div>
-                  <button className="flex items-center gap-1 px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                  <button className="flex items-center gap-1 px-4 py-2 text-sm border border-slate-300 rounded-lg hover:bg-slate-50 transition-all font-medium text-slate-700 shadow-sm bg-white">
                     <Filter className="w-4 h-4" />
                     <span className="hidden sm:inline">Filters</span>
                   </button>
-                  <button className="flex items-center gap-1 px-4 py-2 text-sm text-blue-600 border border-blue-300 rounded-lg hover:bg-blue-50 transition font-medium">
+                  <button className="flex items-center gap-1 px-4 py-2 text-sm bg-blue-50 text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-100 transition-all font-medium shadow-sm">
                     <Bell className="w-4 h-4" />
                     <span className="hidden sm:inline">Save Search</span>
                   </button>
@@ -247,7 +247,7 @@ export default function PropertyListing() {
           {/* Listings Panel */}
           {(viewMode === 'list' || viewMode === 'split') && (
             <div
-              className={`overflow-y-auto max-h-[calc(100vh-100px)] ${
+              className={`overflow-y-auto max-h-[calc(100vh-100px)] bg-white/50 backdrop-blur-sm ${
                 viewMode === 'split' ? 'w-full lg:w-2/5 xl:w-1/2' : 'w-full'
               }`}
             >
