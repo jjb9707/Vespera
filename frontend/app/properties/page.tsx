@@ -5,7 +5,6 @@ import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
 import PropertyCardSkeleton from '@/components/PropertyCardSkeleton';
 import PropertyCard from '@/components/properties/PropertyCard';
-import SearchFilters from '@/components/properties/SearchFilters';
 import { Filter, Bell, List, Map } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
@@ -165,11 +164,6 @@ export default function PropertyListing() {
         <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/80 border-b border-slate-200/50 shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
             <div className="flex flex-col gap-4 md:gap-0">
-              <SearchFilters
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-              />
-
               {/* Filter Buttons and Actions */}
               <div className="flex flex-wrap items-center gap-2 md:gap-3">
                 <button className="px-4 py-2 text-sm border border-slate-300 rounded-lg hover:bg-slate-50 transition-all font-medium text-slate-700">
@@ -254,19 +248,19 @@ export default function PropertyListing() {
               <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Heading */}
                 <div className="mb-6">
-                  <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
+                  <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-slate-900 to-blue-900 bg-clip-text text-transparent mb-2">
                     {filteredProperties.length} Global Stays
                   </h1>
-                  <p className="text-gray-600 text-sm sm:text-base">
+                  <p className="text-slate-600 text-sm sm:text-base">
                     Check verified listings with smart lease support
                   </p>
                 </div>
 
                 {/* Verified Badge */}
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4 sm:p-6 mb-8 flex gap-3 sm:gap-4">
+                <div className="backdrop-blur-xl bg-emerald-50/80 border border-emerald-200/50 rounded-xl p-4 sm:p-6 mb-8 flex gap-3 sm:gap-4 shadow-sm">
                   <div className="shrink-0">
                     <svg
-                      className="w-6 h-6 text-green-600"
+                      className="w-6 h-6 text-emerald-600"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >
@@ -278,10 +272,10 @@ export default function PropertyListing() {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-green-900 mb-1 text-sm sm:text-base">
+                    <h3 className="font-semibold text-emerald-900 mb-1 text-sm sm:text-base">
                       Verified Blockchain Listings
                     </h3>
-                    <p className="text-green-700 text-xs sm:text-sm">
+                    <p className="text-emerald-700 text-xs sm:text-sm">
                       All properties with the verified badge have been vetted
                       and are ready for instant smart contract leasing.
                     </p>
@@ -291,10 +285,10 @@ export default function PropertyListing() {
                 {/* Sort */}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-2">
-                    <span className="text-gray-600 text-sm sm:text-base">
+                    <span className="text-slate-600 text-sm sm:text-base font-medium">
                       Sort by:
                     </span>
-                    <select className="px-3 py-2 border border-gray-300 rounded-lg text-sm sm:text-base bg-white text-gray-900 cursor-pointer hover:border-gray-400">
+                    <select className="px-3 py-2 border border-slate-300 rounded-lg text-sm sm:text-base bg-white text-slate-900 cursor-pointer hover:border-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm">
                       <option>Recommended</option>
                       <option>Price: Low to High</option>
                       <option>Price: High to Low</option>
@@ -316,7 +310,7 @@ export default function PropertyListing() {
                       <PropertyCard key={property.id} property={property} />
                     ))
                   ) : (
-                    <div className="col-span-1 sm:col-span-2 text-center py-12 text-gray-500">
+                    <div className="col-span-1 sm:col-span-2 text-center py-12 text-slate-500">
                       No properties found matching your search.
                     </div>
                   )}
@@ -324,7 +318,7 @@ export default function PropertyListing() {
 
                 {/* Load More Button */}
                 <div className="flex justify-center">
-                  <button className="px-8 py-3 border-2 border-blue-600 text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition text-sm sm:text-base">
+                  <button className="px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl text-sm sm:text-base">
                     Load More Listings
                   </button>
                 </div>
@@ -342,14 +336,14 @@ export default function PropertyListing() {
               }`}
             >
               {/* Search as I Move Checkbox Overlay */}
-              <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md rounded-full px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-2 shadow-lg z-10 border border-black/5">
+              <div className="absolute top-4 right-4 backdrop-blur-xl bg-white/90 rounded-xl px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-2 shadow-lg z-10 border border-slate-200/50">
                 <input
                   type="checkbox"
                   checked={searchAsIMove}
                   onChange={(e) => setSearchAsIMove(e.target.checked)}
                   className="w-4 h-4 rounded cursor-pointer accent-blue-600"
                 />
-                <label className="text-gray-700 text-xs sm:text-sm font-medium cursor-pointer select-none">
+                <label className="text-slate-700 text-xs sm:text-sm font-medium cursor-pointer select-none">
                   Search as I move the map
                 </label>
               </div>
