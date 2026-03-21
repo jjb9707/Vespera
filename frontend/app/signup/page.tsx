@@ -87,23 +87,34 @@ export default function SignupPage() {
   };
 
   return (
-    <main className="min-h-screen bg-brand-gradient flex items-center justify-center px-4 py-8 sm:py-12">
-      <div className="w-full max-w-md animate-auth-enter">
+    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center px-4 py-8 sm:py-12 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+      </div>
+
+      <div className="w-full max-w-md animate-auth-enter relative z-10">
         {/* Logo / Brand */}
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-block mb-6">
-            <span className="text-2xl font-bold text-white tracking-tight">
-              Chioma
-            </span>
+        <div className="text-center mb-12">
+          <Link href="/" className="inline-block mb-8 group">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-lg">C</span>
+              </div>
+              <span className="text-2xl font-bold bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent tracking-tight group-hover:from-blue-200 group-hover:to-indigo-200 transition-all">
+                Chioma
+              </span>
+            </div>
           </Link>
-          <h1 className="text-3xl font-bold text-white">Create your account</h1>
-          <p className="text-white/70 mt-2">
+          <h1 className="text-4xl font-bold text-white mb-2">Create your account</h1>
+          <p className="text-blue-200/80 text-base">
             Join thousands managing properties smarter
           </p>
         </div>
 
-        {/* Glass Form Card */}
-        <div className="glass rounded-4xl border border-white/20 shadow-2xl p-6 sm:p-8">
+        {/* Premium Form Card */}
+        <div className="backdrop-blur-xl bg-white/10 rounded-2xl border border-white/20 shadow-2xl p-8 space-y-6">
           {serverError && <FormErrorAlert message={serverError} />}
 
           <form
@@ -113,10 +124,10 @@ export default function SignupPage() {
           >
             {/* Role Toggle */}
             <div>
-              <label className="block text-sm font-medium text-white/80 mb-1.5">
+              <label className="block text-sm font-semibold text-white mb-2">
                 I am a
               </label>
-              <div className="grid grid-cols-2 gap-1 p-1 rounded-xl bg-white/10 border border-white/20">
+              <div className="grid grid-cols-2 gap-2 p-1 rounded-lg bg-white/5 border border-white/20">
                 {(['TENANT', 'LANDLORD'] as const).map((role) => (
                   <button
                     key={role}
@@ -124,10 +135,10 @@ export default function SignupPage() {
                     onClick={() =>
                       setValue('role', role, { shouldValidate: true })
                     }
-                    className={`py-2.5 px-4 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                    className={`py-2.5 px-4 rounded-md text-sm font-semibold transition-all duration-200 ${
                       selectedRole === role
-                        ? 'bg-white text-brand-blue shadow-sm'
-                        : 'text-white/70 hover:text-white'
+                        ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg'
+                        : 'text-white/70 hover:text-white hover:bg-white/10'
                     }`}
                   >
                     {role.charAt(0) + role.slice(1).toLowerCase()}
@@ -136,12 +147,12 @@ export default function SignupPage() {
               </div>
             </div>
 
-            {/* Name Fields - stack on very small screens */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* Name Fields */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label
                   htmlFor="firstName"
-                  className="block text-sm font-medium text-white/80 mb-1.5"
+                  className="block text-sm font-semibold text-white mb-2"
                 >
                   First name
                 </label>
@@ -157,7 +168,7 @@ export default function SignupPage() {
               <div>
                 <label
                   htmlFor="lastName"
-                  className="block text-sm font-medium text-white/80 mb-1.5"
+                  className="block text-sm font-semibold text-white mb-2"
                 >
                   Last name
                 </label>
@@ -175,7 +186,7 @@ export default function SignupPage() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-white/80 mb-1.5"
+                className="block text-sm font-semibold text-white mb-2"
               >
                 Email address
               </label>
@@ -193,7 +204,7 @@ export default function SignupPage() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-white/80 mb-1.5"
+                className="block text-sm font-semibold text-white mb-2"
               >
                 Password
               </label>
@@ -211,11 +222,11 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3 px-4 bg-white text-brand-blue font-semibold rounded-xl hover:bg-white/90 active:bg-white/80 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed shadow-lg mt-2"
+              className="w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-indigo-700 active:from-blue-700 active:to-indigo-800 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed shadow-lg mt-6 hover:shadow-xl"
             >
               {isSubmitting ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-brand-blue/30 border-t-brand-blue rounded-full animate-spin" />
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   Creating account&hellip;
                 </>
               ) : (
@@ -227,26 +238,32 @@ export default function SignupPage() {
             </button>
           </form>
 
-          <div className="my-6 flex items-center gap-3">
-            <div className="h-px flex-1 bg-white/20"></div>
-            <span className="text-sm font-medium text-white/50 tracking-wider">
-              OR
-            </span>
-            <div className="h-px flex-1 bg-white/20"></div>
+          <div className="relative py-2">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-white/20"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-3 bg-white/5 text-white/50 font-medium">OR</span>
+            </div>
           </div>
 
-          <WalletConnectButton className="mb-6" />
+          <WalletConnectButton className="w-full" />
 
-          <p className="text-center text-white/60 text-sm mt-2">
+          <p className="text-center text-white/60 text-sm pt-2">
             Already have an account?{' '}
             <Link
               href="/login"
-              className="text-white font-medium hover:underline"
+              className="text-blue-300 font-semibold hover:text-blue-200 transition-colors"
             >
               Sign in
             </Link>
           </p>
         </div>
+
+        {/* Footer */}
+        <p className="text-center text-white/40 text-xs mt-8">
+          Secure rental management platform
+        </p>
       </div>
     </main>
   );
