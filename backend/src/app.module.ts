@@ -40,7 +40,7 @@ import { DeveloperModule } from './modules/developer/developer.module';
 import { SearchModule } from './modules/search/search.module';
 import { JobQueueService } from './common/services/job-queue.service';
 import { RateLimitingModule } from './modules/rate-limiting/rate-limiting.module';
-import { RateLimitHeadersMiddleware } from './modules/rate-limiting/middleware/rate-limit-headers.middleware';
+import { upstashStore } from './common/cache/upstash-cache.store';
 
 @Module({
   imports: [
@@ -50,26 +50,64 @@ import { RateLimitHeadersMiddleware } from './modules/rate-limiting/middleware/r
     }),
     process.env.NODE_ENV === 'test'
       ? CacheModule.register({
-          isGlobal: true,
-          ttl: 600,
-          max: 100,
-        })
+        isGlobal: true,
+        ttl: 600,
+        max: 100,
+      })
       : CacheModule.registerAsync({
-          isGlobal: true,
-          inject: [],
-          useFactory: async () => {
+        isGlobal: true,
+        inject: [],
+        useFactory: async () => {
+          // Use Upstash REST API if URL is provided (better for serverless/Render)
+          if (process.env.REDIS_URL && process.env.REDIS_TOKEN) {
+            console.log('[Redis] Using Upstash REST API');
+
             return {
-              store: await redisStore({
-                socket: {
-                  host: process.env.REDIS_HOST || 'localhost',
-                  port: parseInt(process.env.REDIS_PORT || '6379'),
-                },
-                password: process.env.REDIS_PASSWORD || undefined,
-                ttl: 600, // Default TTL in seconds
+              store: upstashStore({
+                url: process.env.REDIS_URL,
+                token: process.env.REDIS_TOKEN,
+                ttl: 600,
               }),
             };
-          },
-        }),
+          }
+
+          // Fallback to ioredis for traditional Redis connections
+          const Redis = require('ioredis');
+
+          const redisConfig: any = {
+            host: process.env.REDIS_HOST || 'localhost',
+            port: parseInt(process.env.REDIS_PORT || '6379'),
+            password: process.env.REDIS_PASSWORD || undefined,
+            maxRetriesPerRequest: 3,
+            retryStrategy(times: number) {
+              const delay = Math.min(times * 50, 2000);
+              return delay;
+            },
+            connectTimeout: 10000,
+          };
+
+          // Enable TLS for production Redis (e.g., Upstash)
+          if (process.env.REDIS_TLS === 'true') {
+            redisConfig.tls = {
+              rejectUnauthorized: true,
+            };
+          }
+
+          // Add username if provided (for Redis 6+ ACL)
+          if (process.env.REDIS_USERNAME) {
+            redisConfig.username = process.env.REDIS_USERNAME;
+          }
+
+          console.log('[Redis] Using ioredis with TLS');
+
+          return {
+            store: await redisStore({
+              client: new Redis(redisConfig),
+              ttl: 600,
+            }),
+          };
+        },
+      }),
     ThrottlerModule.forRoot([
       {
         name: 'default',
