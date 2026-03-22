@@ -67,7 +67,9 @@ const RecentActivity = () => {
     <div className="bg-white/5 backdrop-blur-sm rounded-3xl p-6 shadow-xl border border-white/10 h-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-white tracking-tight">Recent Activity</h2>
+        <h2 className="text-xl font-bold text-white tracking-tight">
+          Recent Activity
+        </h2>
         <button className="text-sm font-semibold text-blue-400 hover:text-blue-300 transition-colors">
           View All
         </button>
@@ -84,7 +86,9 @@ const RecentActivity = () => {
               key={activity.id}
               className="flex items-start space-x-4 p-4 rounded-2xl hover:bg-white/5 transition-all duration-200 cursor-pointer group border border-transparent hover:border-white/5"
             >
-              <div className={`p-3 rounded-xl ${activity.iconBg} shrink-0 shadow-inner`}>
+              <div
+                className={`p-3 rounded-xl ${activity.iconBg} shrink-0 shadow-inner`}
+              >
                 <Icon className={activity.iconColor} size={20} />
               </div>
 

@@ -290,9 +290,15 @@ export function ContractDetailsModal({
                       : 'bg-white/5 text-blue-200/40 border-white/10'
                 }`}
               >
-                {contract.status === 'ACTIVE' && <CheckCircle2 size={12} strokeWidth={2.5} />}
-                {contract.status === 'PENDING' && <Clock size={12} strokeWidth={2.5} />}
-                {contract.status === 'EXPIRED' && <ShieldAlert size={12} strokeWidth={2.5} />}
+                {contract.status === 'ACTIVE' && (
+                  <CheckCircle2 size={12} strokeWidth={2.5} />
+                )}
+                {contract.status === 'PENDING' && (
+                  <Clock size={12} strokeWidth={2.5} />
+                )}
+                {contract.status === 'EXPIRED' && (
+                  <ShieldAlert size={12} strokeWidth={2.5} />
+                )}
                 {contract.status}
               </span>
             </div>

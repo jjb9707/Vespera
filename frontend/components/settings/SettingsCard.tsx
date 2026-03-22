@@ -6,7 +6,11 @@ interface SettingsCardProps {
   children: ReactNode;
 }
 
-export function SettingsCard({ title, description, children }: SettingsCardProps) {
+export function SettingsCard({
+  title,
+  description,
+  children,
+}: SettingsCardProps) {
   return (
     <section className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6">
       <div className="mb-5">

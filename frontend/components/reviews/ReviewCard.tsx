@@ -47,7 +47,9 @@ export function ReviewCard({ review }: ReviewCardProps) {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h4 className="font-bold text-white group-hover:text-blue-400 transition-colors">{review.author.name}</h4>
+              <h4 className="font-bold text-white group-hover:text-blue-400 transition-colors">
+                {review.author.name}
+              </h4>
               {review.author.isVerified && (
                 <ShieldCheck className="w-4 h-4 text-blue-400" />
               )}
@@ -59,7 +61,9 @@ export function ReviewCard({ review }: ReviewCardProps) {
                 </span>
               )}
               {review.author.role && <span className="opacity-30">•</span>}
-              <time dateTime={dateStr} className="opacity-60">{timeAgo}</time>
+              <time dateTime={dateStr} className="opacity-60">
+                {timeAgo}
+              </time>
             </div>
           </div>
         </div>
@@ -73,7 +77,9 @@ export function ReviewCard({ review }: ReviewCardProps) {
         </div>
       </div>
 
-      <p className="text-blue-200/60 leading-relaxed text-sm font-medium">{review.comment}</p>
+      <p className="text-blue-200/60 leading-relaxed text-sm font-medium">
+        {review.comment}
+      </p>
     </div>
   );
 }

@@ -63,7 +63,7 @@ export function ReviewForm({
       className="flex flex-col gap-6 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6 shadow-2xl relative overflow-hidden group"
     >
       <div className="absolute -right-20 -top-20 w-48 h-48 rounded-full bg-blue-600 blur-[80px] opacity-10 group-hover:opacity-20 transition-opacity duration-500" />
-      
+
       <div className="relative z-10">
         <label className="mb-3 block text-[10px] font-bold uppercase tracking-widest text-blue-200/60">
           Rate your experience
@@ -71,7 +71,9 @@ export function ReviewForm({
         <div className="bg-white/5 rounded-xl p-3 border border-white/5 inline-block">
           <StarRatingInput
             value={ratingValue}
-            onChange={(val) => setValue('rating', val, { shouldValidate: true })}
+            onChange={(val) =>
+              setValue('rating', val, { shouldValidate: true })
+            }
             size="lg"
           />
         </div>

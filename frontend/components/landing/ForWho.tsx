@@ -8,8 +8,14 @@ const audiences = [
   {
     icon: Users,
     title: 'For Tenants',
-    description: 'Find your perfect home with transparent pricing, instant approvals, and secure payments.',
-    features: ['Instant background checks', 'Flexible payment options', 'Transparent lease terms', 'Earn rewards for on-time payments'],
+    description:
+      'Find your perfect home with transparent pricing, instant approvals, and secure payments.',
+    features: [
+      'Instant background checks',
+      'Flexible payment options',
+      'Transparent lease terms',
+      'Earn rewards for on-time payments',
+    ],
     cta: 'Start Searching',
     href: '/properties',
     gradient: 'from-blue-500 to-cyan-500',
@@ -17,8 +23,14 @@ const audiences = [
   {
     icon: Building2,
     title: 'For Landlords',
-    description: 'Maximize your rental income with automated management and guaranteed payments.',
-    features: ['Automated rent collection', 'Smart contract leases', 'Real-time analytics', 'Reduced vacancy periods'],
+    description:
+      'Maximize your rental income with automated management and guaranteed payments.',
+    features: [
+      'Automated rent collection',
+      'Smart contract leases',
+      'Real-time analytics',
+      'Reduced vacancy periods',
+    ],
     cta: 'List Property',
     href: '/landlords',
     gradient: 'from-indigo-500 to-purple-500',
@@ -26,8 +38,14 @@ const audiences = [
   {
     icon: Briefcase,
     title: 'For Agents',
-    description: 'Close deals faster with transparent commissions and instant payouts.',
-    features: ['Automated commission splits', 'Instant settlement', 'Transparent tracking', 'Reduced paperwork'],
+    description:
+      'Close deals faster with transparent commissions and instant payouts.',
+    features: [
+      'Automated commission splits',
+      'Instant settlement',
+      'Transparent tracking',
+      'Reduced paperwork',
+    ],
     cta: 'Join as Agent',
     href: '/agents',
     gradient: 'from-purple-500 to-pink-500',
@@ -49,7 +67,8 @@ export default function ForWho() {
             Built for Everyone
           </h2>
           <p className="text-xl text-blue-200/80 max-w-2xl mx-auto">
-            Whether you&apos;re renting, managing, or facilitating, we&apos;ve got you covered
+            Whether you&apos;re renting, managing, or facilitating, we&apos;ve
+            got you covered
           </p>
         </motion.div>
 
@@ -65,7 +84,9 @@ export default function ForWho() {
             >
               <div className="h-full backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-8 hover:bg-white/10 transition-all duration-300">
                 {/* Icon */}
-                <div className={`w-16 h-16 bg-gradient-to-br ${audience.gradient} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                <div
+                  className={`w-16 h-16 bg-gradient-to-br ${audience.gradient} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}
+                >
                   <audience.icon className="w-8 h-8 text-white" />
                 </div>
 
@@ -82,7 +103,10 @@ export default function ForWho() {
                 {/* Features */}
                 <ul className="space-y-3 mb-8">
                   {audience.features.map((feature, idx) => (
-                    <li key={idx} className="flex items-start gap-2 text-blue-200/80 text-sm">
+                    <li
+                      key={idx}
+                      className="flex items-start gap-2 text-blue-200/80 text-sm"
+                    >
                       <div className="w-1.5 h-1.5 bg-blue-400 rounded-full mt-2 flex-shrink-0" />
                       <span>{feature}</span>
                     </li>

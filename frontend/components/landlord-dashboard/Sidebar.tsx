@@ -83,7 +83,9 @@ export default function Sidebar() {
           </div>
 
           <div className="flex flex-col items-start overflow-hidden">
-            <span className="text-sm font-semibold text-white truncate w-full">James Smith</span>
+            <span className="text-sm font-semibold text-white truncate w-full">
+              James Smith
+            </span>
             <span className="text-xs text-blue-300/60">Premium Landlord</span>
           </div>
 

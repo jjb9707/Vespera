@@ -23,7 +23,7 @@ export function RatingSummary({ stats }: RatingSummaryProps) {
   return (
     <div className="bg-white/5 backdrop-blur-sm p-8 rounded-3xl border border-white/10 shadow-xl flex flex-col md:flex-row gap-10 items-center md:items-start overflow-hidden relative">
       <div className="absolute -left-20 -bottom-20 w-64 h-64 rounded-full bg-blue-600 blur-[100px] opacity-10" />
-      
+
       {/* Target Overall Average Rating Display */}
       <div className="flex flex-col items-center justify-center shrink-0 min-w-[160px] relative z-10">
         <h3 className="text-6xl font-black text-white tracking-tighter mb-4">
@@ -54,7 +54,9 @@ export function RatingSummary({ stats }: RatingSummaryProps) {
           return (
             <div key={star} className="flex items-center gap-4">
               <div className="flex items-center gap-1.5 w-10 shrink-0 justify-end">
-                <span className="text-[10px] font-bold text-blue-200/60">{star}</span>
+                <span className="text-[10px] font-bold text-blue-200/60">
+                  {star}
+                </span>
                 <Star className="w-3 h-3 fill-amber-400 text-amber-400 opacity-40" />
               </div>
               <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden border border-white/5 p-[1px]">

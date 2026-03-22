@@ -58,13 +58,16 @@ export default function MaintenanceRequestForm({
   return (
     <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-8 md:p-10 shadow-2xl relative overflow-hidden group">
       <div className="absolute -left-20 -top-20 w-64 h-64 rounded-full bg-blue-600 blur-[100px] opacity-20 group-hover:opacity-30 transition-opacity duration-1000" />
-      
+
       <h2 className="text-2xl font-black text-white mb-8 relative z-10 flex items-center gap-3">
         <span className="h-10 w-1 pt-1.5 bg-blue-500 rounded-full inline-block" />
         Submit Maintenance Request
       </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-6 relative z-10 text-white">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6 relative z-10 text-white"
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <label className="flex flex-col gap-3 text-[10px] font-black uppercase tracking-widest text-blue-200/40">
             Target Property
@@ -75,7 +78,11 @@ export default function MaintenanceRequestForm({
               className="bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:border-blue-500/50 transition-all appearance-none cursor-pointer"
             >
               {properties.map((property) => (
-                <option key={property.id} value={property.id} className="bg-slate-900">
+                <option
+                  key={property.id}
+                  value={property.id}
+                  className="bg-slate-900"
+                >
                   {property.name}
                 </option>
               ))}
@@ -144,12 +151,26 @@ export default function MaintenanceRequestForm({
               />
               <div className="border-2 border-dashed border-white/10 rounded-3xl px-6 py-10 bg-white/5 text-center group-hover/file:bg-white/10 group-hover/file:border-blue-500/30 transition-all">
                 <div className="mx-auto w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center mb-4 group-hover/file:scale-110 transition-transform">
-                  <svg className="w-6 h-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                  <svg
+                    className="w-6 h-6 text-blue-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                    />
                   </svg>
                 </div>
-                <p className="text-sm font-bold text-white mb-1">Click to upload or drag & drop</p>
-                <p className="text-[10px] text-blue-200/40 font-bold uppercase">PNG, JPG or MP4 (Max 10MB each)</p>
+                <p className="text-sm font-bold text-white mb-1">
+                  Click to upload or drag & drop
+                </p>
+                <p className="text-[10px] text-blue-200/40 font-bold uppercase">
+                  PNG, JPG or MP4 (Max 10MB each)
+                </p>
               </div>
             </div>
           </label>
@@ -161,7 +182,10 @@ export default function MaintenanceRequestForm({
               </p>
               <ul className="space-y-2">
                 {filePreview.map((file) => (
-                  <li key={file} className="flex items-center gap-2 text-xs font-bold text-blue-100/60">
+                  <li
+                    key={file}
+                    className="flex items-center gap-2 text-xs font-bold text-blue-100/60"
+                  >
                     <div className="w-1 h-1 rounded-full bg-blue-500" />
                     {file}
                   </li>

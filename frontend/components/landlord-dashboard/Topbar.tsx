@@ -98,7 +98,10 @@ export default function Topbar({ pageTitle }: { pageTitle: string }) {
               placeholder="Search properties, tenants..."
               className="w-full outline-none bg-transparent text-white text-sm placeholder:text-blue-300/30"
             />
-            <button onClick={() => setSearchOpen(false)} className="text-blue-200 hover:text-white transition-colors">
+            <button
+              onClick={() => setSearchOpen(false)}
+              className="text-blue-200 hover:text-white transition-colors"
+            >
               <FaTimes />
             </button>
           </div>
@@ -129,8 +132,14 @@ export default function Topbar({ pageTitle }: { pageTitle: string }) {
         >
           <div>
             <div className="flex items-center justify-between p-6 border-b border-white/10">
-              <Logo size="sm" textClassName="text-xl font-bold bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent" />
-              <button onClick={() => setMobileOpen(false)} className="text-blue-200 hover:text-white transition-colors">
+              <Logo
+                size="sm"
+                textClassName="text-xl font-bold bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent"
+              />
+              <button
+                onClick={() => setMobileOpen(false)}
+                className="text-blue-200 hover:text-white transition-colors"
+              >
                 <FaTimes size={20} />
               </button>
             </div>
@@ -155,7 +164,9 @@ export default function Topbar({ pageTitle }: { pageTitle: string }) {
                       }
                     `}
                   >
-                    <item.icon className={`w-5 h-5 ${isActive ? 'text-blue-400' : 'text-blue-300/60'}`} />
+                    <item.icon
+                      className={`w-5 h-5 ${isActive ? 'text-blue-400' : 'text-blue-300/60'}`}
+                    />
                     <span>{item.label}</span>
                   </Link>
                 );
@@ -177,8 +188,12 @@ export default function Topbar({ pageTitle }: { pageTitle: string }) {
               </div>
 
               <div className="flex flex-col items-start overflow-hidden">
-                <span className="text-sm font-semibold text-white truncate w-full">James Smith</span>
-                <span className="text-xs text-blue-300/60">Premium Landlord</span>
+                <span className="text-sm font-semibold text-white truncate w-full">
+                  James Smith
+                </span>
+                <span className="text-xs text-blue-300/60">
+                  Premium Landlord
+                </span>
               </div>
 
               <FaArrowRightFromBracket className="ml-auto h-5 w-5 text-blue-300/40 group-hover:text-blue-300" />

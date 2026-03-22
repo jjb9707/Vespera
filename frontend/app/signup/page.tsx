@@ -72,7 +72,7 @@ export default function SignupPage() {
 
       const result = await response.json();
       setTokens(result.accessToken, result.refreshToken, result.user);
-      
+
       // Redirect after successful signup
       if (result.user.role === 'landlord') {
         router.push('/landlords');
@@ -97,7 +97,10 @@ export default function SignupPage() {
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div
+          className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: '1s' }}
+        ></div>
       </div>
 
       <div className="w-full max-w-md animate-auth-enter relative z-10">
@@ -109,7 +112,9 @@ export default function SignupPage() {
             className="inline-flex justify-center mb-8"
             textClassName="text-2xl font-bold bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent tracking-tight"
           />
-          <h1 className="text-4xl font-bold text-white mb-2">Create your account</h1>
+          <h1 className="text-4xl font-bold text-white mb-2">
+            Create your account
+          </h1>
           <p className="text-blue-200/80 text-base">
             Join thousands managing properties smarter
           </p>
@@ -121,7 +126,8 @@ export default function SignupPage() {
           {isAuthenticated && user && (
             <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/30">
               <p className="text-sm text-blue-200 mb-3">
-                You&apos;re already logged in as <span className="font-semibold">{user.email}</span>
+                You&apos;re already logged in as{' '}
+                <span className="font-semibold">{user.email}</span>
               </p>
               <div className="flex gap-2">
                 <button
@@ -273,7 +279,9 @@ export default function SignupPage() {
               <div className="w-full border-t border-white/20"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-3 bg-white/5 text-white/50 font-medium">OR</span>
+              <span className="px-3 bg-white/5 text-white/50 font-medium">
+                OR
+              </span>
             </div>
           </div>
 

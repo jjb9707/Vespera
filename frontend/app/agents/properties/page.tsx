@@ -276,7 +276,8 @@ const AgentPropertiesPage = () => {
             Properties Management
           </h1>
           <p className="text-blue-200/60 mt-1 text-sm">
-            Manage all properties you represent or have listed on behalf of landlords
+            Manage all properties you represent or have listed on behalf of
+            landlords
           </p>
         </div>
       </div>
@@ -285,7 +286,10 @@ const AgentPropertiesPage = () => {
       <div className="backdrop-blur-sm bg-white/5 rounded-2xl border border-white/10 p-4 sm:p-6">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1 relative">
-            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-300/40" />
+            <Search
+              size={18}
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-300/40"
+            />
             <input
               type="text"
               placeholder="Search by property name, address, or landlord..."
@@ -298,7 +302,11 @@ const AgentPropertiesPage = () => {
             <Filter size={18} className="text-blue-300/40 shrink-0" />
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as 'all' | 'rented' | 'vacant' | 'maintenance')}
+              onChange={(e) =>
+                setStatusFilter(
+                  e.target.value as 'all' | 'rented' | 'vacant' | 'maintenance',
+                )
+              }
               className="px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm font-medium text-white outline-none focus:border-blue-500/50 transition-all cursor-pointer"
             >
               <option value="all">All Status</option>
@@ -310,8 +318,15 @@ const AgentPropertiesPage = () => {
         </div>
         <div className="mt-4 pt-4 border-t border-white/10">
           <p className="text-sm text-blue-200/50">
-            Showing <span className="font-semibold text-white">{paginatedProperties.length}</span>{' '}
-            of <span className="font-semibold text-white">{filteredProperties.length}</span> properties
+            Showing{' '}
+            <span className="font-semibold text-white">
+              {paginatedProperties.length}
+            </span>{' '}
+            of{' '}
+            <span className="font-semibold text-white">
+              {filteredProperties.length}
+            </span>{' '}
+            properties
           </p>
         </div>
       </div>
@@ -321,18 +336,33 @@ const AgentPropertiesPage = () => {
           <table className="w-full border-collapse min-w-[1000px]">
             <thead>
               <tr className="bg-white/5 border-b border-white/10">
-                <th className="px-6 py-4 text-left text-xs font-semibold text-blue-200/50 uppercase tracking-wider">Property</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-blue-200/50 uppercase tracking-wider">Status</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-blue-200/50 uppercase tracking-wider">
-                  <div className="flex items-center gap-1.5"><User size={14} />Assigned Landlord</div>
+                  Property
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-blue-200/50 uppercase tracking-wider">
-                  <div className="flex items-center gap-1.5"><DollarSign size={14} />Current Rent</div>
+                  Status
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-blue-200/50 uppercase tracking-wider">
-                  <div className="flex items-center gap-1.5"><Calendar size={14} />Lease Renewal</div>
+                  <div className="flex items-center gap-1.5">
+                    <User size={14} />
+                    Assigned Landlord
+                  </div>
                 </th>
-                <th className="px-6 py-4 text-right text-xs font-semibold text-blue-200/50 uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-blue-200/50 uppercase tracking-wider">
+                  <div className="flex items-center gap-1.5">
+                    <DollarSign size={14} />
+                    Current Rent
+                  </div>
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-blue-200/50 uppercase tracking-wider">
+                  <div className="flex items-center gap-1.5">
+                    <Calendar size={14} />
+                    Lease Renewal
+                  </div>
+                </th>
+                <th className="px-6 py-4 text-right text-xs font-semibold text-blue-200/50 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
@@ -341,8 +371,12 @@ const AgentPropertiesPage = () => {
                   <td colSpan={6} className="px-6 py-12 text-center">
                     <div className="flex flex-col items-center justify-center">
                       <Building2 size={48} className="text-white/20 mb-3" />
-                      <p className="text-white/60 font-medium">No properties found</p>
-                      <p className="text-blue-200/40 text-sm mt-1">Try adjusting your search or filter criteria</p>
+                      <p className="text-white/60 font-medium">
+                        No properties found
+                      </p>
+                      <p className="text-blue-200/40 text-sm mt-1">
+                        Try adjusting your search or filter criteria
+                      </p>
                     </div>
                   </td>
                 </tr>
@@ -355,7 +389,10 @@ const AgentPropertiesPage = () => {
                     daysUntilRenewal !== null && daysUntilRenewal <= 30;
 
                   return (
-                    <tr key={property.id} className="hover:bg-white/5 transition-colors group">
+                    <tr
+                      key={property.id}
+                      className="hover:bg-white/5 transition-colors group"
+                    >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-blue-300/50 group-hover:bg-blue-500/10 group-hover:text-blue-300 transition-colors shrink-0">
@@ -367,34 +404,48 @@ const AgentPropertiesPage = () => {
                             </h4>
                             <div className="flex items-center text-xs text-blue-200/40 mt-0.5">
                               <MapPin size={12} className="mr-1 shrink-0" />
-                              <span className="truncate">{property.address}</span>
+                              <span className="truncate">
+                                {property.address}
+                              </span>
                             </div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4">{getStatusBadge(property.status)}</td>
+                      <td className="px-6 py-4">
+                        {getStatusBadge(property.status)}
+                      </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-300 text-xs font-semibold shrink-0">
                             {property.assignedLandlord.charAt(0)}
                           </div>
-                          <span className="text-sm font-medium text-blue-100/80">{property.assignedLandlord}</span>
+                          <span className="text-sm font-medium text-blue-100/80">
+                            {property.assignedLandlord}
+                          </span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="text-sm">
-                          <span className="font-semibold text-white">${property.monthlyRent.toLocaleString()}</span>
-                          <span className="text-blue-200/40 text-xs block">/month</span>
+                          <span className="font-semibold text-white">
+                            ${property.monthlyRent.toLocaleString()}
+                          </span>
+                          <span className="text-blue-200/40 text-xs block">
+                            /month
+                          </span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         {property.leaseRenewalDate ? (
                           <div className="text-sm">
-                            <div className={`font-medium ${isRenewalSoon ? 'text-amber-400' : 'text-blue-100/80'}`}>
+                            <div
+                              className={`font-medium ${isRenewalSoon ? 'text-amber-400' : 'text-blue-100/80'}`}
+                            >
                               {formatDate(property.leaseRenewalDate)}
                             </div>
                             {daysUntilRenewal !== null && (
-                              <div className={`text-xs mt-0.5 ${isRenewalSoon ? 'text-amber-400/80 font-medium' : 'text-blue-200/40'}`}>
+                              <div
+                                className={`text-xs mt-0.5 ${isRenewalSoon ? 'text-amber-400/80 font-medium' : 'text-blue-200/40'}`}
+                              >
                                 {daysUntilRenewal > 0
                                   ? `${daysUntilRenewal} days remaining`
                                   : daysUntilRenewal === 0
@@ -404,30 +455,50 @@ const AgentPropertiesPage = () => {
                             )}
                           </div>
                         ) : (
-                          <span className="text-sm text-blue-200/30">No active lease</span>
+                          <span className="text-sm text-blue-200/30">
+                            No active lease
+                          </span>
                         )}
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="relative inline-block">
                           <button
-                            onClick={() => setSelectedProperty(selectedProperty === property.id ? null : property.id)}
+                            onClick={() =>
+                              setSelectedProperty(
+                                selectedProperty === property.id
+                                  ? null
+                                  : property.id,
+                              )
+                            }
                             className="p-2 text-blue-200/40 hover:text-blue-300 rounded-lg hover:bg-blue-500/10 transition-colors"
                           >
                             <MoreVertical size={18} />
                           </button>
                           {selectedProperty === property.id && (
                             <>
-                              <div className="fixed inset-0 z-10" onClick={() => setSelectedProperty(null)} />
+                              <div
+                                className="fixed inset-0 z-10"
+                                onClick={() => setSelectedProperty(null)}
+                              />
                               <div className="absolute right-0 mt-2 w-48 backdrop-blur-xl bg-slate-900/95 rounded-xl shadow-2xl border border-white/10 py-2 z-20">
                                 <button
-                                  onClick={() => { handleEdit(property.id); setSelectedProperty(null); }}
+                                  onClick={() => {
+                                    handleEdit(property.id);
+                                    setSelectedProperty(null);
+                                  }}
                                   className="w-full px-4 py-2.5 text-left text-sm text-blue-100/80 hover:bg-white/5 hover:text-white transition-colors flex items-center gap-2"
                                 >
-                                  <Edit size={16} className="text-blue-300/50" />
+                                  <Edit
+                                    size={16}
+                                    className="text-blue-300/50"
+                                  />
                                   Edit Listing
                                 </button>
                                 <button
-                                  onClick={() => { handleViewContract(property.id); setSelectedProperty(null); }}
+                                  onClick={() => {
+                                    handleViewContract(property.id);
+                                    setSelectedProperty(null);
+                                  }}
                                   className="w-full px-4 py-2.5 text-left text-sm text-blue-100/80 hover:bg-white/5 hover:text-white transition-colors flex items-center gap-2"
                                 >
                                   <Eye size={16} className="text-blue-300/50" />
@@ -435,7 +506,10 @@ const AgentPropertiesPage = () => {
                                 </button>
                                 <div className="border-t border-white/10 my-1" />
                                 <button
-                                  onClick={() => { handleUnpublish(property.id); setSelectedProperty(null); }}
+                                  onClick={() => {
+                                    handleUnpublish(property.id);
+                                    setSelectedProperty(null);
+                                  }}
                                   className="w-full px-4 py-2.5 text-left text-sm text-red-400 hover:bg-red-500/10 transition-colors flex items-center gap-2"
                                 >
                                   <X size={16} />
@@ -458,8 +532,9 @@ const AgentPropertiesPage = () => {
         {totalPages > 1 && (
           <div className="px-6 py-4 border-t border-white/10 flex items-center justify-between">
             <div className="text-sm text-blue-200/50">
-              Page <span className="font-semibold text-white">{currentPage}</span>{' '}
-              of <span className="font-semibold text-white">{totalPages}</span>
+              Page{' '}
+              <span className="font-semibold text-white">{currentPage}</span> of{' '}
+              <span className="font-semibold text-white">{totalPages}</span>
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -474,7 +549,9 @@ const AgentPropertiesPage = () => {
                 <ChevronLeft size={18} />
               </button>
               <button
-                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                }
                 disabled={currentPage === totalPages}
                 className={`p-2 rounded-lg border transition-colors ${
                   currentPage === totalPages

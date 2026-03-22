@@ -84,7 +84,7 @@ export function ContractCard({ contract, onViewDetails }: ContractCardProps) {
           </div>
         </div>
       </div>
- Broadway, Financial:
+      Broadway, Financial:
       <div className="px-6 py-4 bg-white/10 border-b border-white/5 grid grid-cols-3 gap-4 text-sm shadow-inner">
         <div>
           <span className="block text-[10px] font-bold text-blue-300/40 uppercase tracking-widest mb-1">
@@ -111,17 +111,16 @@ export function ContractCard({ contract, onViewDetails }: ContractCardProps) {
           </span>
         </div>
       </div>
-
       {/* Timeline */}
       <div className="px-6 py-5">
         <ContractTimeline currentStage={contract.stage} compact />
       </div>
-
       <div className="px-6 py-4 border-t border-white/5 bg-white/20 flex items-center justify-between mt-auto">
         <div className="flex items-center gap-2 text-[10px] font-bold text-blue-300/40 uppercase tracking-widest">
           <Calendar size={13} className="text-blue-400/60" />
           <span>
-            {new Date(contract.startDate).getFullYear()} &ndash; {new Date(contract.endDate).getFullYear()}
+            {new Date(contract.startDate).getFullYear()} &ndash;{' '}
+            {new Date(contract.endDate).getFullYear()}
           </span>
         </div>
 

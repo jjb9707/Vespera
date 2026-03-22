@@ -68,7 +68,9 @@ const RecentListings = () => {
   return (
     <div className="bg-white/5 backdrop-blur-sm rounded-3xl p-6 shadow-xl border border-white/10">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-bold text-white tracking-tight">Recent Listings</h2>
+        <h2 className="text-lg font-bold text-white tracking-tight">
+          Recent Listings
+        </h2>
         <button className="flex items-center text-[10px] font-bold text-blue-400 hover:text-white transition-all uppercase tracking-widest">
           View All
           <ArrowRight size={14} className="ml-1.5" />

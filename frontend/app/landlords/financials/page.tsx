@@ -158,11 +158,15 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-slate-900/90 backdrop-blur-md border border-white/10 rounded-2xl px-5 py-4 shadow-2xl">
-      <p className="text-[10px] font-bold text-blue-300/40 uppercase tracking-widest mb-1.5">{label}</p>
+      <p className="text-[10px] font-bold text-blue-300/40 uppercase tracking-widest mb-1.5">
+        {label}
+      </p>
       <p className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
         {fmt(payload[0].value)}
       </p>
-      <p className="text-[10px] font-bold text-blue-200/40 mt-1 uppercase tracking-widest">Monthly Revenue</p>
+      <p className="text-[10px] font-bold text-blue-200/40 mt-1 uppercase tracking-widest">
+        Monthly Revenue
+      </p>
     </div>
   );
 };
@@ -195,19 +199,15 @@ interface MetricCardProps {
   icon: string;
 }
 
-const MetricCard = ({
-  title,
-  value,
-  sub,
-  iconBg,
-  icon,
-}: MetricCardProps) => (
+const MetricCard = ({ title, value, sub, iconBg, icon }: MetricCardProps) => (
   <div
     className={`bg-white/5 backdrop-blur-sm rounded-3xl p-6 shadow-xl flex-1 min-w-[240px] border border-white/10 overflow-hidden group relative`}
   >
     {/* Decorative Orb */}
-    <div className={`absolute -right-4 -top-4 w-24 h-24 rounded-full blur-3xl opacity-10 group-hover:opacity-20 transition-opacity ${iconBg}`} />
-    
+    <div
+      className={`absolute -right-4 -top-4 w-24 h-24 rounded-full blur-3xl opacity-10 group-hover:opacity-20 transition-opacity ${iconBg}`}
+    />
+
     <div className="flex items-center gap-4 mb-5 relative z-10">
       <div
         className={`${iconBg} bg-opacity-20 rounded-2xl w-12 h-12 flex items-center justify-center text-xl shadow-inner border border-white/5`}
@@ -221,7 +221,11 @@ const MetricCard = ({
     <p className="text-3xl font-bold text-white leading-none relative z-10">
       {value}
     </p>
-    {sub && <p className="text-xs text-blue-200/40 font-medium mt-3 relative z-10 italic">{sub}</p>}
+    {sub && (
+      <p className="text-xs text-blue-200/40 font-medium mt-3 relative z-10 italic">
+        {sub}
+      </p>
+    )}
   </div>
 );
 
@@ -346,13 +350,21 @@ export default function FinancialsPage() {
               dataKey="month"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: 'rgba(147, 197, 253, 0.4)', fontSize: 10, fontWeight: 700 }}
+              tick={{
+                fill: 'rgba(147, 197, 253, 0.4)',
+                fontSize: 10,
+                fontWeight: 700,
+              }}
               dy={15}
             />
             <YAxis
               axisLine={false}
               tickLine={false}
-              tick={{ fill: 'rgba(147, 197, 253, 0.4)', fontSize: 10, fontWeight: 700 }}
+              tick={{
+                fill: 'rgba(147, 197, 253, 0.4)',
+                fontSize: 10,
+                fontWeight: 700,
+              }}
               tickFormatter={(v: number) => fmt(v)}
               width={50}
             />
@@ -424,11 +436,15 @@ export default function FinancialsPage() {
                   {tx.hash}
                 </span>
               </div>
-              <span className="text-sm text-blue-200/60 font-medium">{tx.date}</span>
+              <span className="text-sm text-blue-200/60 font-medium">
+                {tx.date}
+              </span>
               <span className="text-sm text-white font-bold truncate pr-4 group-hover:text-blue-400 transition-colors">
                 {tx.property}
               </span>
-              <span className="text-sm text-blue-200/40 font-medium">{tx.type}</span>
+              <span className="text-sm text-blue-200/40 font-medium">
+                {tx.type}
+              </span>
               <span
                 className={`text-sm font-bold ${tx.inflow ? 'bg-gradient-to-r from-emerald-400 to-teal-400' : 'bg-gradient-to-r from-rose-400 to-orange-400'} bg-clip-text text-transparent`}
               >
@@ -451,7 +467,9 @@ export default function FinancialsPage() {
 
         <div className="flex items-center justify-between px-6 py-5 border-t border-white/5 bg-white/5 flex-wrap gap-4">
           <span className="text-[10px] font-bold text-blue-300/40 uppercase tracking-widest">
-            Showing <span className="text-white">{filtered.length}</span> of <span className="text-white">{transactions.length}</span> transactions
+            Showing <span className="text-white">{filtered.length}</span> of{' '}
+            <span className="text-white">{transactions.length}</span>{' '}
+            transactions
           </span>
           <button className="flex items-center gap-2 px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest border border-blue-500/30 bg-blue-600/20 text-blue-400 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-lg">
             View All on Stellar Explorer →

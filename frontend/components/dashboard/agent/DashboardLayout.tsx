@@ -195,14 +195,21 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </div>
 
           <div className="hidden lg:block">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent">Dashboard</h1>
-            <p className="text-sm text-blue-200/60 font-medium">Welcome back, Sarah</p>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent">
+              Dashboard
+            </h1>
+            <p className="text-sm text-blue-200/60 font-medium">
+              Welcome back, Sarah
+            </p>
           </div>
 
           <div className="flex-1 flex items-center justify-end gap-6">
             {/* Search */}
             <div className="hidden md:flex items-center relative w-96 group">
-              <Search size={16} className="absolute left-4 text-blue-300/40 group-focus-within:text-blue-400 transition-colors" />
+              <Search
+                size={16}
+                className="absolute left-4 text-blue-300/40 group-focus-within:text-blue-400 transition-colors"
+              />
               <input
                 type="text"
                 placeholder="Search properties, clients..."

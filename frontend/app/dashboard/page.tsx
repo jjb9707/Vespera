@@ -81,7 +81,9 @@ export default function TenantDashboardOverview() {
             </span>
           </div>
           <div className="mt-4">
-            <p className="text-sm font-medium text-blue-200/60 uppercase tracking-wider">Active Lease</p>
+            <p className="text-sm font-medium text-blue-200/60 uppercase tracking-wider">
+              Active Lease
+            </p>
             <h3 className="text-xl font-bold tracking-tight text-white mt-1">
               12 Months
             </h3>
@@ -91,7 +93,9 @@ export default function TenantDashboardOverview() {
                 style={{ width: '60%' }}
               ></div>
             </div>
-            <p className="text-xs text-blue-300/40 mt-3 font-medium uppercase tracking-wider">7 months remaining</p>
+            <p className="text-xs text-blue-300/40 mt-3 font-medium uppercase tracking-wider">
+              7 months remaining
+            </p>
           </div>
         </div>
 

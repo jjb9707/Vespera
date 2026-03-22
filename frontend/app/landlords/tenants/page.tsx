@@ -420,7 +420,9 @@ export default function TenantsPage() {
       {/* ── Header ── */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent">Tenants</h1>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent">
+            Tenants
+          </h1>
           <p className="text-sm text-blue-200/60 font-medium mt-1">
             Manage leases, track payments, and monitor tenant status
           </p>
@@ -699,11 +701,7 @@ export default function TenantsPage() {
               {Math.min((page - 1) * pageSize + 1, filtered.length)}–
               {Math.min(page * pageSize, filtered.length)}
             </span>{' '}
-            of{' '}
-            <span className="text-white">
-              {filtered.length}
-            </span>{' '}
-            tenants
+            of <span className="text-white">{filtered.length}</span> tenants
           </p>
           <div className="flex items-center gap-2">
             <button

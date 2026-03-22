@@ -8,23 +8,29 @@ const steps = [
   {
     icon: Search,
     title: 'Search & Discover',
-    description: 'Browse verified listings with transparent pricing and instant availability.',
+    description:
+      'Browse verified listings with transparent pricing and instant availability.',
   },
   {
     icon: FileSignature,
     title: 'Sign Smart Lease',
-    description: 'Execute tamper-proof lease agreements on the blockchain in seconds.',
+    description:
+      'Execute tamper-proof lease agreements on the blockchain in seconds.',
   },
   {
     icon: Home,
     title: 'Move In & Pay',
-    description: 'Get instant access and make secure payments with automated commission splits.',
+    description:
+      'Get instant access and make secure payments with automated commission splits.',
   },
 ];
 
 export default function HowItWorks() {
   return (
-    <section id="how-it-works" className="relative py-32 bg-white/5 backdrop-blur-sm">
+    <section
+      id="how-it-works"
+      className="relative py-32 bg-white/5 backdrop-blur-sm"
+    >
       <div className="container mx-auto px-4 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -44,7 +50,10 @@ export default function HowItWorks() {
         <div className="max-w-5xl mx-auto">
           <div className="grid md:grid-cols-3 gap-8 relative">
             {/* Connection lines */}
-            <div className="hidden md:block absolute top-20 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-blue-500/30 to-transparent" style={{ left: '16.666%', right: '16.666%' }} />
+            <div
+              className="hidden md:block absolute top-20 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-blue-500/30 to-transparent"
+              style={{ left: '16.666%', right: '16.666%' }}
+            />
 
             {steps.map((step, index) => (
               <motion.div
@@ -58,7 +67,9 @@ export default function HowItWorks() {
                 <div className="text-center">
                   {/* Step number */}
                   <div className="relative inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full mb-6 z-10">
-                    <span className="text-2xl font-bold text-white">{index + 1}</span>
+                    <span className="text-2xl font-bold text-white">
+                      {index + 1}
+                    </span>
                   </div>
 
                   {/* Icon */}

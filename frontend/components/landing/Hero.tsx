@@ -12,7 +12,10 @@ export default function Hero() {
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div
+          className="absolute -bottom-40 -left-40 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: '1s' }}
+        ></div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-3xl"></div>
       </div>
 
@@ -26,7 +29,9 @@ export default function Hero() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm"
           >
             <Sparkles className="w-4 h-4 text-blue-300" />
-            <span className="text-sm font-semibold text-white">Powered by Stellar Blockchain</span>
+            <span className="text-sm font-semibold text-white">
+              Powered by Stellar Blockchain
+            </span>
           </motion.div>
 
           {/* Main Headline */}
@@ -50,7 +55,9 @@ export default function Hero() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-xl md:text-2xl text-blue-100/90 max-w-3xl mx-auto leading-relaxed"
           >
-            Connect with landlords and tenants on the Stellar network. Experience instant payouts and transparent contract tracking without the paperwork.
+            Connect with landlords and tenants on the Stellar network.
+            Experience instant payouts and transparent contract tracking without
+            the paperwork.
           </motion.p>
 
           {/* CTA Buttons */}
@@ -107,8 +114,16 @@ export default function Hero() {
           <div className="relative rounded-2xl overflow-hidden border border-white/20 shadow-2xl backdrop-blur-sm bg-white/5 p-1">
             <div className="aspect-video bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl flex items-center justify-center">
               <div className="text-center space-y-4 p-8">
-                <Image src="/logo_256.png" alt="Chioma" width={80} height={80} className="rounded-2xl mx-auto" />
-                <p className="text-white/60 text-sm">Platform Dashboard Preview</p>
+                <Image
+                  src="/logo_256.png"
+                  alt="Chioma"
+                  width={80}
+                  height={80}
+                  className="rounded-2xl mx-auto"
+                />
+                <p className="text-white/60 text-sm">
+                  Platform Dashboard Preview
+                </p>
               </div>
             </div>
           </div>

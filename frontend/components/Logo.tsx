@@ -28,7 +28,15 @@ export default function Logo({
   if (!href) {
     return (
       <div className={`flex items-center gap-2 ${className}`}>
-        <Image src="/logo_256.png" alt="Chioma logo" width={px} height={px} className="rounded-lg object-contain flex-shrink-0" style={{ width: px, height: px }} priority />
+        <Image
+          src="/logo_256.png"
+          alt="Chioma logo"
+          width={px}
+          height={px}
+          className="rounded-lg object-contain flex-shrink-0"
+          style={{ width: px, height: px }}
+          priority
+        />
         {showText && <span className={resolvedText}>Chioma</span>}
       </div>
     );
@@ -36,7 +44,14 @@ export default function Logo({
 
   return (
     <Link href={href} className={`flex items-center gap-2 ${className}`}>
-      <Image src="/logo_256.png" alt="Chioma logo" width={px} height={px} className="rounded-lg" priority />
+      <Image
+        src="/logo_256.png"
+        alt="Chioma logo"
+        width={px}
+        height={px}
+        className="rounded-lg"
+        priority
+      />
       {showText && <span className={resolvedText}>Chioma</span>}
     </Link>
   );

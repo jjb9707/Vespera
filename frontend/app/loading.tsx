@@ -9,7 +9,14 @@ export default function Loading() {
         {/* Animated logo mark */}
         <div className="relative flex h-24 w-24 items-center justify-center">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-20"></span>
-          <Image src="/logo_512.png" alt="Chioma" width={200} height={200} className="relative rounded-lg" priority />
+          <Image
+            src="/logo_512.png"
+            alt="Chioma"
+            width={200}
+            height={200}
+            className="relative rounded-lg"
+            priority
+          />
         </div>
 
         {/* Brand name */}

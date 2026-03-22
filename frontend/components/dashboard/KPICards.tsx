@@ -71,7 +71,9 @@ const KPICards = () => {
                   </p>
                 )}
               </div>
-              <div className={`w-10 h-10 rounded-xl ${kpi.iconBg} flex items-center justify-center border border-white/5 group-hover:scale-110 transition-transform`}>
+              <div
+                className={`w-10 h-10 rounded-xl ${kpi.iconBg} flex items-center justify-center border border-white/5 group-hover:scale-110 transition-transform`}
+              >
                 <Icon className={`${kpi.iconColor}`} size={20} />
               </div>
             </div>

@@ -23,7 +23,9 @@ export default function CTA() {
           <div className="relative backdrop-blur-xl bg-gradient-to-br from-blue-500/10 to-indigo-500/10 border border-white/20 rounded-3xl p-12 md:p-16 text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm mb-8">
               <Sparkles className="w-4 h-4 text-blue-300" />
-              <span className="text-sm font-semibold text-white">Join the Future of Rentals</span>
+              <span className="text-sm font-semibold text-white">
+                Join the Future of Rentals
+              </span>
             </div>
 
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
@@ -31,7 +33,8 @@ export default function CTA() {
             </h2>
 
             <p className="text-xl text-blue-100/90 mb-10 max-w-2xl mx-auto">
-              Join thousands of landlords, tenants, and agents already using Chioma to modernize their rental experience.
+              Join thousands of landlords, tenants, and agents already using
+              Chioma to modernize their rental experience.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

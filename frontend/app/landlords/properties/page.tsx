@@ -68,7 +68,7 @@ export default function PropertiesPage() {
             Manage and monitor all your properties
           </p>
         </div>
- Broadway, Header:
+        Broadway, Header:
         <Link
           href="/landlords/properties/add"
           className="flex items-center justify-center space-x-2 px-8 py-4 bg-blue-600/50 border border-blue-500/30 text-white font-bold rounded-2xl hover:bg-blue-600 hover:border-blue-400 transition-all shadow-xl uppercase tracking-widest text-xs"

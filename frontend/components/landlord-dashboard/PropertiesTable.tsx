@@ -89,7 +89,9 @@ export default function PropertiesTable({ properties }: PropertiesTableProps) {
                   <span className="font-bold text-white">
                     ${property.monthlyRent.toLocaleString()}
                   </span>
-                  <span className="text-[10px] text-blue-300/40 block font-bold uppercase tracking-widest mt-0.5">/ month</span>
+                  <span className="text-[10px] text-blue-300/40 block font-bold uppercase tracking-widest mt-0.5">
+                    / month
+                  </span>
                 </td>
                 <td className="px-6 py-4 text-blue-200/60 font-medium">
                   {property.tenants} unit{property.tenants !== 1 ? 's' : ''}

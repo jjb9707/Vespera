@@ -57,9 +57,7 @@ const NewLeads = () => {
 
             <div className="flex-1 min-w-0">
               <div className="flex justify-between items-baseline mb-0.5">
-                <h4 className="text-sm font-bold text-white">
-                  {lead.name}
-                </h4>
+                <h4 className="text-sm font-bold text-white">{lead.name}</h4>
                 <span className="text-[10px] text-blue-300/40 font-bold uppercase">
                   {lead.time}
                 </span>

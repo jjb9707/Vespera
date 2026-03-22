@@ -623,7 +623,10 @@ export function SettingsPageClient({
         >
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label htmlFor="language" className="mb-2 block text-sm font-medium text-white">
+              <label
+                htmlFor="language"
+                className="mb-2 block text-sm font-medium text-white"
+              >
                 Language
               </label>
               <select
@@ -631,7 +634,10 @@ export function SettingsPageClient({
                 value={preferences.language}
                 disabled={isSavingPreferences}
                 onChange={(event) =>
-                  updatePreference({ ...preferences, language: event.target.value })
+                  updatePreference({
+                    ...preferences,
+                    language: event.target.value,
+                  })
                 }
                 className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50"
               >
@@ -643,7 +649,10 @@ export function SettingsPageClient({
               </select>
             </div>
             <div>
-              <label htmlFor="currency" className="mb-2 block text-sm font-medium text-white">
+              <label
+                htmlFor="currency"
+                className="mb-2 block text-sm font-medium text-white"
+              >
                 Preferred currency
               </label>
               <select
@@ -651,7 +660,10 @@ export function SettingsPageClient({
                 value={preferences.currency}
                 disabled={isSavingPreferences}
                 onChange={(event) =>
-                  updatePreference({ ...preferences, currency: event.target.value })
+                  updatePreference({
+                    ...preferences,
+                    currency: event.target.value,
+                  })
                 }
                 className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50"
               >
@@ -676,7 +688,10 @@ export function SettingsPageClient({
           >
             <div className="grid gap-4 md:grid-cols-3">
               <div>
-                <label htmlFor="currentPassword" className="mb-2 block text-sm font-medium text-white">
+                <label
+                  htmlFor="currentPassword"
+                  className="mb-2 block text-sm font-medium text-white"
+                >
                   Current password
                 </label>
                 <input
@@ -687,11 +702,16 @@ export function SettingsPageClient({
                   className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none focus:border-blue-500 placeholder:text-white/20"
                 />
                 {errors.currentPassword && (
-                  <p className="mt-1 text-xs text-red-400">{errors.currentPassword.message}</p>
+                  <p className="mt-1 text-xs text-red-400">
+                    {errors.currentPassword.message}
+                  </p>
                 )}
               </div>
               <div>
-                <label htmlFor="newPassword" className="mb-2 block text-sm font-medium text-white">
+                <label
+                  htmlFor="newPassword"
+                  className="mb-2 block text-sm font-medium text-white"
+                >
                   New password
                 </label>
                 <input
@@ -702,11 +722,16 @@ export function SettingsPageClient({
                   className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none focus:border-blue-500 placeholder:text-white/20"
                 />
                 {errors.newPassword && (
-                  <p className="mt-1 text-xs text-red-400">{errors.newPassword.message}</p>
+                  <p className="mt-1 text-xs text-red-400">
+                    {errors.newPassword.message}
+                  </p>
                 )}
               </div>
               <div>
-                <label htmlFor="confirmPassword" className="mb-2 block text-sm font-medium text-white">
+                <label
+                  htmlFor="confirmPassword"
+                  className="mb-2 block text-sm font-medium text-white"
+                >
                   Confirm new password
                 </label>
                 <input
@@ -717,7 +742,9 @@ export function SettingsPageClient({
                   className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none focus:border-blue-500 placeholder:text-white/20"
                 />
                 {errors.confirmPassword && (
-                  <p className="mt-1 text-xs text-red-400">{errors.confirmPassword.message}</p>
+                  <p className="mt-1 text-xs text-red-400">
+                    {errors.confirmPassword.message}
+                  </p>
                 )}
               </div>
             </div>
@@ -771,9 +798,12 @@ export function SettingsPageClient({
 
             {mfaSetup && (
               <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-4">
-                <h3 className="text-sm font-semibold text-white">Complete MFA setup</h3>
+                <h3 className="text-sm font-semibold text-white">
+                  Complete MFA setup
+                </h3>
                 <p className="mt-1 text-xs text-blue-200/60">
-                  Scan the QR code with your authenticator app, then enter a generated code to confirm.
+                  Scan the QR code with your authenticator app, then enter a
+                  generated code to confirm.
                 </p>
                 {mfaSetup.qrCodeUrl && (
                   <Image
@@ -786,15 +816,23 @@ export function SettingsPageClient({
                   />
                 )}
                 <p className="mt-3 text-xs text-blue-200/70">
-                  Setup key: <span className="font-mono text-white">{mfaSetup.secret}</span>
+                  Setup key:{' '}
+                  <span className="font-mono text-white">
+                    {mfaSetup.secret}
+                  </span>
                 </p>
                 <p className="mt-2 text-xs text-blue-200/70">
-                  Backup codes: <span className="font-mono text-white">{mfaSetup.backupCodes.join(', ')}</span>
+                  Backup codes:{' '}
+                  <span className="font-mono text-white">
+                    {mfaSetup.backupCodes.join(', ')}
+                  </span>
                 </p>
                 <div className="mt-4 flex flex-col gap-3 sm:flex-row">
                   <input
                     value={mfaVerificationCode}
-                    onChange={(event) => setMfaVerificationCode(event.target.value)}
+                    onChange={(event) =>
+                      setMfaVerificationCode(event.target.value)
+                    }
                     type="text"
                     inputMode="numeric"
                     placeholder="Enter 6-digit code"
@@ -814,7 +852,9 @@ export function SettingsPageClient({
 
             {showMfaDisableFlow && mfaEnabled && (
               <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-4">
-                <h3 className="text-sm font-semibold text-white">Disable MFA</h3>
+                <h3 className="text-sm font-semibold text-white">
+                  Disable MFA
+                </h3>
                 <p className="mt-1 text-xs text-blue-200/60">
                   Enter a valid authenticator or backup code to disable MFA.
                 </p>

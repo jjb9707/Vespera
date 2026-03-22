@@ -8,19 +8,22 @@ const testimonials = [
   {
     name: 'Sarah Johnson',
     role: 'Property Manager',
-    content: 'Chioma has transformed how we manage our rental portfolio. Instant payments and automated commissions save us hours every week.',
+    content:
+      'Chioma has transformed how we manage our rental portfolio. Instant payments and automated commissions save us hours every week.',
     rating: 5,
   },
   {
     name: 'Michael Chen',
     role: 'Real Estate Agent',
-    content: 'The transparency and speed of commission payments is incredible. No more waiting weeks for settlements.',
+    content:
+      'The transparency and speed of commission payments is incredible. No more waiting weeks for settlements.',
     rating: 5,
   },
   {
     name: 'Emily Rodriguez',
     role: 'Tenant',
-    content: 'Finding and securing my apartment was seamless. The smart contract lease gave me peace of mind.',
+    content:
+      'Finding and securing my apartment was seamless. The smart contract lease gave me peace of mind.',
     rating: 5,
   },
 ];
@@ -57,7 +60,10 @@ export default function Testimonials() {
               {/* Rating */}
               <div className="flex gap-1 mb-4">
                 {[...Array(testimonial.rating)].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                  <Star
+                    key={i}
+                    className="w-5 h-5 fill-yellow-400 text-yellow-400"
+                  />
                 ))}
               </div>
 
@@ -74,8 +80,12 @@ export default function Testimonials() {
                   </span>
                 </div>
                 <div>
-                  <div className="font-semibold text-white">{testimonial.name}</div>
-                  <div className="text-sm text-blue-200/70">{testimonial.role}</div>
+                  <div className="font-semibold text-white">
+                    {testimonial.name}
+                  </div>
+                  <div className="text-sm text-blue-200/70">
+                    {testimonial.role}
+                  </div>
                 </div>
               </div>
             </motion.div>

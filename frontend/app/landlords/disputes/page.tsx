@@ -51,7 +51,7 @@ export default function LandlordDisputesPage() {
       <section className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm p-8 shadow-xl relative overflow-hidden">
         {/* Decorative Orb */}
         <div className="absolute -right-20 -top-20 w-64 h-64 rounded-full bg-blue-600 blur-[100px] opacity-10" />
-        
+
         <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-400 relative z-10">
           Resolution Desk
         </p>
@@ -85,7 +85,9 @@ export default function LandlordDisputesPage() {
 
       <section className="overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm shadow-xl mt-8">
         <div className="border-b border-white/5 px-8 py-6">
-          <h2 className="text-xl font-bold text-white tracking-tight">Active cases</h2>
+          <h2 className="text-xl font-bold text-white tracking-tight">
+            Active cases
+          </h2>
           <p className="text-xs text-blue-200/40 font-medium mt-1">
             Each record includes dispute type, comment volume, evidence volume,
             and resolution notes where available.
@@ -99,7 +101,10 @@ export default function LandlordDisputesPage() {
         ) : (
           <div className="divide-y divide-white/5">
             {disputes.map((dispute) => (
-              <article key={dispute.id} className="px-8 py-6 hover:bg-white/5 transition-all group">
+              <article
+                key={dispute.id}
+                className="px-8 py-6 hover:bg-white/5 transition-all group"
+              >
                 <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
                   <div>
                     <div className="flex flex-wrap items-center gap-3">
@@ -157,7 +162,9 @@ export default function LandlordDisputesPage() {
 
                 {dispute.resolution ? (
                   <div className="mt-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 px-5 py-4 text-xs font-medium text-emerald-400 leading-relaxed shadow-lg">
-                    <span className="font-bold text-white uppercase tracking-widest mr-2 opacity-50">Resolution:</span>{' '}
+                    <span className="font-bold text-white uppercase tracking-widest mr-2 opacity-50">
+                      Resolution:
+                    </span>{' '}
                     {dispute.resolution}
                   </div>
                 ) : null}
@@ -184,7 +191,9 @@ function Stat({
       <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500/10 border border-blue-500/20 shadow-inner group-hover:bg-blue-500/20 transition-all">
         {icon}
       </div>
-      <p className="mt-5 text-[10px] font-bold uppercase tracking-widest text-blue-300/40">{label}</p>
+      <p className="mt-5 text-[10px] font-bold uppercase tracking-widest text-blue-300/40">
+        {label}
+      </p>
       <p className="mt-1 text-3xl font-bold tracking-tight text-white">
         {value}
       </p>

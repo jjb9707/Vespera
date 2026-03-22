@@ -28,7 +28,11 @@ export default function NotificationsPageSkeleton() {
       <div className="flex items-center gap-2 mb-6">
         <div className="w-4 h-4 bg-white/10 rounded" />
         {[16, 20, 24, 18].map((w, i) => (
-          <div key={i} className="h-8 bg-white/10 rounded-full" style={{ width: `${w * 4}px` }} />
+          <div
+            key={i}
+            className="h-8 bg-white/10 rounded-full"
+            style={{ width: `${w * 4}px` }}
+          />
         ))}
       </div>
 

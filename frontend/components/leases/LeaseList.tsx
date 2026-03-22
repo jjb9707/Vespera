@@ -100,7 +100,9 @@ export function LeaseList({
                       : lease.landlordName}
                   </td>
                   <td className="px-6 py-5 align-middle text-sm text-blue-200/40">
-                    <div className="font-medium">{new Date(lease.startDate).toLocaleDateString()}</div>
+                    <div className="font-medium">
+                      {new Date(lease.startDate).toLocaleDateString()}
+                    </div>
                     <div className="text-[10px] font-bold uppercase tracking-widest mt-1.5 opacity-60">
                       to {new Date(lease.endDate).toLocaleDateString()}
                     </div>

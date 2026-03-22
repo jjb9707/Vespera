@@ -78,7 +78,10 @@ export default function LoginPage() {
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div
+          className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: '1s' }}
+        ></div>
       </div>
 
       <div className="w-full max-w-md animate-auth-enter relative z-10">
@@ -173,7 +176,9 @@ export default function LoginPage() {
               <div className="w-full border-t border-white/20"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-3 bg-white/5 text-white/50 font-medium">OR</span>
+              <span className="px-3 bg-white/5 text-white/50 font-medium">
+                OR
+              </span>
             </div>
           </div>
 
@@ -187,9 +192,21 @@ export default function LoginPage() {
               </p>
               <div className="space-y-2 text-xs">
                 {[
-                  { role: 'Admin', email: 'admin@chioma.local', password: 'QwW??H<EauRx6EyB>wm_' },
-                  { role: 'Agent', email: 'agent@chioma.local', password: 'nWkW~HWN6S*-6o!??kHg' },
-                  { role: 'Tenant', email: 'tenant@chioma.local', password: '8T<}2QXRm(?rwyJ4Pq3/' },
+                  {
+                    role: 'Admin',
+                    email: 'admin@chioma.local',
+                    password: 'QwW??H<EauRx6EyB>wm_',
+                  },
+                  {
+                    role: 'Agent',
+                    email: 'agent@chioma.local',
+                    password: 'nWkW~HWN6S*-6o!??kHg',
+                  },
+                  {
+                    role: 'Tenant',
+                    email: 'tenant@chioma.local',
+                    password: '8T<}2QXRm(?rwyJ4Pq3/',
+                  },
                 ].map(({ role, email, password }) => (
                   <button
                     key={email}
@@ -200,7 +217,9 @@ export default function LoginPage() {
                     className="w-full text-left px-3 py-2 rounded bg-white/5 hover:bg-white/10 text-amber-100 hover:text-amber-50 transition-colors flex justify-between items-center group"
                   >
                     <span className="font-medium">{role}</span>
-                    <span className="font-mono text-amber-200/70 group-hover:text-amber-200 text-xs">{email}</span>
+                    <span className="font-mono text-amber-200/70 group-hover:text-amber-200 text-xs">
+                      {email}
+                    </span>
                   </button>
                 ))}
               </div>

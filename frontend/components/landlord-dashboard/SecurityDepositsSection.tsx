@@ -65,10 +65,10 @@ export default function SecurityDepositsSection({
                 </div>
               </div>
               <div className="text-right">
-                <p className="font-bold text-white text-lg">
-                  {amountDisplay}
+                <p className="font-bold text-white text-lg">{amountDisplay}</p>
+                <p className="text-[10px] text-blue-300/40 font-bold uppercase tracking-widest mt-0.5">
+                  Held in escrow
                 </p>
-                <p className="text-[10px] text-blue-300/40 font-bold uppercase tracking-widest mt-0.5">Held in escrow</p>
               </div>
             </div>
           );

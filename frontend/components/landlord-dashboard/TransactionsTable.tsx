@@ -138,7 +138,11 @@ export default function TransactionsTable({
                       <TypeIcon size={12} strokeWidth={2.5} />
                       {typeCfg.label}
                       {tx.isSecurityDeposit && (
-                        <Shield size={12} className="opacity-80" strokeWidth={2.5} />
+                        <Shield
+                          size={12}
+                          className="opacity-80"
+                          strokeWidth={2.5}
+                        />
                       )}
                     </span>
                   </td>
@@ -174,11 +178,15 @@ export default function TransactionsTable({
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 text-xs font-bold text-blue-400 hover:text-blue-300 transition-all uppercase tracking-widest group/link"
                       >
-                        <span className="group-hover/link:underline decoration-blue-500/30 underline-offset-4">Explorer</span>
+                        <span className="group-hover/link:underline decoration-blue-500/30 underline-offset-4">
+                          Explorer
+                        </span>
                         <ExternalLink size={14} className="opacity-60" />
                       </a>
                     ) : (
-                      <span className="text-xs text-blue-300/20 font-bold uppercase tracking-widest">—</span>
+                      <span className="text-xs text-blue-300/20 font-bold uppercase tracking-widest">
+                        —
+                      </span>
                     )}
                   </td>
                 </tr>

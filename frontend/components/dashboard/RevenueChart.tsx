@@ -65,7 +65,11 @@ const RevenueChart = () => {
             <XAxis
               dataKey="month"
               stroke="rgba(255, 255, 255, 0.3)"
-              style={{ fontSize: '10px', fontWeight: 600, textTransform: 'uppercase' }}
+              style={{
+                fontSize: '10px',
+                fontWeight: 600,
+                textTransform: 'uppercase',
+              }}
               tickLine={false}
               axisLine={false}
               dy={10}
@@ -88,7 +92,13 @@ const RevenueChart = () => {
                 padding: '12px',
               }}
               itemStyle={{ color: '#fff', fontSize: '12px', fontWeight: 600 }}
-              labelStyle={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', marginBottom: '4px' }}
+              labelStyle={{
+                color: 'rgba(255, 255, 255, 0.5)',
+                fontSize: '10px',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                marginBottom: '4px',
+              }}
               cursor={{ stroke: 'rgba(59, 130, 246, 0.5)', strokeWidth: 2 }}
               formatter={(value: number | undefined) => {
                 if (value === undefined) return ['₦0M', 'Revenue'];

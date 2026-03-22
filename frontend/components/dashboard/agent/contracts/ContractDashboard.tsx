@@ -89,25 +89,35 @@ export function ContractDashboard() {
             >
               <div
                 className={`p-2.5 rounded-xl border transition-all ${
-                  isActive ? 'bg-blue-500 border-blue-400 shadow-lg' : 'bg-white/5 border-white/5'
+                  isActive
+                    ? 'bg-blue-500 border-blue-400 shadow-lg'
+                    : 'bg-white/5 border-white/5'
                 }`}
               >
                 <Icon
                   size={18}
-                  className={isActive ? 'text-white' : 'text-blue-400/60 group-hover:text-blue-400'}
+                  className={
+                    isActive
+                      ? 'text-white'
+                      : 'text-blue-400/60 group-hover:text-blue-400'
+                  }
                 />
               </div>
               <div>
                 <span
                   className={`block text-2xl font-bold leading-none tracking-tight ${
-                    isActive ? 'text-white' : 'text-white/90 group-hover:text-white'
+                    isActive
+                      ? 'text-white'
+                      : 'text-white/90 group-hover:text-white'
                   }`}
                 >
                   {counts[tab.key]}
                 </span>
                 <span
                   className={`block text-[10px] font-bold uppercase tracking-widest mt-1.5 ${
-                    isActive ? 'text-blue-200' : 'text-blue-300/40 group-hover:text-blue-300/60'
+                    isActive
+                      ? 'text-blue-200'
+                      : 'text-blue-300/40 group-hover:text-blue-300/60'
                   }`}
                 >
                   {tab.label}

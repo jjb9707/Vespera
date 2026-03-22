@@ -41,7 +41,9 @@ export function ReviewList({
           <h2 className="mb-2 text-3xl font-bold bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent">
             {title}
           </h2>
-          <p className="max-w-2xl text-sm font-medium text-blue-200/60 leading-relaxed">{subtitle}</p>
+          <p className="max-w-2xl text-sm font-medium text-blue-200/60 leading-relaxed">
+            {subtitle}
+          </p>
         </div>
         {!showForm && (
           <button

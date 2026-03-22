@@ -46,9 +46,14 @@ export default function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
           {/* Brand Column */}
           <div className="col-span-2 md:col-span-1">
-            <Logo size="lg" textClassName="text-xl font-bold text-white" className="mb-4" />
+            <Logo
+              size="lg"
+              textClassName="text-xl font-bold text-white"
+              className="mb-4"
+            />
             <p className="text-blue-200/70 text-sm leading-relaxed mb-6">
-              Open financial infrastructure for housing, powered by Stellar blockchain.
+              Open financial infrastructure for housing, powered by Stellar
+              blockchain.
             </p>
             <div className="flex gap-4">
               {socialLinks.map((social) => (
@@ -142,7 +147,9 @@ export default function Footer() {
           </p>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-            <span className="text-blue-200/60 text-sm">All systems operational</span>
+            <span className="text-blue-200/60 text-sm">
+              All systems operational
+            </span>
           </div>
         </div>
       </div>

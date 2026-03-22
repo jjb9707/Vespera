@@ -50,7 +50,10 @@ const Navbar = ({ theme = 'dark' }: NavbarProps) => {
     >
       <div className="container mx-auto px-4 sm:px-6 flex items-center justify-between">
         {/* Logo */}
-        <Logo size="md" textClassName="text-xl font-bold text-white tracking-tight" />
+        <Logo
+          size="md"
+          textClassName="text-xl font-bold text-white tracking-tight"
+        />
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-8">
@@ -62,9 +65,7 @@ const Navbar = ({ theme = 'dark' }: NavbarProps) => {
                 key={link.name}
                 href={link.href}
                 className={`relative text-sm font-medium transition-colors ${
-                  active
-                    ? 'text-white'
-                    : 'text-blue-200/80 hover:text-white'
+                  active ? 'text-white' : 'text-blue-200/80 hover:text-white'
                 }`}
               >
                 {link.name}
@@ -115,9 +116,7 @@ const Navbar = ({ theme = 'dark' }: NavbarProps) => {
                   href={link.href}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={`text-lg font-medium transition-colors ${
-                    active
-                      ? 'text-white'
-                      : 'text-blue-200/80 hover:text-white'
+                    active ? 'text-white' : 'text-blue-200/80 hover:text-white'
                   }`}
                 >
                   {link.name}

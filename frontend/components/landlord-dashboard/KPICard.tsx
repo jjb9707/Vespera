@@ -32,23 +32,23 @@ export default function KPICard({
       </div>
 
       <div className="relative">
-        <p className="text-3xl font-bold text-white tracking-tight">
-          {value}
-        </p>
+        <p className="text-3xl font-bold text-white tracking-tight">{value}</p>
 
         {trend && (
           <div className="mt-3 flex items-center space-x-2">
             <span
               className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-lg border ${
-                trend.isPositive 
-                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
+                trend.isPositive
+                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                   : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
               }`}
             >
               {trend.isPositive ? '+' : '-'}
               {Math.abs(trend.value)}%
             </span>
-            <span className="text-[10px] font-bold text-blue-300/40 uppercase tracking-widest">Growth</span>
+            <span className="text-[10px] font-bold text-blue-300/40 uppercase tracking-widest">
+              Growth
+            </span>
           </div>
         )}
       </div>

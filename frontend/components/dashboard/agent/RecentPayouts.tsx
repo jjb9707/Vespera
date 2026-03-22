@@ -56,7 +56,9 @@ const RecentPayouts = () => {
                 <p className="text-sm font-bold text-white transition-colors group-hover:text-blue-400 leading-tight">
                   {payout.title}
                 </p>
-                <p className="text-[10px] font-bold text-blue-300/40 uppercase tracking-widest mt-1">{payout.time}</p>
+                <p className="text-[10px] font-bold text-blue-300/40 uppercase tracking-widest mt-1">
+                  {payout.time}
+                </p>
               </div>
             </div>
 

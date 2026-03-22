@@ -199,7 +199,10 @@ const PropertyPortfolio = () => {
                   <td className="py-4 px-4">
                     <span className="font-bold text-white">
                       {property.currency}
-                      {property.contractValue}M <span className="text-blue-200/40 text-xs font-medium">/ {property.period}</span>
+                      {property.contractValue}M{' '}
+                      <span className="text-blue-200/40 text-xs font-medium">
+                        / {property.period}
+                      </span>
                     </span>
                   </td>
 
@@ -268,12 +271,17 @@ const PropertyPortfolio = () => {
                   </p>
                   <p className="font-bold text-white">
                     {property.currency}
-                    {property.contractValue}M <span className="text-blue-200/40 text-[10px] font-medium">/ {property.period}</span>
+                    {property.contractValue}M{' '}
+                    <span className="text-blue-200/40 text-[10px] font-medium">
+                      / {property.period}
+                    </span>
                   </p>
                 </div>
                 {property.leaseEnds && (
                   <div>
-                    <p className="text-[10px] font-bold text-blue-300/40 uppercase tracking-widest mb-1">Lease Ends</p>
+                    <p className="text-[10px] font-bold text-blue-300/40 uppercase tracking-widest mb-1">
+                      Lease Ends
+                    </p>
                     <p className="font-bold text-white">
                       {format(property.leaseEnds, 'MMM yyyy')}
                     </p>
@@ -295,7 +303,9 @@ const PropertyPortfolio = () => {
                       />
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-blue-300/40 uppercase tracking-widest">Tenant</p>
+                      <p className="text-[10px] font-bold text-blue-300/40 uppercase tracking-widest">
+                        Tenant
+                      </p>
                       <p className="text-sm font-bold text-white">
                         {property.tenant.name}
                       </p>
@@ -307,9 +317,7 @@ const PropertyPortfolio = () => {
 
               {/* Action Button */}
               <div className="pt-2">
-                <div className="w-full">
-                  {getActionButton(property.status)}
-                </div>
+                <div className="w-full">{getActionButton(property.status)}</div>
               </div>
             </div>
           );

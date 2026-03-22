@@ -88,7 +88,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         }`}
       >
         <div className="h-20 flex items-center px-6 border-b border-white/10">
-          <Logo size="sm" textClassName="text-base font-semibold tracking-tight bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent" />
+          <Logo
+            size="sm"
+            textClassName="text-base font-semibold tracking-tight bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent"
+          />
         </div>
 
         {/* Navigation */}
@@ -130,7 +133,9 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               <div className="text-sm font-bold text-white truncate">
                 James Obi
               </div>
-              <div className="text-[10px] font-bold text-blue-300/40 uppercase tracking-widest">Premium Plan</div>
+              <div className="text-[10px] font-bold text-blue-300/40 uppercase tracking-widest">
+                Premium Plan
+              </div>
             </div>
             <button className="text-blue-300/40 group-hover:text-blue-300 transition-colors">
               <LogOut size={18} />

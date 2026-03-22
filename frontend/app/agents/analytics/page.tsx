@@ -115,7 +115,10 @@ const CustomEarningsTooltip = ({
           {label}
         </p>
         {payload.map((entry, i) => (
-          <div key={i} className="flex items-center justify-between gap-4 mb-2 last:mb-0">
+          <div
+            key={i}
+            className="flex items-center justify-between gap-4 mb-2 last:mb-0"
+          >
             <span className="text-xs font-medium text-blue-200/60 capitalize">
               {entry.name === 'commission' ? 'Earned' : 'Target'}
             </span>
@@ -196,11 +199,21 @@ const ExportModal = ({
                 onChange={(e) => setPeriod(e.target.value)}
                 className="w-full appearance-none bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white font-medium outline-none focus:border-blue-500 transition-all pr-10 hover:bg-white/10"
               >
-                <option value="this-month" className="bg-slate-900">This Month</option>
-                <option value="last-quarter" className="bg-slate-900">Last Quarter</option>
-                <option value="this-year" className="bg-slate-900">This Year (2024)</option>
-                <option value="last-year" className="bg-slate-900">Last Year (2023)</option>
-                <option value="all-time" className="bg-slate-900">All Time</option>
+                <option value="this-month" className="bg-slate-900">
+                  This Month
+                </option>
+                <option value="last-quarter" className="bg-slate-900">
+                  Last Quarter
+                </option>
+                <option value="this-year" className="bg-slate-900">
+                  This Year (2024)
+                </option>
+                <option value="last-year" className="bg-slate-900">
+                  Last Year (2023)
+                </option>
+                <option value="all-time" className="bg-slate-900">
+                  All Time
+                </option>
               </select>
               <ChevronDown
                 size={16}
@@ -290,7 +303,9 @@ export default function AgentAnalyticsPage() {
         {/* ── Page Header ── */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent">Analytics</h1>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent">
+              Analytics
+            </h1>
             <p className="text-sm text-blue-200/60 font-medium mt-1">
               Track your performance and commission earnings
             </p>
@@ -343,8 +358,13 @@ export default function AgentAnalyticsPage() {
                       {kpi.value}
                     </p>
                   </div>
-                  <div className={`p-3 rounded-xl bg-white/5 border border-white/5 shadow-inner`}>
-                    <Icon size={18} className={kpi.iconColor.replace('600', '400')} />
+                  <div
+                    className={`p-3 rounded-xl bg-white/5 border border-white/5 shadow-inner`}
+                  >
+                    <Icon
+                      size={18}
+                      className={kpi.iconColor.replace('600', '400')}
+                    />
                   </div>
                 </div>
                 <div
@@ -392,15 +412,27 @@ export default function AgentAnalyticsPage() {
               data={monthlyEarnings}
               margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="rgba(255,255,255,0.03)"
+                vertical={false}
+              />
               <XAxis
                 dataKey="month"
-                tick={{ fontSize: 10, fill: 'rgba(148,163,184,0.5)', fontWeight: 700 }}
+                tick={{
+                  fontSize: 10,
+                  fill: 'rgba(148,163,184,0.5)',
+                  fontWeight: 700,
+                }}
                 axisLine={false}
                 tickLine={false}
               />
               <YAxis
-                tick={{ fontSize: 10, fill: 'rgba(148,163,184,0.5)', fontWeight: 700 }}
+                tick={{
+                  fontSize: 10,
+                  fill: 'rgba(148,163,184,0.5)',
+                  fontWeight: 700,
+                }}
                 axisLine={false}
                 tickLine={false}
                 tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
@@ -419,8 +451,18 @@ export default function AgentAnalyticsPage() {
                 dataKey="commission"
                 stroke="#3b82f6"
                 strokeWidth={3}
-                dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#1e293b' }}
-                activeDot={{ r: 6, fill: '#3b82f6', stroke: '#fff', strokeWidth: 2 }}
+                dot={{
+                  r: 4,
+                  fill: '#3b82f6',
+                  strokeWidth: 2,
+                  stroke: '#1e293b',
+                }}
+                activeDot={{
+                  r: 6,
+                  fill: '#3b82f6',
+                  stroke: '#fff',
+                  strokeWidth: 2,
+                }}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -502,15 +544,27 @@ export default function AgentAnalyticsPage() {
                 margin={{ top: 0, right: 0, left: -20, bottom: 0 }}
                 barSize={10}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="rgba(255,255,255,0.03)"
+                  vertical={false}
+                />
                 <XAxis
                   dataKey="name"
-                  tick={{ fontSize: 10, fill: 'rgba(148,163,184,0.5)', fontWeight: 700 }}
+                  tick={{
+                    fontSize: 10,
+                    fill: 'rgba(148,163,184,0.5)',
+                    fontWeight: 700,
+                  }}
                   axisLine={false}
                   tickLine={false}
                 />
                 <YAxis
-                  tick={{ fontSize: 10, fill: 'rgba(148,163,184,0.5)', fontWeight: 700 }}
+                  tick={{
+                    fontSize: 10,
+                    fill: 'rgba(148,163,184,0.5)',
+                    fontWeight: 700,
+                  }}
                   axisLine={false}
                   tickLine={false}
                 />

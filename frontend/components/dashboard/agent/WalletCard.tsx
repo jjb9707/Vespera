@@ -13,8 +13,12 @@ const WalletCard = () => {
       <div className="relative z-10 flex flex-col h-full justify-between">
         <div className="flex justify-between items-start mb-8">
           <div className="flex flex-col">
-            <span className="text-blue-100/60 text-[10px] font-bold uppercase tracking-widest">Main Wallet</span>
-            <span className="text-white text-xs font-bold tracking-tight mt-1 opacity-80">Stellar Wallet</span>
+            <span className="text-blue-100/60 text-[10px] font-bold uppercase tracking-widest">
+              Main Wallet
+            </span>
+            <span className="text-white text-xs font-bold tracking-tight mt-1 opacity-80">
+              Stellar Wallet
+            </span>
           </div>
           <div className="w-10 h-10 rounded-xl bg-white/20 border border-white/20 flex items-center justify-center backdrop-blur-md shadow-lg group-hover:rotate-12 transition-transform">
             <StellarLogo size={24} color="white" />

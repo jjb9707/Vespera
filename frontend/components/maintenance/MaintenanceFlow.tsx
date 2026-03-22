@@ -301,7 +301,7 @@ export default function MaintenanceFlow({
 
       <section className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-6 md:p-8 space-y-8 shadow-2xl relative overflow-hidden group">
         <div className="absolute -right-24 -top-24 w-96 h-96 rounded-full bg-blue-600 blur-[120px] opacity-10 group-hover:opacity-20 transition-opacity duration-700" />
-        
+
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 relative z-10">
           <div>
             <h2 className="text-2xl font-black text-white tracking-tight">
@@ -359,16 +359,25 @@ export default function MaintenanceFlow({
         {isManager && (
           <div className="flex flex-col md:flex-row gap-4 relative z-10">
             <label className="flex-1 flex items-center gap-3 border border-white/10 rounded-2xl px-4 py-3 bg-white/5 focus-within:border-blue-500/40 transition-colors group/select">
-              <Filter size={14} className="text-blue-200/40 group-focus-within/select:text-blue-400 transition-colors" />
+              <Filter
+                size={14}
+                className="text-blue-200/40 group-focus-within/select:text-blue-400 transition-colors"
+              />
               <select
                 value={propertyFilter}
                 onChange={(event) => setPropertyFilter(event.target.value)}
                 className="w-full bg-transparent outline-none text-[10px] font-bold uppercase tracking-widest text-blue-200/60 transition-colors"
                 style={{ appearance: 'none' }}
               >
-                <option value="all" className="bg-slate-900">All properties</option>
+                <option value="all" className="bg-slate-900">
+                  All properties
+                </option>
                 {DEFAULT_PROPERTIES.map((property) => (
-                  <option key={property.id} value={property.id} className="bg-slate-900">
+                  <option
+                    key={property.id}
+                    value={property.id}
+                    className="bg-slate-900"
+                  >
                     {property.name}
                   </option>
                 ))}
@@ -376,7 +385,10 @@ export default function MaintenanceFlow({
             </label>
 
             <label className="flex-1 flex items-center gap-3 border border-white/10 rounded-2xl px-4 py-3 bg-white/5 focus-within:border-blue-500/40 transition-colors group/select">
-              <Filter size={14} className="text-blue-200/40 group-focus-within/select:text-blue-400 transition-colors" />
+              <Filter
+                size={14}
+                className="text-blue-200/40 group-focus-within/select:text-blue-400 transition-colors"
+              />
               <select
                 value={statusFilter}
                 onChange={(event) =>
@@ -385,7 +397,9 @@ export default function MaintenanceFlow({
                 className="w-full bg-transparent outline-none text-[10px] font-bold uppercase tracking-widest text-blue-200/60 transition-colors"
                 style={{ appearance: 'none' }}
               >
-                <option value="all" className="bg-slate-900">All statuses</option>
+                <option value="all" className="bg-slate-900">
+                  All statuses
+                </option>
                 {STATUS_OPTIONS.map((status) => (
                   <option key={status} value={status} className="bg-slate-900">
                     {STATUS_LABELS[status]}
@@ -401,8 +415,12 @@ export default function MaintenanceFlow({
             <div className="mx-auto w-16 h-16 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center mb-6">
               <Filter className="w-8 h-8 text-blue-200/20" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">No maintenance requests</h3>
-            <p className="text-sm font-medium text-blue-200/40">Try adjusting filters or submit your first maintenance issue.</p>
+            <h3 className="text-xl font-bold text-white mb-2">
+              No maintenance requests
+            </h3>
+            <p className="text-sm font-medium text-blue-200/40">
+              Try adjusting filters or submit your first maintenance issue.
+            </p>
           </div>
         ) : viewMode === 'list' ? (
           <div className="space-y-4 relative z-10">

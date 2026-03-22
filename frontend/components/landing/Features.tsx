@@ -8,32 +8,38 @@ const features = [
   {
     icon: Zap,
     title: 'Instant Payments',
-    description: 'Funds settle in seconds, not days. Experience the speed of blockchain technology.',
+    description:
+      'Funds settle in seconds, not days. Experience the speed of blockchain technology.',
   },
   {
     icon: Shield,
     title: 'Immutable Records',
-    description: 'Every transaction is recorded on the blockchain, creating an unchangeable audit trail.',
+    description:
+      'Every transaction is recorded on the blockchain, creating an unchangeable audit trail.',
   },
   {
     icon: Coins,
     title: 'Automated Commissions',
-    description: 'Agent commissions are distributed automatically with every rent payment.',
+    description:
+      'Agent commissions are distributed automatically with every rent payment.',
   },
   {
     icon: FileCheck,
     title: 'Smart Contracts',
-    description: 'Lease agreements are executed as smart contracts, eliminating disputes.',
+    description:
+      'Lease agreements are executed as smart contracts, eliminating disputes.',
   },
   {
     icon: Globe,
     title: 'Multi-Currency Support',
-    description: 'Accept payments in USDC, local fiat tokens, or any Stellar asset.',
+    description:
+      'Accept payments in USDC, local fiat tokens, or any Stellar asset.',
   },
   {
     icon: Lock,
     title: 'Secure Escrow',
-    description: 'Security deposits are held in multi-sig escrow for maximum protection.',
+    description:
+      'Security deposits are held in multi-sig escrow for maximum protection.',
   },
 ];
 
