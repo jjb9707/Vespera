@@ -28,7 +28,7 @@ export function MicroCharts() {
             content={({ active, payload }) => {
               if (active && payload && payload.length) {
                 return (
-                  <div className="bg-neutral-900 text-white text-xs px-2 py-1 rounded shadow-lg">
+                  <div className="bg-slate-900/90 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1.5 rounded-lg shadow-2xl border border-white/10 uppercase tracking-wider">
                     {payload[0].payload.name}: ${payload[0].value}
                   </div>
                 );
@@ -40,7 +40,7 @@ export function MicroCharts() {
             {data.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
-                fill={entry.value > 0 ? '#2563eb' : '#e2e8f0'} // brand-blue or neutral-200
+                fill={entry.value > 0 ? '#3b82f6' : 'rgba(255, 255, 255, 0.1)'}
               />
             ))}
           </Bar>

@@ -268,82 +268,82 @@ export function ContractDetailsModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
       <div
-        className="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-slate-950/60 backdrop-blur-md"
         onClick={onClose}
         aria-hidden="true"
       />
 
-      <div className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-2xl shadow-2xl flex flex-col animate-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-4xl max-h-[90vh] bg-slate-900/90 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl flex flex-col animate-in zoom-in-95 duration-300 overflow-hidden">
         {/* Header */}
-        <div className="flex items-start justify-between p-6 border-b border-neutral-100 shrink-0">
+        <div className="flex items-start justify-between p-8 border-b border-white/5 shrink-0">
           <div>
-            <div className="flex items-center gap-3 mb-1">
-              <h2 className="text-xl font-bold text-neutral-900">
+            <div className="flex items-center gap-4 mb-2">
+              <h2 className="text-2xl font-bold text-white tracking-tight">
                 {contract.propertyName}
               </h2>
               <span
-                className={`inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-bold rounded-full border ${
+                className={`inline-flex items-center gap-1.5 px-3 py-1 text-[10px] font-bold rounded-lg border uppercase tracking-widest ${
                   contract.status === 'ACTIVE'
-                    ? 'bg-green-50 text-green-700 border-green-100'
+                    ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/20'
                     : contract.status === 'PENDING'
-                      ? 'bg-amber-50 text-amber-700 border-amber-100'
-                      : 'bg-neutral-100 text-neutral-500 border-neutral-200'
+                      ? 'bg-orange-500/20 text-orange-400 border-orange-500/20'
+                      : 'bg-white/5 text-blue-200/40 border-white/10'
                 }`}
               >
-                {contract.status === 'ACTIVE' && <CheckCircle2 size={12} />}
-                {contract.status === 'PENDING' && <Clock size={12} />}
-                {contract.status === 'EXPIRED' && <ShieldAlert size={12} />}
+                {contract.status === 'ACTIVE' && <CheckCircle2 size={12} strokeWidth={2.5} />}
+                {contract.status === 'PENDING' && <Clock size={12} strokeWidth={2.5} />}
+                {contract.status === 'EXPIRED' && <ShieldAlert size={12} strokeWidth={2.5} />}
                 {contract.status}
               </span>
             </div>
-            <p className="text-sm text-neutral-500">
+            <p className="text-sm text-blue-200/60 font-medium">
               {contract.id} &bull; {contract.propertyAddress}
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <button
               onClick={handleDownloadPdf}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-brand-blue bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold text-white bg-blue-600/50 border border-blue-500/30 rounded-xl hover:bg-blue-600 hover:border-blue-400 transition-all uppercase tracking-widest shadow-lg"
             >
               <Download size={16} />
               Download PDF
             </button>
             <button
               onClick={onClose}
-              className="p-2 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
+              className="p-2 text-blue-300/40 hover:text-white hover:bg-white/5 rounded-xl transition-all"
             >
-              <X size={20} />
+              <X size={24} />
             </button>
           </div>
         </div>
 
         {/* Timeline Section */}
-        <div className="px-6 py-5 border-b border-neutral-100 bg-neutral-50/50">
-          <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-4">
+        <div className="px-8 py-6 border-b border-white/5 bg-white/5">
+          <p className="text-[10px] font-bold text-blue-300/40 uppercase tracking-widest mb-6 px-1">
             Contract Lifecycle
           </p>
           <ContractTimeline currentStage={contract.stage} />
         </div>
 
         {/* Tab Navigation */}
-        <div className="px-6 pt-4 border-b border-neutral-100 flex gap-6 shrink-0">
+        <div className="px-8 pt-4 border-b border-white/5 flex gap-8 shrink-0">
           <button
             onClick={() => setActiveTab('details')}
-            className={`pb-3 text-sm font-semibold transition-colors border-b-2 ${
+            className={`pb-4 text-xs font-bold uppercase tracking-widest transition-all border-b-2 ${
               activeTab === 'details'
-                ? 'text-brand-blue border-brand-blue'
-                : 'text-neutral-400 border-transparent hover:text-neutral-600'
+                ? 'text-blue-400 border-blue-400'
+                : 'text-blue-300/40 border-transparent hover:text-blue-300/60'
             }`}
           >
             Contract Details
           </button>
           <button
             onClick={() => setActiveTab('terms')}
-            className={`pb-3 text-sm font-semibold transition-colors border-b-2 ${
+            className={`pb-4 text-xs font-bold uppercase tracking-widest transition-all border-b-2 ${
               activeTab === 'terms'
-                ? 'text-brand-blue border-brand-blue'
-                : 'text-neutral-400 border-transparent hover:text-neutral-600'
+                ? 'text-blue-400 border-blue-400'
+                : 'text-blue-300/40 border-transparent hover:text-blue-300/60'
             }`}
           >
             Full Agreement
@@ -351,28 +351,28 @@ export function ContractDetailsModal({
         </div>
 
         {/* Tab Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
           {activeTab === 'details' && (
-            <div className="space-y-6">
+            <div className="space-y-8">
               {/* Parties */}
               <div>
-                <h3 className="text-sm font-bold text-neutral-900 mb-3">
+                <h3 className="text-xs font-bold text-blue-300/40 uppercase tracking-widest mb-4">
                   Parties Involved
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
                   {[contract.landlord, contract.tenant, contract.agent].map(
                     (party) => (
                       <div
                         key={party.walletAddress}
-                        className="p-4 bg-neutral-50 rounded-xl border border-neutral-100"
+                        className="p-5 bg-white/5 rounded-2xl border border-white/10 group hover:border-white/20 transition-all"
                       >
-                        <span className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-1">
+                        <span className="block text-[10px] font-bold text-blue-300/40 uppercase tracking-widest mb-2">
                           {party.role}
                         </span>
-                        <span className="block text-sm font-bold text-neutral-900 mb-1">
+                        <span className="block text-sm font-bold text-white mb-1 group-hover:text-blue-300 transition-colors">
                           {party.name}
                         </span>
-                        <span className="block text-xs font-mono text-neutral-500">
+                        <span className="block text-[10px] font-mono text-blue-200/40 truncate">
                           {party.walletAddress}
                         </span>
                       </div>
@@ -383,39 +383,39 @@ export function ContractDetailsModal({
 
               {/* Financial Terms */}
               <div>
-                <h3 className="text-sm font-bold text-neutral-900 mb-3">
+                <h3 className="text-xs font-bold text-blue-300/40 uppercase tracking-widest mb-4">
                   Financial Terms
                 </h3>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
-                    <span className="block text-xs text-blue-500 font-medium mb-1">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+                  <div className="p-5 bg-blue-500/10 rounded-2xl border border-blue-500/20 group hover:bg-blue-500/20 transition-all">
+                    <span className="block text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1.5">
                       Annual Rent
                     </span>
-                    <span className="text-lg font-bold text-brand-blue">
+                    <span className="text-xl font-bold text-white tracking-tight">
                       {contract.rentAmount}
                     </span>
                   </div>
-                  <div className="p-4 bg-neutral-50 rounded-xl border border-neutral-100">
-                    <span className="block text-xs text-neutral-400 font-medium mb-1">
+                  <div className="p-5 bg-white/5 rounded-2xl border border-white/10 group hover:bg-white/10 transition-all">
+                    <span className="block text-[10px] font-bold text-blue-300/40 uppercase tracking-widest mb-1.5">
                       Security Deposit
                     </span>
-                    <span className="text-lg font-bold text-neutral-800">
+                    <span className="text-xl font-bold text-white tracking-tight">
                       {contract.securityDeposit}
                     </span>
                   </div>
-                  <div className="p-4 bg-neutral-50 rounded-xl border border-neutral-100">
-                    <span className="block text-xs text-neutral-400 font-medium mb-1">
+                  <div className="p-5 bg-white/5 rounded-2xl border border-white/10 group hover:bg-white/10 transition-all">
+                    <span className="block text-[10px] font-bold text-blue-300/40 uppercase tracking-widest mb-1.5">
                       Commission
                     </span>
-                    <span className="text-lg font-bold text-neutral-800">
+                    <span className="text-xl font-bold text-white tracking-tight">
                       {contract.commissionRate}
                     </span>
                   </div>
-                  <div className="p-4 bg-neutral-50 rounded-xl border border-neutral-100">
-                    <span className="block text-xs text-neutral-400 font-medium mb-1">
+                  <div className="p-5 bg-white/5 rounded-2xl border border-white/10 group hover:bg-white/10 transition-all">
+                    <span className="block text-[10px] font-bold text-blue-300/40 uppercase tracking-widest mb-1.5">
                       Duration
                     </span>
-                    <span className="text-sm font-bold text-neutral-800">
+                    <span className="text-sm font-bold text-white tracking-tight">
                       {new Date(contract.startDate).toLocaleDateString(
                         'en-NG',
                         { month: 'short', year: 'numeric' },
@@ -433,34 +433,36 @@ export function ContractDetailsModal({
               {/* Blockchain Record */}
               {contract.stellarTxHash && (
                 <div>
-                  <h3 className="text-sm font-bold text-neutral-900 mb-3">
+                  <h3 className="text-xs font-bold text-blue-300/40 uppercase tracking-widest mb-4">
                     Blockchain Record
                   </h3>
-                  <div className="flex items-center gap-3 p-4 bg-neutral-50 rounded-xl border border-neutral-100">
+                  <div className="flex items-center gap-4 p-5 bg-white/5 rounded-2xl border border-white/10 group hover:border-white/20 transition-all shadow-inner">
                     <div className="flex-1 min-w-0">
-                      <span className="block text-xs text-neutral-400 font-medium mb-1">
+                      <span className="block text-[10px] font-bold text-blue-300/40 uppercase tracking-widest mb-1.5">
                         Stellar Transaction Hash
                       </span>
-                      <code className="text-sm font-mono text-neutral-700">
+                      <code className="text-xs font-mono text-blue-200/60 break-all">
                         {contract.stellarTxHash}
                       </code>
                     </div>
-                    <button
-                      onClick={handleCopyTxHash}
-                      className="p-2 text-neutral-400 hover:text-brand-blue hover:bg-blue-50 rounded-lg transition-colors shrink-0"
-                      title="Copy transaction hash"
-                    >
-                      <Copy size={16} />
-                    </button>
-                    <a
-                      href={`https://stellar.expert/explorer/public/tx/${contract.stellarTxHash}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-2 text-neutral-400 hover:text-brand-blue hover:bg-blue-50 rounded-lg transition-colors shrink-0"
-                      title="View on Stellar Explorer"
-                    >
-                      <ExternalLink size={16} />
-                    </a>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={handleCopyTxHash}
+                        className="p-2.5 text-blue-300/40 hover:text-blue-400 hover:bg-white/5 rounded-xl transition-all shadow-sm"
+                        title="Copy transaction hash"
+                      >
+                        <Copy size={18} />
+                      </button>
+                      <a
+                        href={`https://stellar.expert/explorer/public/tx/${contract.stellarTxHash}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2.5 text-blue-300/40 hover:text-blue-400 hover:bg-white/5 rounded-xl transition-all shadow-sm"
+                        title="View on Stellar Explorer"
+                      >
+                        <ExternalLink size={18} />
+                      </a>
+                    </div>
                   </div>
                 </div>
               )}
@@ -468,15 +470,15 @@ export function ContractDetailsModal({
           )}
 
           {activeTab === 'terms' && (
-            <div className="bg-neutral-50 border border-neutral-200 rounded-xl p-6 font-mono text-sm leading-relaxed text-neutral-700 whitespace-pre-wrap min-h-[300px]">
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-8 font-mono text-sm leading-relaxed text-blue-100/80 whitespace-pre-wrap min-h-[400px] shadow-inner">
               {contract.terms}
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-neutral-100 bg-neutral-50 flex items-center justify-between shrink-0 rounded-b-2xl">
-          <span className="text-xs text-neutral-400">
+        <div className="p-6 border-t border-white/5 bg-white/10 flex items-center justify-between shrink-0 rounded-b-3xl">
+          <span className="text-[10px] font-bold text-blue-300/40 uppercase tracking-widest">
             Created{' '}
             {new Date(contract.createdAt).toLocaleDateString('en-NG', {
               weekday: 'long',
@@ -487,7 +489,7 @@ export function ContractDetailsModal({
           </span>
           <button
             onClick={onClose}
-            className="px-5 py-2 rounded-lg font-semibold text-sm text-neutral-600 hover:bg-neutral-200 transition-colors"
+            className="px-6 py-2.5 rounded-xl font-bold text-xs text-blue-300/40 hover:text-white hover:bg-white/5 transition-all uppercase tracking-widest"
           >
             Close
           </button>

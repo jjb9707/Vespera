@@ -33,14 +33,17 @@ export const Sidebar = ({ isOpen, onClose, navItems }: SidebarProps) => {
 
       {/* Sidebar Content */}
       <aside
-        className={`fixed top-0 left-0 bottom-0 w-64 bg-white border-r border-neutral-200 z-50 transition-transform duration-300 lg:translate-x-0 ${
+        className={`fixed top-0 left-0 bottom-0 w-64 backdrop-blur-xl bg-slate-900/50 border-r border-white/10 z-50 transition-transform duration-300 lg:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         } flex flex-col`}
       >
         {/* Logo */}
-        <div className="h-20 flex items-center px-6 border-b border-neutral-100">
+        <div className="h-20 flex items-center px-6 border-b border-white/10">
           <Link href="/" className="flex items-center space-x-2">
-            <span className="text-2xl font-bold text-blue-900 tracking-tight">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">C</span>
+            </div>
+            <span className="text-2xl font-bold text-white tracking-tight">
               Chioma
             </span>
           </Link>
@@ -59,14 +62,14 @@ export const Sidebar = ({ isOpen, onClose, navItems }: SidebarProps) => {
                 onClick={() => onClose()}
                 className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                   active
-                    ? 'bg-blue-50 text-blue-700 shadow-sm'
-                    : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900'
+                    ? 'bg-white/10 text-white shadow-lg border border-white/10'
+                    : 'text-blue-200/70 hover:bg-white/5 hover:text-white'
                 }`}
               >
                 <div className="flex items-center space-x-3">
                   <Icon
                     size={20}
-                    className={active ? 'text-blue-600' : 'text-neutral-500'}
+                    className={active ? 'text-blue-400' : 'text-blue-300/60'}
                   />
                   <span>{item.name}</span>
                 </div>
@@ -76,8 +79,8 @@ export const Sidebar = ({ isOpen, onClose, navItems }: SidebarProps) => {
         </nav>
 
         {/* User Profile / Logout Area */}
-        <div className="p-4 border-t border-neutral-100">
-          <button className="flex items-center space-x-3 px-4 py-3 rounded-xl w-full text-left text-neutral-600 hover:bg-red-50 hover:text-red-600 transition-all duration-200">
+        <div className="p-4 border-t border-white/10">
+          <button className="flex items-center space-x-3 px-4 py-3 rounded-xl w-full text-left text-blue-200/70 hover:bg-red-500/10 hover:text-red-400 transition-all duration-200">
             <LogOut size={20} />
             <span className="text-sm font-medium">Log out</span>
           </button>
