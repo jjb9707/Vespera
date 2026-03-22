@@ -20,7 +20,7 @@ interface PropertyCardProps {
 
 export default function PropertyCard({ property }: PropertyCardProps) {
   return (
-    <div className="backdrop-blur-xl bg-white/80 border border-slate-200/50 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group">
+    <div className="backdrop-blur-xl bg-slate-800/50 border border-white/10 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:border-white/20 transition-all duration-300 group">
       {/* Image Container */}
       <div className="relative aspect-4/3 sm:aspect-video bg-slate-200 overflow-hidden cursor-pointer">
         <Image
@@ -50,12 +50,12 @@ export default function PropertyCard({ property }: PropertyCardProps) {
         )}
 
         {/* Wishlist Heart */}
-        <button className="absolute top-4 right-4 bg-white/90 backdrop-blur-md rounded-full p-2.5 hover:bg-white hover:text-red-500 text-slate-400 transition-all shadow-lg active:scale-95">
+        <button className="absolute top-4 right-4 bg-slate-800/90 backdrop-blur-md rounded-full p-2.5 hover:bg-slate-700 hover:text-red-400 text-blue-200/70 transition-all shadow-lg active:scale-95 border border-white/10">
           <Heart className="w-5 h-5" />
         </button>
 
         {/* Lease Badge */}
-        <div className="absolute bottom-4 left-4 bg-slate-900/70 backdrop-blur-md text-white px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium border border-white/10 shadow-lg">
+        <div className="absolute bottom-4 left-4 bg-blue-500/20 backdrop-blur-md text-blue-200 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium border border-blue-400/30 shadow-lg">
           Smart Lease Ready
         </div>
       </div>
@@ -71,28 +71,28 @@ export default function PropertyCard({ property }: PropertyCardProps) {
         </p>
 
         {/* Title */}
-        <h3 className="font-bold text-slate-900 mb-2.5 text-base sm:text-lg leading-snug cursor-pointer hover:text-blue-600 transition-colors line-clamp-1">
+        <h3 className="font-bold text-white mb-2.5 text-base sm:text-lg leading-snug cursor-pointer hover:text-blue-400 transition-colors line-clamp-1">
           {property.title}
         </h3>
 
         {/* Location */}
-        <div className="flex items-start gap-1.5 text-slate-500 mb-5 text-sm">
+        <div className="flex items-start gap-1.5 text-blue-200/70 mb-5 text-sm">
           <MapPin className="w-4 h-4 shrink-0 mt-0.5" />
           <p className="line-clamp-1">{property.location}</p>
         </div>
 
         {/* Features Grid */}
-        <div className="flex gap-4 sm:gap-6 mb-5 pb-5 border-b border-slate-100 text-slate-600 font-medium text-sm">
+        <div className="flex gap-4 sm:gap-6 mb-5 pb-5 border-b border-white/10 text-blue-200/80 font-medium text-sm">
           <div className="flex items-center gap-1.5">
-            <Bed className="w-4 h-4 text-blue-500" />
+            <Bed className="w-4 h-4 text-blue-400" />
             <span>{property.beds} Beds</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <Bath className="w-4 h-4 text-blue-500" />
+            <Bath className="w-4 h-4 text-blue-400" />
             <span>{property.baths} Baths</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <Ruler className="w-4 h-4 text-blue-500" />
+            <Ruler className="w-4 h-4 text-blue-400" />
             <span>{property.sqft} sqft</span>
           </div>
         </div>
@@ -100,9 +100,9 @@ export default function PropertyCard({ property }: PropertyCardProps) {
         {/* Manager / Footer */}
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-600 shrink-0 shadow-sm" />
-          <p className="text-sm text-slate-500 truncate">
+          <p className="text-sm text-blue-200/70 truncate">
             Managed by{' '}
-            <span className="font-bold text-slate-900">{property.manager}</span>
+            <span className="font-bold text-white">{property.manager}</span>
           </p>
         </div>
       </div>

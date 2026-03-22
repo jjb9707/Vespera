@@ -158,35 +158,35 @@ export default function PropertyListing() {
 
   return (
     <>
-      <Navbar />
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+      <Navbar theme="dark" />
         {/* Header/Search Bar */}
-        <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/80 border-b border-slate-200/50 shadow-sm">
+        <header className="sticky top-0 z-40 backdrop-blur-xl bg-slate-900/80 border-b border-white/10 shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
             <div className="flex flex-col gap-4 md:gap-0">
               {/* Filter Buttons and Actions */}
               <div className="flex flex-wrap items-center gap-2 md:gap-3">
-                <button className="px-4 py-2 text-sm border border-slate-300 rounded-lg hover:bg-slate-50 transition-all font-medium text-slate-700">
+                <button className="px-4 py-2 text-sm border border-white/20 rounded-lg hover:bg-white/10 transition-all font-medium text-blue-200/80 hover:text-white backdrop-blur-sm">
                   Price Range
                 </button>
-                <button className="px-4 py-2 text-sm bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all font-medium shadow-sm">
+                <button className="px-4 py-2 text-sm bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all font-medium shadow-lg">
                   Property Type
                 </button>
-                <button className="px-4 py-2 text-sm border border-slate-300 rounded-lg hover:bg-slate-50 transition-all font-medium text-slate-700">
+                <button className="px-4 py-2 text-sm border border-white/20 rounded-lg hover:bg-white/10 transition-all font-medium text-blue-200/80 hover:text-white backdrop-blur-sm">
                   Beds & Baths
                 </button>
-                <button className="px-4 py-2 text-sm border border-slate-300 rounded-lg hover:bg-slate-50 transition-all font-medium text-slate-700 hidden sm:inline-block">
+                <button className="px-4 py-2 text-sm border border-white/20 rounded-lg hover:bg-white/10 transition-all font-medium text-blue-200/80 hover:text-white backdrop-blur-sm hidden sm:inline-block">
                   Amenities
                 </button>
                 <div className="flex items-center gap-2 ml-auto shrink-0">
                   {/* View Toggle */}
-                  <div className="flex items-center gap-0 border border-slate-300 rounded-lg overflow-hidden bg-white shadow-sm">
+                  <div className="flex items-center gap-0 border border-white/20 rounded-lg overflow-hidden backdrop-blur-sm bg-slate-800/50 shadow-lg">
                     <button
                       onClick={() => setViewMode('list')}
                       className={`min-h-[44px] min-w-[44px] flex items-center justify-center px-3 py-2 text-sm transition-all ${
                         viewMode === 'list'
                           ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white'
-                          : 'bg-white text-slate-700 hover:bg-slate-50'
+                          : 'bg-transparent text-blue-200/80 hover:bg-white/10 hover:text-white'
                       }`}
                       title="List View"
                     >
@@ -197,7 +197,7 @@ export default function PropertyListing() {
                       className={`min-h-[44px] min-w-[44px] flex items-center justify-center px-3 py-2 text-sm transition-all ${
                         viewMode === 'split'
                           ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white'
-                          : 'bg-white text-slate-700 hover:bg-slate-50'
+                          : 'bg-transparent text-blue-200/80 hover:bg-white/10 hover:text-white'
                       }`}
                       title="Split View"
                     >
@@ -211,18 +211,18 @@ export default function PropertyListing() {
                       className={`min-h-[44px] min-w-[44px] flex items-center justify-center px-3 py-2 text-sm transition-all ${
                         viewMode === 'map'
                           ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white'
-                          : 'bg-white text-slate-700 hover:bg-slate-50'
+                          : 'bg-transparent text-blue-200/80 hover:bg-white/10 hover:text-white'
                       }`}
                       title="Map View"
                     >
                       <Map className="w-4 h-4" />
                     </button>
                   </div>
-                  <button className="flex items-center gap-1 px-4 py-2 text-sm border border-slate-300 rounded-lg hover:bg-slate-50 transition-all font-medium text-slate-700 shadow-sm bg-white">
+                  <button className="flex items-center gap-1 px-4 py-2 text-sm border border-white/20 rounded-lg hover:bg-white/10 transition-all font-medium text-blue-200/80 hover:text-white shadow-lg backdrop-blur-sm">
                     <Filter className="w-4 h-4" />
                     <span className="hidden sm:inline">Filters</span>
                   </button>
-                  <button className="flex items-center gap-1 px-4 py-2 text-sm bg-blue-50 text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-100 transition-all font-medium shadow-sm">
+                  <button className="flex items-center gap-1 px-4 py-2 text-sm bg-blue-500/20 text-blue-300 border border-blue-400/30 rounded-lg hover:bg-blue-500/30 transition-all font-medium shadow-lg backdrop-blur-sm">
                     <Bell className="w-4 h-4" />
                     <span className="hidden sm:inline">Save Search</span>
                   </button>
@@ -241,26 +241,26 @@ export default function PropertyListing() {
           {/* Listings Panel */}
           {(viewMode === 'list' || viewMode === 'split') && (
             <div
-              className={`overflow-y-auto max-h-[calc(100vh-100px)] bg-white/50 backdrop-blur-sm ${
+              className={`overflow-y-auto max-h-[calc(100vh-100px)] bg-slate-800/30 backdrop-blur-sm ${
                 viewMode === 'split' ? 'w-full lg:w-2/5 xl:w-1/2' : 'w-full'
               }`}
             >
               <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Heading */}
                 <div className="mb-6">
-                  <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-slate-900 to-blue-900 bg-clip-text text-transparent mb-2">
+                  <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent mb-2">
                     {filteredProperties.length} Global Stays
                   </h1>
-                  <p className="text-slate-600 text-sm sm:text-base">
+                  <p className="text-blue-200/70 text-sm sm:text-base">
                     Check verified listings with smart lease support
                   </p>
                 </div>
 
                 {/* Verified Badge */}
-                <div className="backdrop-blur-xl bg-emerald-50/80 border border-emerald-200/50 rounded-xl p-4 sm:p-6 mb-8 flex gap-3 sm:gap-4 shadow-sm">
+                <div className="backdrop-blur-xl bg-emerald-500/10 border border-emerald-400/30 rounded-xl p-4 sm:p-6 mb-8 flex gap-3 sm:gap-4 shadow-lg">
                   <div className="shrink-0">
                     <svg
-                      className="w-6 h-6 text-emerald-600"
+                      className="w-6 h-6 text-emerald-400"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >
@@ -272,10 +272,10 @@ export default function PropertyListing() {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-emerald-900 mb-1 text-sm sm:text-base">
+                    <h3 className="font-semibold text-emerald-300 mb-1 text-sm sm:text-base">
                       Verified Blockchain Listings
                     </h3>
-                    <p className="text-emerald-700 text-xs sm:text-sm">
+                    <p className="text-emerald-200/70 text-xs sm:text-sm">
                       All properties with the verified badge have been vetted
                       and are ready for instant smart contract leasing.
                     </p>
@@ -285,10 +285,10 @@ export default function PropertyListing() {
                 {/* Sort */}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-2">
-                    <span className="text-slate-600 text-sm sm:text-base font-medium">
+                    <span className="text-blue-200/70 text-sm sm:text-base font-medium">
                       Sort by:
                     </span>
-                    <select className="px-3 py-2 border border-slate-300 rounded-lg text-sm sm:text-base bg-white text-slate-900 cursor-pointer hover:border-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm">
+                    <select className="px-3 py-2 border border-white/20 rounded-lg text-sm sm:text-base bg-slate-800/50 text-white cursor-pointer hover:border-white/30 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-lg backdrop-blur-sm">
                       <option>Recommended</option>
                       <option>Price: Low to High</option>
                       <option>Price: High to Low</option>
@@ -310,7 +310,7 @@ export default function PropertyListing() {
                       <PropertyCard key={property.id} property={property} />
                     ))
                   ) : (
-                    <div className="col-span-1 sm:col-span-2 text-center py-12 text-slate-500">
+                    <div className="col-span-1 sm:col-span-2 text-center py-12 text-blue-200/70">
                       No properties found matching your search.
                     </div>
                   )}
@@ -336,14 +336,14 @@ export default function PropertyListing() {
               }`}
             >
               {/* Search as I Move Checkbox Overlay */}
-              <div className="absolute top-4 right-4 backdrop-blur-xl bg-white/90 rounded-xl px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-2 shadow-lg z-10 border border-slate-200/50">
+              <div className="absolute top-4 right-4 backdrop-blur-xl bg-slate-800/90 rounded-xl px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-2 shadow-lg z-10 border border-white/10">
                 <input
                   type="checkbox"
                   checked={searchAsIMove}
                   onChange={(e) => setSearchAsIMove(e.target.checked)}
                   className="w-4 h-4 rounded cursor-pointer accent-blue-600"
                 />
-                <label className="text-slate-700 text-xs sm:text-sm font-medium cursor-pointer select-none">
+                <label className="text-blue-200/90 text-xs sm:text-sm font-medium cursor-pointer select-none">
                   Search as I move the map
                 </label>
               </div>
@@ -360,9 +360,9 @@ export default function PropertyListing() {
             </div>
           )}
         </div>
+      <Footer />
       </div>
 
-      <Footer />
     </>
   );
 }
