@@ -33,14 +33,14 @@ export default function SecurityDepositsSection({
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-neutral-200 overflow-hidden">
-      <div className="px-6 py-4 border-b border-neutral-100 bg-emerald-50/50 flex items-center gap-2">
-        <Shield className="text-emerald-600" size={20} />
-        <h2 className="text-lg font-semibold text-neutral-900">
+    <div className="bg-white/5 backdrop-blur-sm rounded-3xl shadow-xl border border-white/10 overflow-hidden">
+      <div className="px-6 py-5 border-b border-white/5 bg-white/5 flex items-center gap-3">
+        <Shield className="text-emerald-400" size={20} strokeWidth={2.5} />
+        <h2 className="text-lg font-bold text-white tracking-tight">
           Active Security Deposits
         </h2>
       </div>
-      <div className="divide-y divide-neutral-100">
+      <div className="divide-y divide-white/5">
         {activeDeposits.map((d) => {
           const amountDisplay =
             d.amountUsd != null && d.currency !== 'USD'
@@ -49,26 +49,26 @@ export default function SecurityDepositsSection({
           return (
             <div
               key={d.id}
-              className="px-6 py-4 flex flex-wrap items-center justify-between gap-4 hover:bg-neutral-50/80 transition-colors"
+              className="px-6 py-4 flex flex-wrap items-center justify-between gap-4 hover:bg-white/5 transition-all duration-200 group"
             >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-700">
-                  <Wallet size={20} />
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-emerald-400 border border-white/5 group-hover:scale-110 transition-transform">
+                  <Wallet size={22} strokeWidth={1.5} />
                 </div>
                 <div>
-                  <p className="font-medium text-neutral-900">
+                  <p className="font-bold text-white group-hover:text-emerald-400 transition-colors">
                     {d.propertyName}
                   </p>
-                  <p className="text-sm text-neutral-500">
+                  <p className="text-xs text-blue-300/40 font-bold uppercase tracking-widest mt-1">
                     Received {format(new Date(d.date), 'MMM d, yyyy')}
                   </p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="font-semibold text-neutral-900">
+                <p className="font-bold text-white text-lg">
                   {amountDisplay}
                 </p>
-                <p className="text-xs text-neutral-500">Held in escrow</p>
+                <p className="text-[10px] text-blue-300/40 font-bold uppercase tracking-widest mt-0.5">Held in escrow</p>
               </div>
             </div>
           );
