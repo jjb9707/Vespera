@@ -1113,7 +1113,10 @@ fn test_contract_paused_operations() {
 
         assert!(pause_state.is_paused);
         assert_eq!(pause_state.paused_by, admin);
-        assert_eq!(pause_state.pause_reason, String::from_str(&env, "incident response"));
+        assert_eq!(
+            pause_state.pause_reason,
+            String::from_str(&env, "incident response")
+        );
     });
 
     let res = client.try_create_agreement(
