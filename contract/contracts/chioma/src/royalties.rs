@@ -54,7 +54,11 @@ pub fn get_royalty(env: Env, token_id: String) -> Result<RoyaltyConfig, RentalEr
 }
 
 /// Calculate the royalty amount for a given sale price.
-pub fn calculate_royalty(env: Env, token_id: String, sale_price: i128) -> Result<i128, RentalError> {
+pub fn calculate_royalty(
+    env: Env,
+    token_id: String,
+    sale_price: i128,
+) -> Result<i128, RentalError> {
     let config = get_royalty(env, token_id)?;
     Ok((sale_price * config.royalty_percentage as i128) / 10000)
 }
@@ -89,7 +93,12 @@ pub fn transfer_with_royalty(
     // 1. Transfer royalty to recipient
     if royalty_amount > 0 {
         token_client.transfer(&to, &config.royalty_recipient, &royalty_amount);
-        events::royalty_paid(&env, token_id.clone(), royalty_amount, config.royalty_recipient);
+        events::royalty_paid(
+            &env,
+            token_id.clone(),
+            royalty_amount,
+            config.royalty_recipient,
+        );
     }
 
     // 2. Transfer remainder to current landlord
@@ -127,7 +136,10 @@ pub fn transfer_with_royalty(
 }
 
 /// Get the royalty payment history for a token.
-pub fn get_royalty_payments(env: Env, token_id: String) -> Result<Vec<RoyaltyPayment>, RentalError> {
+pub fn get_royalty_payments(
+    env: Env,
+    token_id: String,
+) -> Result<Vec<RoyaltyPayment>, RentalError> {
     Ok(env
         .storage()
         .persistent()

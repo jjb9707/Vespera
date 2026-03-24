@@ -617,7 +617,11 @@ impl Contract {
     }
 
     /// Calculate the royalty amount for a given sale price.
-    pub fn calculate_royalty(env: Env, token_id: String, sale_price: i128) -> Result<i128, RentalError> {
+    pub fn calculate_royalty(
+        env: Env,
+        token_id: String,
+        sale_price: i128,
+    ) -> Result<i128, RentalError> {
         royalties::calculate_royalty(env, token_id, sale_price)
     }
 
@@ -633,7 +637,10 @@ impl Contract {
     }
 
     /// Get the royalty payment history for a token.
-    pub fn get_royalty_payments(env: Env, token_id: String) -> Result<Vec<RoyaltyPayment>, RentalError> {
+    pub fn get_royalty_payments(
+        env: Env,
+        token_id: String,
+    ) -> Result<Vec<RoyaltyPayment>, RentalError> {
         royalties::get_royalty_payments(env, token_id)
     }
 }
