@@ -5,7 +5,7 @@ import {
   ForbiddenException,
   BadRequestException,
 } from '@nestjs/common';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { CacheService } from '../../common/cache/cache.service';
 import { PropertiesService } from './properties.service';
 import {
   Property,
@@ -118,16 +118,23 @@ describe('PropertiesService', () => {
     delete: jest.fn(),
   };
 
-  const mockCacheManager = {
+  const mockCacheService = {
     get: jest.fn(),
     set: jest.fn(),
-    del: jest.fn(),
-    store: {
-      keys: jest.fn().mockResolvedValue([]),
-    },
+    getOrSet: jest.fn(async (_key: string, factory: () => Promise<unknown>) =>
+      factory(),
+    ),
+    invalidatePropertyDomainCaches: jest.fn().mockResolvedValue(undefined),
   };
 
   beforeEach(async () => {
+    mockCacheService.getOrSet.mockImplementation(
+      async (_key: string, factory: () => Promise<unknown>) => factory(),
+    );
+    mockCacheService.invalidatePropertyDomainCaches.mockResolvedValue(
+      undefined,
+    );
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PropertiesService,
@@ -148,8 +155,8 @@ describe('PropertiesService', () => {
           useValue: mockRentalUnitRepository,
         },
         {
-          provide: CACHE_MANAGER,
-          useValue: mockCacheManager,
+          provide: CacheService,
+          useValue: mockCacheService,
         },
       ],
     }).compile();
@@ -602,7 +609,6 @@ describe('PropertiesService', () => {
       mockPropertyRepository.createQueryBuilder.mockReturnValue(
         mockQueryBuilder,
       );
-      mockCacheManager.get.mockResolvedValue(null);
 
       const query = {
         page: 1,
@@ -611,12 +617,15 @@ describe('PropertiesService', () => {
       };
       await service.findAll(query);
 
-      expect(mockCacheManager.set).toHaveBeenCalled();
+      expect(mockCacheService.getOrSet).toHaveBeenCalled();
     });
 
     it('should return cached data if available', async () => {
-      const cachedData = { data: [mockProperty], total: 1, page: 1, limit: 10 };
-      mockCacheManager.get.mockResolvedValue(cachedData);
+      const cachedData = {
+        data: [mockProperty],
+        meta: { total: 1, page: 1, limit: 10 },
+      };
+      mockCacheService.getOrSet.mockResolvedValueOnce(cachedData);
 
       const result = await service.findAll({
         status: ListingStatus.PUBLISHED,
@@ -629,11 +638,12 @@ describe('PropertiesService', () => {
     it('should invalidate cache on update', async () => {
       mockPropertyRepository.findOne.mockResolvedValue(mockProperty);
       mockPropertyRepository.save.mockResolvedValue(mockProperty);
-      mockCacheManager.store.keys.mockResolvedValue(['properties:list:key']);
 
       await service.update('property-id', { title: 'Updated' }, mockOwner);
 
-      expect(mockCacheManager.del).toHaveBeenCalledWith('properties:list:key');
+      expect(
+        mockCacheService.invalidatePropertyDomainCaches,
+      ).toHaveBeenCalledWith('property-id');
     });
   });
 });
