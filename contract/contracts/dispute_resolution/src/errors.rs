@@ -29,4 +29,5 @@ pub enum DisputeError {
     AppealNotCancelable = 23,
     TimeoutNotReached = 24,
     InvalidTimeoutConfig = 25,
+    InvalidRating = 26,
 }
