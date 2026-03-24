@@ -24,4 +24,7 @@ pub enum RentalError {
     InsufficientPayment = 22,
     AlreadyPaused = 23,
     NotPaused = 24,
+    InterestConfigNotFound = 25,
+    InterestAlreadyInitialized = 26,
+    NoPrincipal = 27,
 }

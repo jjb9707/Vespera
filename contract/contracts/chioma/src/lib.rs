@@ -9,6 +9,7 @@
 use soroban_sdk::{contract, contractimpl, Address, Env, String, Vec};
 
 mod agreement;
+mod deposit_interest;
 mod errors;
 mod events;
 mod multi_token;
@@ -20,6 +21,9 @@ mod tests;
 
 #[cfg(test)]
 mod tests_multi_token;
+
+#[cfg(test)]
+mod tests_deposit_interest;
 
 pub use agreement::{
     cancel_agreement, create_agreement, create_agreement_with_token, get_agreement,
@@ -34,8 +38,9 @@ pub use multi_token::{
 };
 pub use storage::DataKey;
 pub use types::{
-    AgreementStatus, AgreementWithToken, Config, ContractState, PauseState, PaymentSplit,
-    RentAgreement, SupportedToken, TokenExchangeRate,
+    AgreementStatus, AgreementWithToken, CompoundingFrequency, Config, ContractState,
+    DepositInterest, DepositInterestConfig, InterestAccrual, InterestRecipient, PauseState,
+    PaymentSplit, RentAgreement, SupportedToken, TokenExchangeRate,
 };
 
 /// Chioma rental agreement contract.
@@ -497,5 +502,76 @@ impl Contract {
         month: u32,
     ) -> Result<PaymentSplit, RentalError> {
         agreement::get_payment_split(&env, agreement_id, month)
+    }
+
+    // ─── Deposit Interest Functions ───────────────────────────────────────────
+
+    /// Set the interest configuration for a security deposit.
+    ///
+    /// Admin-only. Also initialises the DepositInterest record on first call.
+    pub fn set_deposit_interest_config(
+        env: Env,
+        agreement_id: String,
+        annual_rate: u32,
+        compounding_frequency: CompoundingFrequency,
+        interest_recipient: InterestRecipient,
+    ) -> Result<(), RentalError> {
+        Self::check_paused(&env)?;
+        let state = Self::get_state(env.clone()).ok_or(RentalError::InvalidState)?;
+        state.admin.require_auth();
+        deposit_interest::set_deposit_interest_config(
+            env,
+            agreement_id,
+            annual_rate,
+            compounding_frequency,
+            interest_recipient,
+        )
+    }
+
+    /// Get the interest configuration for a security deposit.
+    pub fn get_deposit_interest_config(
+        env: Env,
+        agreement_id: String,
+    ) -> Result<DepositInterestConfig, RentalError> {
+        deposit_interest::get_deposit_interest_config(env, agreement_id)
+    }
+
+    /// Calculate (but do not persist) the interest accrued so far.
+    pub fn calculate_accrued_interest(env: Env, escrow_id: String) -> Result<i128, RentalError> {
+        deposit_interest::calculate_accrued_interest(env, escrow_id)
+    }
+
+    /// Accrue interest up to the current ledger time and persist the update.
+    pub fn accrue_interest(env: Env, escrow_id: String) -> Result<InterestAccrual, RentalError> {
+        Self::check_paused(&env)?;
+        deposit_interest::accrue_interest(env, escrow_id)
+    }
+
+    /// Get the full deposit-interest state.
+    pub fn get_deposit_interest(
+        env: Env,
+        escrow_id: String,
+    ) -> Result<DepositInterest, RentalError> {
+        deposit_interest::get_deposit_interest(env, escrow_id)
+    }
+
+    /// Get the accrual history for a deposit.
+    pub fn get_accrual_history(
+        env: Env,
+        escrow_id: String,
+    ) -> Result<Vec<InterestAccrual>, RentalError> {
+        deposit_interest::get_accrual_history(env, escrow_id)
+    }
+
+    /// Distribute all accrued interest to tenant / landlord per configuration.
+    pub fn distribute_interest(env: Env, escrow_id: String) -> Result<(), RentalError> {
+        Self::check_paused(&env)?;
+        deposit_interest::distribute_interest(env, escrow_id)
+    }
+
+    /// (Keeper / oracle entry-point) Accrue interest for all deposits.
+    pub fn process_interest_accruals(env: Env) -> Result<Vec<String>, RentalError> {
+        Self::check_paused(&env)?;
+        deposit_interest::process_interest_accruals(env)
     }
 }

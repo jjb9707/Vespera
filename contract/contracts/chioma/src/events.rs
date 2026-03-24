@@ -273,3 +273,56 @@ pub(crate) fn escrow_released_with_token(
     }
     .publish(env);
 }
+
+// ─── Deposit Interest Events ──────────────────────────────────────────────────
+
+#[contractevent]
+pub struct InterestConfigSet {
+    pub agreement_id: String,
+    pub annual_rate: u32,
+}
+
+#[contractevent]
+pub struct InterestAccruedEvent {
+    pub escrow_id: String,
+    pub amount: i128,
+    pub total_accrued: i128,
+}
+
+#[contractevent]
+pub struct InterestDistributed {
+    pub escrow_id: String,
+    pub tenant_share: i128,
+    pub landlord_share: i128,
+}
+
+pub(crate) fn interest_config_set(env: &Env, agreement_id: String, annual_rate: u32) {
+    InterestConfigSet {
+        agreement_id,
+        annual_rate,
+    }
+    .publish(env);
+}
+
+pub(crate) fn interest_accrued(env: &Env, escrow_id: String, amount: i128, total_accrued: i128) {
+    InterestAccruedEvent {
+        escrow_id,
+        amount,
+        total_accrued,
+    }
+    .publish(env);
+}
+
+pub(crate) fn interest_distributed(
+    env: &Env,
+    escrow_id: String,
+    tenant_share: i128,
+    landlord_share: i128,
+) {
+    InterestDistributed {
+        escrow_id,
+        tenant_share,
+        landlord_share,
+    }
+    .publish(env);
+}

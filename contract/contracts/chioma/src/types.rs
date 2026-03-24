@@ -1,4 +1,4 @@
-use soroban_sdk::{contracttype, Address, Map, String};
+use soroban_sdk::{contracttype, Address, Map, String, Vec};
 
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -95,4 +95,59 @@ pub struct TokenExchangeRate {
     pub to_token: Address,
     pub rate: i128, // Scaled by 10^18
     pub updated_at: u64,
+}
+
+// ─── Security Deposit Interest ────────────────────────────────────────────────
+
+/// How often interest compounds.
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum CompoundingFrequency {
+    Daily,
+    Weekly,
+    Monthly,
+    Quarterly,
+    Annually,
+}
+
+/// Who receives accrued interest.
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum InterestRecipient {
+    Tenant,
+    Landlord,
+    Split, // 50/50
+}
+
+/// Configuration for deposit interest on a specific agreement.
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct DepositInterestConfig {
+    pub agreement_id: String,
+    /// Annual interest rate in basis points (0–10 000 = 0–100 %).
+    pub annual_rate: u32,
+    pub compounding_frequency: CompoundingFrequency,
+    pub interest_recipient: InterestRecipient,
+}
+
+/// A single interest-accrual snapshot.
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct InterestAccrual {
+    pub accrued_at: u64,
+    pub amount: i128,
+    pub rate: u32,
+    pub balance: i128,
+}
+
+/// Cumulative interest state for a deposit (keyed by agreement / escrow id).
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct DepositInterest {
+    pub escrow_id: String,
+    pub principal: i128,
+    pub accrued_interest: i128,
+    pub total_with_interest: i128,
+    pub last_accrual_date: u64,
+    pub accrual_history: Vec<InterestAccrual>,
 }
