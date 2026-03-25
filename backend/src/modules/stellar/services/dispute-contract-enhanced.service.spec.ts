@@ -5,8 +5,8 @@ import { ConfigService } from '@nestjs/config';
 import { DisputeContractEnhancedService } from './dispute-contract-enhanced.service';
 import { DisputeContractService } from './dispute-contract.service';
 import { EscrowContractService } from './escrow-contract.service';
-import { Arbiter } from '../entities/arbiter.entity';
-import { DisputeVote } from '../entities/dispute-vote.entity';
+import { Arbiter } from '../../disputes/entities/arbiter.entity';
+import { DisputeVote } from '../../disputes/entities/dispute-vote.entity';
 import {
   DisputeEvent,
   DisputeEventType,
