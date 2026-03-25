@@ -43,11 +43,13 @@ import { JobQueueService } from './common/services/job-queue.service';
 import { RateLimitingModule } from './modules/rate-limiting/rate-limiting.module';
 import { RateLimitHeadersMiddleware } from './modules/rate-limiting/middleware/rate-limit-headers.middleware';
 import { upstashStore } from './common/cache/upstash-cache.store';
+import { AppCacheModule } from './common/cache/cache.module';
 import { I18nModule } from './modules/i18n/i18n.module';
 import { LocalizationMiddleware } from './modules/i18n/middleware/localization.middleware';
 import { CleanupModule } from './modules/cleanup/cleanup.module';
 import { AiModule } from './modules/ai/ai.module';
 import { LoggerModule } from './common/services/logger.module';
+import { QueuesModule } from './modules/queues/queues.module';
 
 const appLogger = new Logger('AppModule');
 
@@ -118,6 +120,7 @@ const appLogger = new Logger('AppModule');
             };
           },
         }),
+    AppCacheModule,
     ThrottlerModule.forRoot([
       {
         name: 'default',
@@ -216,6 +219,8 @@ const appLogger = new Logger('AppModule');
     require('./modules/maintenance/maintenance.module').MaintenanceModule,
     // KYC module
     require('./modules/kyc/kyc.module').KycModule,
+    // Queue module
+    ...(process.env.OPENAPI_GENERATE !== 'true' ? [QueuesModule] : []),
   ],
   controllers: [AppController],
   providers: [
