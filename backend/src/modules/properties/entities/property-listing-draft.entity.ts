@@ -14,31 +14,20 @@ export interface PhotoData {
 }
 
 export interface PropertyData {
-  // Step 1
   propertyType?: string;
   address?: string;
   bedrooms?: number;
   bathrooms?: number;
   squareFootage?: number;
   yearBuilt?: number;
-  
-  // Step 2
   monthlyRent?: number;
   securityDeposit?: number;
   leaseTerm?: string;
   moveInDate?: Date | string;
   utilitiesIncluded?: string[];
-
-  // Step 3
   amenities?: string[];
-
-  // Step 4
   houseRules?: Record<string, boolean>;
-
-  // Step 5
   photos?: PhotoData[];
-
-  // Step 6
   propertyDescription?: string;
   neighborhoodDescription?: string;
   transportationInfo?: string;
@@ -60,7 +49,7 @@ export class PropertyListingDraft {
   landlordId: string;
 
   @Column({
-    type: 'jsonb',
+    type: process.env.DB_TYPE === 'sqlite' ? 'text' : 'jsonb',
     default: {},
   })
   data: PropertyData;
@@ -70,8 +59,7 @@ export class PropertyListingDraft {
 
   @Column({
     name: 'completed_steps',
-    type: 'simple-array',
-    array: true,
+    type: process.env.DB_TYPE === 'sqlite' ? 'text' : 'jsonb',
     default: [],
   })
   completedSteps: number[];
