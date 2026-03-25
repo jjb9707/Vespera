@@ -27,3 +27,9 @@ export {
   useUserTransactions,
   useTransaction,
 } from './use-transactions';
+
+export {
+  useAdminUsers,
+  useSuspendUser,
+  useActivateUser,
+} from './use-admin-users';
