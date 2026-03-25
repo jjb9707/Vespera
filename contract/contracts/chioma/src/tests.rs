@@ -134,7 +134,7 @@ fn create_contract(env: &Env) -> ContractClient<'_> {
 fn initialize_contract_state(env: &Env, client: &ContractClient<'_>, admin: &Address) {
     let config = Config {
         fee_bps: 100,
-        fee_collector: Address::generate(&env),
+        fee_collector: Address::generate(env),
         paused: false,
     };
     client
@@ -587,7 +587,7 @@ fn create_pending_agreement(
     landlord: &Address,
 ) {
     client.create_agreement(&AgreementInput {
-        agreement_id: String::from_str(&env, agreement_id).clone(),
+        agreement_id: String::from_str(env, agreement_id).clone(),
         landlord: landlord.clone(),
         tenant: tenant.clone(),
         agent: None,
@@ -598,19 +598,19 @@ fn create_pending_agreement(
             end_date: 1000000,
             agent_commission_rate: 0,
         },
-        payment_token: Address::generate(&env).clone(),
-        metadata_uri: String::from_str(&env, "").clone(),
-        attributes: Vec::new(&env).clone(),
+        payment_token: Address::generate(env).clone(),
+        metadata_uri: String::from_str(env, "").clone(),
+        attributes: Vec::new(env).clone(),
     });
 
     let mut agreement = client
-        .get_agreement(&String::from_str(&env, agreement_id))
+        .get_agreement(&String::from_str(env, agreement_id))
         .unwrap();
     agreement.status = AgreementStatus::Pending;
 
     env.as_contract(&client.address, || {
         env.storage().persistent().set(
-            &storage::DataKey::Agreement(String::from_str(&env, agreement_id)),
+            &storage::DataKey::Agreement(String::from_str(env, agreement_id)),
             &agreement,
         );
     });
@@ -1144,11 +1144,11 @@ proptest! {
         tenant: tenant.clone(),
         agent: None,
         terms: AgreementTerms {
-            monthly_rent: monthly_rent,
-            security_deposit: security_deposit,
-            start_date: start_date,
-            end_date: end_date,
-            agent_commission_rate: agent_commission_rate,
+            monthly_rent,
+            security_deposit,
+            start_date,
+            end_date,
+            agent_commission_rate,
         },
         payment_token: payment_token.clone(),
         metadata_uri: String::from_str(&env, "").clone(),

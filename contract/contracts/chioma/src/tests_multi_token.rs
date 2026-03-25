@@ -9,7 +9,7 @@ fn create_contract(env: &Env) -> ContractClient<'_> {
 fn initialize_contract(env: &Env, client: &ContractClient<'_>, admin: &Address) {
     let config = Config {
         fee_bps: 100,
-        fee_collector: Address::generate(&env),
+        fee_collector: Address::generate(env),
         paused: false,
     };
     client.initialize(admin, &config);
