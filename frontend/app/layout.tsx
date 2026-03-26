@@ -6,7 +6,9 @@ import { Toaster } from 'react-hot-toast';
 import ErrorMonitoringProvider from '@/components/error/ErrorMonitoringProvider';
 import NetworkStatusBanner from '@/components/error/NetworkStatusBanner';
 import PwaController from '@/components/pwa/PwaController';
-
+import { ModalProvider } from '@/contexts/ModalContext';
+import { ModalManager } from '@/components/modals';
+import { OfflineIndicator } from '@/components/offline';
 export const viewport: Viewport = {
   themeColor: '#1d4ed8',
   colorScheme: 'dark',
@@ -117,17 +119,21 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+      <body className="antialiased bg-linear-to-br from-slate-900 via-blue-900 to-slate-900">
         <QueryProvider>
-          <StoreHydrator />
-          <ErrorMonitoringProvider />
-          <PwaController />
-          <NetworkStatusBanner />
-          {children}
-          <Toaster
-            position="bottom-right"
-            toastOptions={{ className: 'font-medium' }}
-          />
+          <ModalProvider>
+            <StoreHydrator />
+            <ErrorMonitoringProvider />
+            <PwaController />
+            <NetworkStatusBanner />
+            {children}
+            <ModalManager />
+            <OfflineIndicator />
+            <Toaster
+              position="bottom-right"
+              toastOptions={{ className: 'font-medium' }}
+            />
+          </ModalProvider>
         </QueryProvider>
       </body>
     </html>

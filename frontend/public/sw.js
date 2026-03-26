@@ -1,11 +1,18 @@
-const VERSION = 'chioma-pwa-v1';
+/**
+ * Service Worker for offline support, install prompts, and background sync.
+ */
+
+const VERSION = 'chioma-pwa-v2';
 const STATIC_CACHE = `${VERSION}-static`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
 const OFFLINE_URL = '/offline';
 const PRECACHE_URLS = [
   '/',
+  '/login',
+  '/signup',
   OFFLINE_URL,
   '/manifest.webmanifest',
+  '/manifest.json',
   '/android_192.png',
   '/android_512.png',
   '/apple_touch_180.png',
@@ -49,11 +56,23 @@ self.addEventListener('fetch', (event) => {
   }
 
   const url = new URL(request.url);
+  if (!url.protocol.startsWith('http')) {
+    return;
+  }
+
   if (url.origin !== self.location.origin) {
     return;
   }
 
   if (url.pathname.startsWith('/api/')) {
+    event.respondWith(
+      fetch(request).catch(() =>
+        new Response(JSON.stringify({ error: 'Offline', offline: true }), {
+          status: 503,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      ),
+    );
     return;
   }
 
@@ -71,7 +90,13 @@ self.addEventListener('fetch', (event) => {
 });
 
 self.addEventListener('push', (event) => {
-  const payload = event.data?.json?.() ?? {};
+  let payload = {};
+  try {
+    payload = event.data ? event.data.json() : {};
+  } catch {
+    payload = {};
+  }
+
   const title = payload.title || 'Chioma update';
   const options = {
     body: payload.body || 'A new update is available.',
@@ -83,6 +108,21 @@ self.addEventListener('push', (event) => {
   };
 
   event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'chioma-offline-sync') {
+    event.waitUntil(
+      self.clients.matchAll().then((clients) => {
+        clients.forEach((client) => {
+          client.postMessage({
+            type: 'BACKGROUND_SYNC',
+            tag: event.tag,
+          });
+        });
+      }),
+    );
+  }
 });
 
 self.addEventListener('notificationclick', (event) => {
