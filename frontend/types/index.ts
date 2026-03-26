@@ -184,3 +184,27 @@ export interface ApiError {
   statusCode: number;
   error?: string;
 }
+
+// Document Types
+export type DocumentType = 'pdf' | 'image' | 'docx' | 'xlsx' | 'txt';
+export type DocumentCategory =
+  | 'lease'
+  | 'identity'
+  | 'payment'
+  | 'maintenance'
+  | 'inspection'
+  | 'other';
+
+export interface Document {
+  id: string;
+  name: string;
+  type: DocumentType;
+  url: string;
+  size: number;
+  uploadedBy: string;
+  uploadedByName?: string;
+  uploadedAt: string;
+  category?: DocumentCategory;
+  description?: string;
+  thumbnailUrl?: string;
+}
