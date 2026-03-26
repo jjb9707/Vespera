@@ -11,6 +11,10 @@ import {
   AuditLevel,
   AuditStatus,
 } from '../audit/entities/audit-log.entity';
+import {
+  decryptSensitiveKycFields,
+  encryptSensitiveKycFields,
+} from './kyc-encryption.util';
 
 @Injectable()
 export class KycService {
@@ -29,7 +33,6 @@ export class KycService {
     try {
       this.logger.log(`Submitting KYC for user ${userId}`);
 
-      // Encrypt KYC data before saving
       const encryptedKycData = this.encryptKycData(userId, dto.kycData);
 
       const kyc = this.kycRepository.create({
@@ -64,8 +67,10 @@ export class KycService {
       const kyc = await this.kycRepository.findOne({ where: { userId } });
 
       if (kyc && kyc.encryptedKycData) {
-        // Decrypt KYC data for retrieval
-        kyc.encryptedKycData = this.decryptKycData(userId, kyc.encryptedKycData);
+        kyc.encryptedKycData = this.decryptKycData(
+          userId,
+          kyc.encryptedKycData,
+        );
       }
 
       return kyc;
@@ -85,43 +90,21 @@ export class KycService {
     await this.usersService.setKycStatus(kyc.userId, dto.status);
   }
 
-  /**
-   * Encrypts KYC data using AES-256-GCM encryption.
-   * Sensitive fields are encrypted individually to maintain field-level security.
-   */
   private encryptKycData(
     userId: string,
-    data: Record<string, any>,
-  ): Record<string, any> {
+    data: Record<string, unknown>,
+  ): Record<string, unknown> {
     try {
-      const sensitiveFields = [
-        'first_name',
-        'last_name',
-        'date_of_birth',
-        'address',
-        'city',
-        'state',
-        'postal_code',
-        'country',
-        'id_number',
-        'tax_id',
-        'phone_number',
-        'bank_account_number',
-        'bank_routing_number',
-      ];
+      const encryptedData = encryptSensitiveKycFields(
+        data,
+        this.encryptionService,
+      );
 
-      const encryptedData: Record<string, any> = { ...data };
-      const encryptedFields: string[] = [];
+      const encryptedFields = Object.keys(data).filter(
+        (field) => encryptedData[field] !== data[field],
+      );
 
-      for (const field of sensitiveFields) {
-        if (encryptedData[field]) {
-          const value = String(encryptedData[field]);
-          encryptedData[field] = this.encryptionService.encrypt(value);
-          encryptedFields.push(field);
-        }
-      }
-
-      this.auditService.log({
+      void this.auditService.log({
         action: AuditAction.KYC_ENCRYPTED,
         entityType: 'Kyc',
         entityId: userId,
@@ -134,7 +117,7 @@ export class KycService {
       this.logger.debug('KYC data encrypted successfully');
       return encryptedData;
     } catch (error) {
-      this.auditService.log({
+      void this.auditService.log({
         action: AuditAction.KYC_ENCRYPTED,
         entityType: 'Kyc',
         entityId: userId,
@@ -149,51 +132,21 @@ export class KycService {
     }
   }
 
-  /**
-   * Decrypts KYC data that was encrypted with AES-256-GCM.
-   * Returns the original plaintext values for sensitive fields.
-   */
   private decryptKycData(
     userId: string,
-    data: Record<string, any>,
-  ): Record<string, any> {
+    data: Record<string, unknown>,
+  ): Record<string, unknown> {
     try {
-      const sensitiveFields = [
-        'first_name',
-        'last_name',
-        'date_of_birth',
-        'address',
-        'city',
-        'state',
-        'postal_code',
-        'country',
-        'id_number',
-        'tax_id',
-        'phone_number',
-        'bank_account_number',
-        'bank_routing_number',
-      ];
+      const decryptedData = decryptSensitiveKycFields(
+        data,
+        this.encryptionService,
+      );
 
-      const decryptedData: Record<string, any> = { ...data };
-      const decryptedFields: string[] = [];
+      const decryptedFields = Object.keys(data).filter(
+        (field) => decryptedData[field] !== data[field],
+      );
 
-      for (const field of sensitiveFields) {
-        if (decryptedData[field] && typeof decryptedData[field] === 'string') {
-          try {
-            decryptedData[field] = this.encryptionService.decrypt(
-              decryptedData[field],
-            );
-            decryptedFields.push(field);
-          } catch (error) {
-            this.logger.warn(
-              `Failed to decrypt field ${field}, keeping encrypted`,
-            );
-            // Keep the encrypted value if decryption fails
-          }
-        }
-      }
-
-      this.auditService.log({
+      void this.auditService.log({
         action: AuditAction.KYC_DECRYPTED,
         entityType: 'Kyc',
         entityId: userId,
@@ -206,7 +159,7 @@ export class KycService {
       this.logger.debug('KYC data decrypted successfully');
       return decryptedData;
     } catch (error) {
-      this.auditService.log({
+      void this.auditService.log({
         action: AuditAction.KYC_DECRYPTED,
         entityType: 'Kyc',
         entityId: userId,
