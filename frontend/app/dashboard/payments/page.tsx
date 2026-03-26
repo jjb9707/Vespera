@@ -536,7 +536,9 @@ function DailyVolumeChart({
                 color: '#fff',
               }}
               formatter={(value, name) => [
-                value !== undefined ? `${Number(value).toLocaleString()}` : 'N/A',
+                value !== undefined
+                  ? `${Number(value).toLocaleString()}`
+                  : 'N/A',
                 name === 'volume' ? 'Volume' : (name ?? 'Value'),
               ]}
               labelStyle={{ color: 'rgba(255,255,255,0.7)' }}
@@ -593,7 +595,9 @@ function MonthlyTrendsChart({
                 color: '#fff',
               }}
               formatter={(value, name) => [
-                value !== undefined ? `${Number(value).toLocaleString()}` : 'N/A',
+                value !== undefined
+                  ? `${Number(value).toLocaleString()}`
+                  : 'N/A',
                 name === 'volume' ? 'Volume' : (name ?? 'Value'),
               ]}
               labelStyle={{ color: 'rgba(255,255,255,0.7)' }}
