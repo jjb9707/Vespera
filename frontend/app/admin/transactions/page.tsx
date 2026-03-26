@@ -23,8 +23,8 @@ interface TransactionFilters {
   page: number;
   limit: number;
   search: string;
-  type: string;
-  status: string;
+  type: Transaction['type'] | '';
+  status: Transaction['status'] | '';
   startDate: string;
   endDate: string;
 }
@@ -42,7 +42,15 @@ const DEFAULT_FILTERS: TransactionFilters = {
 export default function TransactionsPage() {
   const [filters, setFilters] = useState<TransactionFilters>(DEFAULT_FILTERS);
 
-  const { data: transactions, isLoading, refetch } = useTransactions(filters);
+  const {
+    data: transactions,
+    isLoading,
+    refetch,
+  } = useTransactions({
+    ...filters,
+    type: filters.type || undefined,
+    status: filters.status || undefined,
+  });
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,

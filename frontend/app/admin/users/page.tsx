@@ -23,7 +23,7 @@ interface UserFilters {
   page: number;
   limit: number;
   search: string;
-  role: string;
+  role: User['role'] | '';
 }
 
 const DEFAULT_FILTERS: UserFilters = {
@@ -36,7 +36,14 @@ const DEFAULT_FILTERS: UserFilters = {
 export default function AdminUsersPage() {
   const [filters, setFilters] = useState<UserFilters>(DEFAULT_FILTERS);
 
-  const { data: users, isLoading, refetch } = useAdminUsers(filters);
+  const {
+    data: users,
+    isLoading,
+    refetch,
+  } = useAdminUsers({
+    ...filters,
+    role: filters.role || undefined,
+  });
   const suspendUser = useSuspendUser();
   const activateUser = useActivateUser();
 
