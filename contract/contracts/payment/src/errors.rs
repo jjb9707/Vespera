@@ -37,4 +37,22 @@ pub enum PaymentError {
     RecurringPaymentExecutionFailed = 25,
     /// Recurring payment is not failed
     RecurringPaymentNotFailed = 26,
+    /// Rate limit exceeded for this operation
+    RateLimitExceeded = 27,
+    /// Cooldown period not met
+    CooldownNotMet = 28,
+    /// Late fee config not found for agreement
+    LateFeeConfigNotFound = 29,
+    /// Late fee record not found for payment
+    LateFeeRecordNotFound = 30,
+    /// Late fee already applied to this payment
+    LateFeeAlreadyApplied = 31,
+    /// Late fee already waived
+    LateFeeAlreadyWaived = 32,
+    /// Invalid late fee percentage (must be > 0 and <= 100)
+    InvalidLateFeePercentage = 33,
+    /// Payment is not late (within grace period)
+    PaymentNotLate = 34,
+    /// Caller is not the landlord
+    NotLandlord = 35,
 }

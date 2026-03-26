@@ -1,4 +1,28 @@
-use soroban_sdk::{contracttype, Address, String, Vec};
+use soroban_sdk::{contracttype, Address, Bytes, String, Vec};
+
+// ─── Timelock Types ───────────────────────────────────────────────────────────
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum TimelockActionType {
+    UpdateAdmin,
+    UpdateConfig,
+    UpdateRates,
+    PauseContract,
+    UnpauseContract,
+}
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct TimelockAction {
+    pub id: String,
+    pub action_type: TimelockActionType,
+    pub target: Address,
+    pub data: Bytes,
+    pub eta: u64, // Execution timestamp (Unix seconds)
+    pub executed: bool,
+    pub cancelled: bool,
+}
 
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -10,6 +34,47 @@ pub enum AgreementStatus {
     Cancelled,
     Terminated,
     Disputed,
+}
+
+// ─── Multi-Sig Types ──────────────────────────────────────────────────────────
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct MultiSigConfig {
+    pub admins: Vec<Address>,
+    pub required_signatures: u32,
+    pub total_admins: u32,
+}
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum ActionType {
+    Pause,
+    Unpause,
+    UpdateConfig,
+    UpdateRate,
+    AddAdmin,
+    RemoveAdmin,
+    UpdateRequiredSignatures,
+    EmergencyAction,
+    SetRateLimit,
+    AddToken,
+    RemoveToken,
+}
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct AdminProposal {
+    pub id: String,
+    pub proposer: Address,
+    pub action_type: ActionType,
+    pub target: Option<Address>,
+    pub data: Bytes,
+    pub approvals: Vec<Address>,
+    pub approval_count: u32,
+    pub executed: bool,
+    pub created_at: u64,
+    pub expiry: u64,
 }
 
 #[contracttype]
@@ -190,6 +255,26 @@ pub struct RoyaltyPayment {
     pub timestamp: u64,
 }
 
+// ─── Rate Limiting Types ──────────────────────────────────────────────────────
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct RateLimitConfig {
+    pub max_calls_per_block: u32,
+    pub max_calls_per_user_per_day: u32,
+    pub cooldown_blocks: u32,
+}
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct UserCallCount {
+    pub user: Address,
+    pub call_count: u32,
+    pub last_call_block: u64,
+    pub daily_count: u32,
+    pub daily_reset_block: u64,
+}
+
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct AgreementTerms {
@@ -198,6 +283,14 @@ pub struct AgreementTerms {
     pub start_date: u64,
     pub end_date: u64,
     pub agent_commission_rate: u32,
+}
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum RateLimitReason {
+    BlockLimitExceeded,
+    DailyLimitExceeded,
+    CooldownNotMet,
 }
 
 #[contracttype]

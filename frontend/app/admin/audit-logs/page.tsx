@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/api-client';
 import { useAuth } from '@/store/authStore';
@@ -250,52 +250,8 @@ export default function LandlordsAuditLogsPage() {
                   </td>
                 </tr>
               ))}
-
-            {!loading && rows.length === 0 && (
-              <tr>
-                <td
-                  colSpan={7}
-                  className="px-4 py-8 text-center text-blue-200/60"
-                >
-                  No audit logs found for the current filters.
-                </td>
-              </tr>
-            )}
-
-            {loading && (
-              <tr>
-                <td
-                  colSpan={7}
-                  className="px-4 py-8 text-center text-blue-200/60"
-                >
-                  Loading audit logs...
-                </td>
-              </tr>
-            )}
           </tbody>
         </table>
-      </div>
-
-      <div className="flex items-center justify-between">
-        <button
-          type="button"
-          className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white disabled:opacity-40"
-          disabled={page <= 1}
-          onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-        >
-          Previous
-        </button>
-        <p className="text-sm text-blue-200/70">
-          Page {page} of {totalPages}
-        </p>
-        <button
-          type="button"
-          className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white disabled:opacity-40"
-          disabled={page >= totalPages}
-          onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-        >
-          Next
-        </button>
       </div>
 
       {selected && (
