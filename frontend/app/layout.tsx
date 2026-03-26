@@ -1,14 +1,20 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { QueryProvider } from '@/lib/query/provider';
 import { StoreHydrator } from '@/store/StoreHydrator';
 import { Toaster } from 'react-hot-toast';
 import ErrorMonitoringProvider from '@/components/error/ErrorMonitoringProvider';
 import NetworkStatusBanner from '@/components/error/NetworkStatusBanner';
+import PwaController from '@/components/pwa/PwaController';
 import { ModalProvider } from '@/contexts/ModalContext';
 import { ModalManager } from '@/components/modals';
 import { OfflineIndicator } from '@/components/offline';
 import { Inter } from 'next/font/google';
+
+export const viewport: Viewport = {
+  themeColor: '#1d4ed8',
+  colorScheme: 'dark',
+};
 
 const inter = Inter({
   subsets: ['latin'],
@@ -45,6 +51,8 @@ export const metadata: Metadata = {
   authors: [{ name: 'caxtonacollins' }],
   creator: 'Chioma',
   publisher: 'Chioma',
+  applicationName: 'Chioma',
+  manifest: '/manifest.webmanifest',
   formatDetection: {
     email: false,
     address: false,
@@ -101,7 +109,11 @@ export const metadata: Metadata = {
       { rel: 'android-chrome', url: '/android_512.png', sizes: '512x512' },
     ],
   },
-  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Chioma',
+  },
   category: 'technology',
   alternates: {
     canonical: '/',
@@ -129,6 +141,7 @@ export default function RootLayout({
           <ModalProvider>
             <StoreHydrator />
             <ErrorMonitoringProvider />
+            <PwaController />
             <NetworkStatusBanner />
             {children}
             <ModalManager />
