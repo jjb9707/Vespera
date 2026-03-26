@@ -8,18 +8,10 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
 import PropertiesTable from '@/components/landlord-dashboard/PropertiesTable';
 
-export default function PropertiesPage() {
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
-  const [properties, setProperties] = useState([]);
-
-  useEffect(() => {
-    // Simulated mock fetch from /api/properties/my-properties
-    const fetchProperties = async () => {
-      // Mock delay
-      await new Promise((resolve) => setTimeout(resolve, 800));
-
-      const mockData = [
+const seedProperties = () =>
+  process.env.NODE_ENV === 'production'
+    ? []
+    : [
         {
           id: 'prop-1',
           title: 'Sunset View Apartments',
@@ -45,7 +37,19 @@ export default function PropertiesPage() {
           tenants: 1,
         },
       ];
-      setProperties(mockData as unknown as never[]);
+
+export default function PropertiesPage() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+  const [properties, setProperties] = useState([]);
+
+  useEffect(() => {
+    // Simulated mock fetch from /api/properties/my-properties
+    const fetchProperties = async () => {
+      // Mock delay
+      await new Promise((resolve) => setTimeout(resolve, 800));
+
+      setProperties(seedProperties() as unknown as never[]);
       setIsLoading(false);
     };
 

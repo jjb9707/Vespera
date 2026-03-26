@@ -35,6 +35,7 @@ import { NftEventProcessor } from './services/nft-event-processor.service';
 import { PaymentProcessingService } from './services/payment-processing.service';
 import { PaymentProcessingController } from './controllers/payment-processing.controller';
 import stellarConfig from './config/stellar.config';
+import { WebhooksModule } from '../webhooks/webhooks.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import stellarConfig from './config/stellar.config';
     ]),
     ScheduleModule.forRoot(),
     EventEmitterModule.forRoot(),
+    WebhooksModule,
   ],
   controllers: [
     StellarController,

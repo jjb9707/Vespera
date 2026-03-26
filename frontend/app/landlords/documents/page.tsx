@@ -44,8 +44,10 @@ const MOCK_LEASES: Lease[] = [
   },
 ];
 
+const initialLeases = process.env.NODE_ENV === 'production' ? [] : MOCK_LEASES;
+
 export default function LandlordDocumentsPage() {
-  const [leases] = useState<Lease[]>(MOCK_LEASES);
+  const [leases] = useState<Lease[]>(initialLeases);
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">

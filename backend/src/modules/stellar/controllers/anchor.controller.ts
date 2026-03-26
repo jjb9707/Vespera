@@ -19,6 +19,9 @@ import { AnchorService } from '../services/anchor.service';
 import { DepositRequestDto } from '../dto/deposit-request.dto';
 import { WithdrawRequestDto } from '../dto/withdraw-request.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { Public } from '../../auth/decorators/public.decorator';
+import { WebhookSignatureGuard } from '../../webhooks/guards/webhook-signature.guard';
+import { WebhookSecret } from '../../webhooks/decorators/webhook-secret.decorator';
 
 @ApiTags('Anchor')
 @ApiBearerAuth('JWT-auth')
@@ -64,6 +67,9 @@ export class AnchorController {
 
   @Post('webhook')
   @HttpCode(HttpStatus.OK)
+  @Public()
+  @UseGuards(WebhookSignatureGuard)
+  @WebhookSecret('ANCHOR_WEBHOOK_SECRET')
   @ApiOperation({
     summary: 'Anchor webhook',
     description: 'Called by anchor to notify status. Not for client use.',

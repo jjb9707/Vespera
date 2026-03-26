@@ -8,7 +8,7 @@ import {
   Index,
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
-import { KycStatus } from '../../kyc/kyc.entity';
+import { KycStatus } from '../../kyc/kyc-status.enum';
 
 export enum UserRole {
   USER = 'user',

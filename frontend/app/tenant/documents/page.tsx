@@ -31,8 +31,10 @@ const MOCK_LEASES: Lease[] = [
   },
 ];
 
+const initialLeases = process.env.NODE_ENV === 'production' ? [] : MOCK_LEASES;
+
 export default function TenantDocumentsPage() {
-  const [leases, setLeases] = useState<Lease[]>(MOCK_LEASES);
+  const [leases, setLeases] = useState<Lease[]>(initialLeases);
 
   const handleSignComplete = async (leaseId: string) => {
     // In a real app, you would make an API call to sign the lease
