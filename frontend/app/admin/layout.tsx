@@ -14,9 +14,13 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     '/admin/audit-logs': 'Audit Logs',
     '/admin/kyc': 'Pending KYC Verifications',
     '/admin/kyc/rejected': 'Rejected KYC Verifications',
+    '/admin/disputes': 'Disputes',
   };
 
-  const pageTitle = pageTitleMap[pathname] ?? 'Admin';
+  const pageTitle =
+    /^\/admin\/disputes\/.+/.test(pathname) && pathname !== '/admin/disputes'
+      ? 'Dispute Detail'
+      : (pageTitleMap[pathname] ?? 'Admin');
 
   return (
     <ProtectedRoute>
