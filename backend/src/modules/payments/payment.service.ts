@@ -955,7 +955,10 @@ export class PaymentService {
 
       schedule.retries = 0;
       schedule.lastError = null;
-      schedule.nextRunAt = calculateNextRunAt(schedule.nextRunAt, schedule.interval);
+      schedule.nextRunAt = calculateNextRunAt(
+        schedule.nextRunAt,
+        schedule.interval,
+      );
       await this.paymentScheduleRepository.save(schedule);
 
       await this.notificationsService.notify(
@@ -986,61 +989,5 @@ export class PaymentService {
       throw error;
     }
   }
-
-  private parseEscrowReference(referenceNumber: string | null): number | null {
-    if (!referenceNumber?.startsWith('escrow:')) {
-      return null;
-    }
-    const value = parseInt(referenceNumber.replace('escrow:', ''), 10);
-    return Number.isFinite(value) ? value : null;
-  }
-
-  private async syncEscrowPaymentFromState(
-    escrowId: number,
-    escrowStatus: EscrowStatus,
-    userId: string,
-    extraMetadata: Record<string, unknown> = {},
-  ): Promise<Payment | null> {
-    const payment = await this.paymentRepository.findOne({
-      where: { userId, referenceNumber: `escrow:${escrowId}` },
-    });
-
-    if (!payment) {
-      return null;
-    }
-
-    payment.status =
-      escrowStatus === EscrowStatus.RELEASED
-        ? PaymentStatus.COMPLETED
-        : escrowStatus === EscrowStatus.REFUNDED ||
-            escrowStatus === EscrowStatus.CANCELLED ||
-            escrowStatus === EscrowStatus.EXPIRED
-          ? PaymentStatus.REFUNDED
-          : PaymentStatus.PENDING;
-    payment.metadata = {
-      ...(payment.metadata ?? {}),
-      escrowId,
-      escrowStatus,
-      ...extraMetadata,
-    };
-    payment.processedAt ??= new Date();
-    return this.paymentRepository.save(payment);
-  }
-
-  private mapWebhookStatus(status: string): PaymentStatus {
-    const normalized = status.toLowerCase();
-    if (['completed', 'success', 'successful', 'paid'].includes(normalized)) {
-      return PaymentStatus.COMPLETED;
-    }
-    if (['refunded', 'partial_refund'].includes(normalized)) {
-      return normalized === 'partial_refund'
-        ? PaymentStatus.PARTIAL_REFUND
-        : PaymentStatus.REFUNDED;
-    }
-    if (['failed', 'error'].includes(normalized)) {
-      return PaymentStatus.FAILED;
-    }
-    return PaymentStatus.PENDING;
-  }
-
 }
+

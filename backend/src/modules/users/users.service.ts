@@ -10,7 +10,6 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { randomBytes } from 'crypto';
 import { User } from './entities/user.entity';
-import { KycStatus } from '../kyc/kyc.entity'; // ✅ moved here with the other imports
 import {
   UpdateUserProfileDto,
   ChangeEmailDto,
@@ -185,11 +184,5 @@ export class UsersService {
       emailVerified: user.emailVerified,
       isActive: user.isActive,
     };
-  }
-
-  // ✅ moved inside the class
-  async setKycStatus(userId: string, status: KycStatus): Promise<void> {
-    await this.userRepository.update(userId, { kycStatus: status });
-    this.logger.log(`KYC status updated for user ${userId}: ${status}`);
   }
 }
