@@ -7,6 +7,7 @@ import ErrorMonitoringProvider from '@/components/error/ErrorMonitoringProvider'
 import NetworkStatusBanner from '@/components/error/NetworkStatusBanner';
 import { ModalProvider } from '@/contexts/ModalContext';
 import { ModalManager } from '@/components/modals';
+import { OfflineIndicator } from '@/components/offline';
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -93,6 +94,7 @@ export const metadata: Metadata = {
       { rel: 'android-chrome', url: '/android_512.png', sizes: '512x512' },
     ],
   },
+  manifest: '/manifest.json',
   category: 'technology',
   alternates: {
     canonical: '/',
@@ -106,7 +108,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+      <body className="antialiased bg-linear-to-br from-slate-900 via-blue-900 to-slate-900">
         <QueryProvider>
           <ModalProvider>
             <StoreHydrator />
@@ -114,6 +116,7 @@ export default function RootLayout({
             <NetworkStatusBanner />
             {children}
             <ModalManager />
+            <OfflineIndicator />
             <Toaster
               position="bottom-right"
               toastOptions={{ className: 'font-medium' }}
