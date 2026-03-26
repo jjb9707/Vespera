@@ -7,7 +7,6 @@ import {
   Filter,
   X,
   RotateCcw,
-  Download,
   UserCheck,
   UserX,
 } from 'lucide-react';

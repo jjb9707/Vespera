@@ -7,11 +7,9 @@ import {
   ChevronRight,
   CheckSquare,
   Square,
-  Users,
   UserCheck,
   UserX,
   Download,
-  ChevronDown,
   Loader2,
   AlertTriangle,
   X,
@@ -105,7 +103,6 @@ export const BulkUserOperations: React.FC<BulkUserOperationsProps> = ({
   onBulkExport,
 }) => {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [actionsOpen, setActionsOpen] = useState(false);
   const [confirm, setConfirm] = useState<null | 'suspend' | 'activate'>(null);
   const [actionLoading, setActionLoading] = useState(false);
 

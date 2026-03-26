@@ -5,7 +5,6 @@ import { format } from 'date-fns';
 import {
   ArrowUpRight,
   ArrowDownLeft,
-  RefreshCw,
   ChevronLeft,
   ChevronRight,
   ExternalLink,
