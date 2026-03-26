@@ -16,6 +16,20 @@ export interface User {
   updatedAt: string;
 }
 
+// User Activity Types
+export type ActivityType = 'login' | 'property_view' | 'system_event' | 'profile_update' | 'kyc_submission';
+
+export interface UserActivity {
+  id: string;
+  userId: string;
+  type: ActivityType;
+  description: string;
+  metadata?: Record<string, unknown>;
+  ipAddress?: string;
+  userAgent?: string;
+  createdAt: string;
+}
+
 // Property Types
 export interface Property {
   id: string;
