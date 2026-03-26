@@ -39,9 +39,9 @@ export function RoleManagement() {
   const [search, setSearch] = useState('');
   const [selectedRoleFilter, setSelectedRoleFilter] = useState('all');
   const [selectedRoleId, setSelectedRoleId] = useState<string | null>(null);
-  const [editedPermissionIds, setEditedPermissionIds] = useState<string[] | null>(
-    null,
-  );
+  const [editedPermissionIds, setEditedPermissionIds] = useState<
+    string[] | null
+  >(null);
   const [pendingAssignments, setPendingAssignments] = useState<
     Record<string, string>
   >({});
@@ -68,7 +68,8 @@ export function RoleManagement() {
   const users = usersResponse?.data ?? [];
 
   const roleOptions = useMemo(
-    () => roles.map((role) => ({ value: role.name, label: prettify(role.name) })),
+    () =>
+      roles.map((role) => ({ value: role.name, label: prettify(role.name) })),
     [roles],
   );
 
@@ -293,7 +294,8 @@ export function RoleManagement() {
                     </span>
                   </div>
                   <p className="text-sm text-blue-100/80 mt-3 line-clamp-2">
-                    {role.description || 'No description provided for this role.'}
+                    {role.description ||
+                      'No description provided for this role.'}
                   </p>
                   <p className="text-xs text-blue-200/60 mt-3">
                     {role.permissions.length} assigned permissions
@@ -307,16 +309,17 @@ export function RoleManagement() {
 
       <section className="bg-white/5 backdrop-blur-sm rounded-3xl p-6 border border-white/10 space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <h2 className="text-lg font-bold text-white">Edit Role Permissions</h2>
+          <h2 className="text-lg font-bold text-white">
+            Edit Role Permissions
+          </h2>
           <button
             onClick={handleSaveRolePermissions}
-            disabled={
-              !selectedRole ||
-              updateRolePermissionsMutation.isPending
-            }
+            disabled={!selectedRole || updateRolePermissionsMutation.isPending}
             className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold transition-colors"
           >
-            {updateRolePermissionsMutation.isPending ? 'Saving...' : 'Save Changes'}
+            {updateRolePermissionsMutation.isPending
+              ? 'Saving...'
+              : 'Save Changes'}
           </button>
         </div>
 
@@ -334,43 +337,48 @@ export function RoleManagement() {
             </div>
 
             <div className="space-y-4">
-              {Object.entries(groupedPermissions).map(([resource, permissions]) => (
-                <div
-                  key={resource}
-                  className="rounded-2xl border border-white/10 bg-white/5 p-4"
-                >
-                  <h4 className="text-sm font-semibold text-blue-200 mb-3 uppercase tracking-wide">
-                    {prettify(resource)}
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-                    {permissions.map((permission) => {
-                      const checked = selectedPermissionSet.has(permission.id);
+              {Object.entries(groupedPermissions).map(
+                ([resource, permissions]) => (
+                  <div
+                    key={resource}
+                    className="rounded-2xl border border-white/10 bg-white/5 p-4"
+                  >
+                    <h4 className="text-sm font-semibold text-blue-200 mb-3 uppercase tracking-wide">
+                      {prettify(resource)}
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                      {permissions.map((permission) => {
+                        const checked = selectedPermissionSet.has(
+                          permission.id,
+                        );
 
-                      return (
-                        <label
-                          key={permission.id}
-                          className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-3 cursor-pointer hover:border-white/20 transition-colors"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={checked}
-                            onChange={() => togglePermission(permission.id)}
-                            className="mt-1 accent-blue-500"
-                          />
-                          <span>
-                            <span className="block text-sm text-white font-medium">
-                              {prettify(permission.action)} {prettify(permission.resource)}
+                        return (
+                          <label
+                            key={permission.id}
+                            className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-3 cursor-pointer hover:border-white/20 transition-colors"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => togglePermission(permission.id)}
+                              className="mt-1 accent-blue-500"
+                            />
+                            <span>
+                              <span className="block text-sm text-white font-medium">
+                                {prettify(permission.action)}{' '}
+                                {prettify(permission.resource)}
+                              </span>
+                              <span className="block text-xs text-blue-200/65 mt-0.5">
+                                {permission.description || permission.name}
+                              </span>
                             </span>
-                            <span className="block text-xs text-blue-200/65 mt-0.5">
-                              {permission.description || permission.name}
-                            </span>
-                          </span>
-                        </label>
-                      );
-                    })}
+                          </label>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ),
+              )}
             </div>
           </>
         )}
@@ -378,7 +386,9 @@ export function RoleManagement() {
 
       <section className="bg-white/5 backdrop-blur-sm rounded-3xl p-6 border border-white/10 space-y-5">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-lg font-bold text-white">Assign Roles to Users</h2>
+          <h2 className="text-lg font-bold text-white">
+            Assign Roles to Users
+          </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -409,7 +419,11 @@ export function RoleManagement() {
                 All Roles
               </option>
               {roleOptions.map((option) => (
-                <option key={option.value} value={option.value} className="bg-slate-900">
+                <option
+                  key={option.value}
+                  value={option.value}
+                  className="bg-slate-900"
+                >
                   {option.label}
                 </option>
               ))}
@@ -454,7 +468,9 @@ export function RoleManagement() {
                       <td className="px-4 py-3">
                         <select
                           value={pendingRole}
-                          onChange={(e) => setPendingUserRole(user.id, e.target.value)}
+                          onChange={(e) =>
+                            setPendingUserRole(user.id, e.target.value)
+                          }
                           className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:bg-white/10 focus:border-blue-500 appearance-none transition-all"
                         >
                           {roleOptions.map((option) => (
@@ -522,7 +538,9 @@ function StatCard({
         {icon}
       </div>
       <div>
-        <p className="text-xs text-blue-200/60 uppercase tracking-wider">{title}</p>
+        <p className="text-xs text-blue-200/60 uppercase tracking-wider">
+          {title}
+        </p>
         <h3 className="text-2xl font-bold text-white">{value}</h3>
       </div>
     </div>

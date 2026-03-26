@@ -19,7 +19,9 @@ export function useAdminRoles() {
   return useQuery({
     queryKey: queryKeys.roles.list(),
     queryFn: async () => {
-      const { data } = await apiClient.get<Role[]>('/api/v1/security/rbac/roles');
+      const { data } = await apiClient.get<Role[]>(
+        '/api/v1/security/rbac/roles',
+      );
       return data;
     },
   });
