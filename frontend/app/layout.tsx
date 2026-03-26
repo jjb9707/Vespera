@@ -2,12 +2,12 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { QueryProvider } from '@/lib/query/provider';
 import { StoreHydrator } from '@/store/StoreHydrator';
-import { Toaster } from 'react-hot-toast';
 import ErrorMonitoringProvider from '@/components/error/ErrorMonitoringProvider';
 import NetworkStatusBanner from '@/components/error/NetworkStatusBanner';
 import { ModalProvider } from '@/contexts/ModalContext';
 import { ModalManager } from '@/components/modals';
 import { OfflineIndicator } from '@/components/offline';
+import { ToastProvider } from '@/components/ui';
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -117,10 +117,7 @@ export default function RootLayout({
             {children}
             <ModalManager />
             <OfflineIndicator />
-            <Toaster
-              position="bottom-right"
-              toastOptions={{ className: 'font-medium' }}
-            />
+            <ToastProvider />
           </ModalProvider>
         </QueryProvider>
       </body>
