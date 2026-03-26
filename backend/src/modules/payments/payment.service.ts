@@ -556,7 +556,10 @@ export class PaymentService {
 
       schedule.retries = 0;
       schedule.lastError = null;
-      schedule.nextRunAt = calculateNextRunAt(schedule.nextRunAt, schedule.interval);
+      schedule.nextRunAt = calculateNextRunAt(
+        schedule.nextRunAt,
+        schedule.interval,
+      );
       await this.paymentScheduleRepository.save(schedule);
 
       await this.notificationsService.notify(
@@ -587,5 +590,4 @@ export class PaymentService {
       throw error;
     }
   }
-
 }

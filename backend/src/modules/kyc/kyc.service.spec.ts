@@ -73,9 +73,8 @@ describe('KycService', () => {
 
     service = module.get<KycService>(KycService);
     kycRepository = module.get<Repository<Kyc>>(getRepositoryToken(Kyc));
-    userKycStatusService = module.get<UserKycStatusService>(
-      UserKycStatusService,
-    );
+    userKycStatusService =
+      module.get<UserKycStatusService>(UserKycStatusService);
     encryptionService = module.get<EncryptionService>(EncryptionService);
   });
 

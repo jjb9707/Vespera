@@ -1,8 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class HardenWebhookSecurity1775200000000
-  implements MigrationInterface
-{
+export class HardenWebhookSecurity1775200000000 implements MigrationInterface {
   name = 'HardenWebhookSecurity1775200000000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {

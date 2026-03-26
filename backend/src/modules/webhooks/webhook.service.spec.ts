@@ -29,7 +29,12 @@ describe('WebhookSignatureService', () => {
 
   it('rejects unsigned webhooks', () => {
     expect(() =>
-      service.verifySignature('{"ok":true}', undefined, undefined, 'test-secret'),
+      service.verifySignature(
+        '{"ok":true}',
+        undefined,
+        undefined,
+        'test-secret',
+      ),
     ).toThrow('Missing webhook signature');
   });
 

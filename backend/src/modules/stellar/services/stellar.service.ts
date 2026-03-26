@@ -319,7 +319,12 @@ export class StellarService {
         asset = StellarSdk.Asset.native();
       }
 
-      assertSufficientBalance(networkAccount, dto.amount, assetType, this.baseFee);
+      assertSufficientBalance(
+        networkAccount,
+        dto.amount,
+        assetType,
+        this.baseFee,
+      );
 
       // Build transaction
       const buildTransaction = (source: StellarSdk.Account) => {
@@ -399,7 +404,9 @@ export class StellarService {
           sourcePublicKey: dto.sourcePublicKey,
           sourceKeypair,
           rebuildAndResign: async () => {
-            const freshSource = await this.horizon.loadAccount(dto.sourcePublicKey);
+            const freshSource = await this.horizon.loadAccount(
+              dto.sourcePublicKey,
+            );
             const rebuilt = buildTransaction(freshSource);
             rebuilt.sign(sourceKeypair);
             transaction = rebuilt;
@@ -1021,9 +1028,11 @@ export class StellarService {
     return Promise.race([
       this.horizon.submitTransaction(transaction),
       new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('Transaction submission timeout')), this.txSubmitTimeoutMs),
+        setTimeout(
+          () => reject(new Error('Transaction submission timeout')),
+          this.txSubmitTimeoutMs,
+        ),
       ),
     ]);
   }
-
 }

@@ -256,8 +256,6 @@ describe('PropertiesService', () => {
     });
   });
 
-
-
   describe('findOne', () => {
     it('should return a property by id', async () => {
       mockPropertyRepository.findOne.mockResolvedValue(mockProperty);

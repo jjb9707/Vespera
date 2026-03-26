@@ -1,4 +1,11 @@
-import { Controller, Get, Post, Body, HttpCode, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  HttpCode,
+  UseGuards,
+} from '@nestjs/common';
 import { MetricsService } from './metrics.service';
 import { AlertService } from './alert.service';
 import { CacheService } from '../../common/cache/cache.service';

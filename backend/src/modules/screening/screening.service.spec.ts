@@ -126,7 +126,8 @@ describe('ScreeningService', () => {
       ],
       status: TenantScreeningStatus.PENDING_CONSENT,
       consentExpiresAt: new Date('2026-04-30T00:00:00.000Z'),
-      encryptedApplicantData: 'enc:{"legalName":"Jane Tenant","email":"jane@example.com"}',
+      encryptedApplicantData:
+        'enc:{"legalName":"Jane Tenant","email":"jane@example.com"}',
     } as TenantScreeningRequest;
 
     mockScreeningRepository.findOne.mockResolvedValue(screening);

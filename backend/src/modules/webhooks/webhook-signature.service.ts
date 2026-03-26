@@ -65,7 +65,11 @@ export class WebhookSignatureService {
       throw new UnauthorizedException('Webhook timestamp expired');
     }
 
-    const expectedSignature = this.generateSignature(payload, timestamp, secret);
+    const expectedSignature = this.generateSignature(
+      payload,
+      timestamp,
+      secret,
+    );
     const signatureBuffer = Buffer.from(signature, 'hex');
     const expectedBuffer = Buffer.from(expectedSignature, 'hex');
 

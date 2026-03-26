@@ -128,7 +128,9 @@ export class ScreeningService {
       provider: screening.provider,
       consentTextVersion: dto.consentTextVersion,
       grantedAt: new Date(),
-      expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : screening.consentExpiresAt,
+      expiresAt: dto.expiresAt
+        ? new Date(dto.expiresAt)
+        : screening.consentExpiresAt,
       ipAddress: actor.ipAddress ?? null,
       userAgent: actor.userAgent ?? null,
     });
@@ -468,17 +470,18 @@ export class ScreeningService {
 
   private isSandboxMode(): boolean {
     return (
-      this.configService.get<string>('TENANT_SCREENING_SANDBOX_MODE', 'true') ===
-      'true'
+      this.configService.get<string>(
+        'TENANT_SCREENING_SANDBOX_MODE',
+        'true',
+      ) === 'true'
     );
   }
 
   private getDefaultProvider(): TenantScreeningProvider {
     return (
-      (this.configService.get<string>(
-        'TENANT_SCREENING_DEFAULT_PROVIDER',
-      ) as TenantScreeningProvider | undefined) ??
-      TenantScreeningProvider.TRANSUNION_SMARTMOVE
+      (this.configService.get<string>('TENANT_SCREENING_DEFAULT_PROVIDER') as
+        | TenantScreeningProvider
+        | undefined) ?? TenantScreeningProvider.TRANSUNION_SMARTMOVE
     );
   }
 
