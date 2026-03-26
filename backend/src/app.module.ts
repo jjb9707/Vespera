@@ -19,7 +19,7 @@ import { PropertiesModule } from './modules/properties/properties.module';
 import { StellarModule } from './modules/stellar/stellar.module';
 import { DisputesModule } from './modules/disputes/disputes.module';
 import { MonitoringModule } from './modules/monitoring/monitoring.module';
-import { ThrottlerExceptionFilter } from './common/filters/throttler-exception.filter';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { PaymentModule } from './modules/payments/payment.module';
 import { ProfileModule } from './modules/profile/profile.module';
@@ -237,7 +237,7 @@ const appLogger = new Logger('AppModule');
     },
     {
       provide: APP_FILTER,
-      useClass: ThrottlerExceptionFilter,
+      useClass: AllExceptionsFilter,
     },
   ],
 })
