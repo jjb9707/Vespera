@@ -3,6 +3,9 @@
  * Matches backend entity structures
  */
 
+// Security Types
+export * from './security';
+
 // User Types
 export interface User {
   id: string;
