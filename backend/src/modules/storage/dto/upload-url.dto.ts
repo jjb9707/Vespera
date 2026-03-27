@@ -64,9 +64,15 @@ export class FileMetadataResponseDto {
   @ApiProperty({ example: 'docs/user/key', description: 'S3 key' })
   s3Key: string;
 
-  @ApiProperty({ example: '2024-03-27T10:00:00Z', description: 'Creation date' })
+  @ApiProperty({
+    example: '2024-03-27T10:00:00Z',
+    description: 'Creation date',
+  })
   createdAt: Date;
 
-  @ApiProperty({ example: '2024-03-27T10:00:00Z', description: 'Last update date' })
+  @ApiProperty({
+    example: '2024-03-27T10:00:00Z',
+    description: 'Last update date',
+  })
   updatedAt: Date;
 }

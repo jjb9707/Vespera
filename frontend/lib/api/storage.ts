@@ -18,7 +18,11 @@ export const storageApi = {
     return response.data;
   },
 
-  getUploadUrl: async (fileName: string, fileSize: number, fileType: string): Promise<{ url: string; key: string }> => {
+  getUploadUrl: async (
+    fileName: string,
+    fileSize: number,
+    fileType: string,
+  ): Promise<{ url: string; key: string }> => {
     const response = await axios.post(`${API_BASE_URL}/storage/upload-url`, {
       fileName,
       fileSize,
@@ -34,10 +38,17 @@ export const storageApi = {
     return response.data.url;
   },
 
-  updateMetadata: async (key: string, fileName: string): Promise<FileMetadata> => {
-    const response = await axios.patch(`${API_BASE_URL}/storage`, { fileName }, {
-      params: { key },
-    });
+  updateMetadata: async (
+    key: string,
+    fileName: string,
+  ): Promise<FileMetadata> => {
+    const response = await axios.patch(
+      `${API_BASE_URL}/storage`,
+      { fileName },
+      {
+        params: { key },
+      },
+    );
     return response.data;
   },
 

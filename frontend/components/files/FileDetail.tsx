@@ -1,5 +1,15 @@
 import React from 'react';
-import { X, Download, Trash2, Share2, Edit2, Calendar, Info, HardDrive, User } from 'lucide-react';
+import {
+  X,
+  Download,
+  Trash2,
+  Share2,
+  Edit2,
+  Calendar,
+  Info,
+  HardDrive,
+  User,
+} from 'lucide-react';
 import { FileMetadata } from '../../lib/api/storage';
 import { FileIcon } from './FileIcon';
 import { format } from 'date-fns';
@@ -19,7 +29,7 @@ export const FileDetail: React.FC<Props> = ({
   onDownload,
   onDelete,
   onRename,
-  onShare
+  onShare,
 }) => {
   if (!file) return null;
 
@@ -39,7 +49,7 @@ export const FileDetail: React.FC<Props> = ({
             <Info size={20} className="text-brand-blue" />
             File Details
           </h2>
-          <button 
+          <button
             onClick={onClose}
             className="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-xl transition-colors text-neutral-500"
           >
@@ -64,15 +74,21 @@ export const FileDetail: React.FC<Props> = ({
             <div className="flex items-center justify-between p-4 bg-neutral-50 dark:bg-neutral-900/40 rounded-2xl border border-neutral-100 dark:border-neutral-700">
               <div className="flex items-center gap-3">
                 <HardDrive size={18} className="text-neutral-400" />
-                <span className="text-sm font-semibold text-neutral-600 dark:text-neutral-400">Size</span>
+                <span className="text-sm font-semibold text-neutral-600 dark:text-neutral-400">
+                  Size
+                </span>
               </div>
-              <span className="text-sm font-bold text-neutral-900 dark:text-white">{formatSize(file.fileSize)}</span>
+              <span className="text-sm font-bold text-neutral-900 dark:text-white">
+                {formatSize(file.fileSize)}
+              </span>
             </div>
 
             <div className="flex items-center justify-between p-4 bg-neutral-50 dark:bg-neutral-900/40 rounded-2xl border border-neutral-100 dark:border-neutral-700">
               <div className="flex items-center gap-3">
                 <Calendar size={18} className="text-neutral-400" />
-                <span className="text-sm font-semibold text-neutral-600 dark:text-neutral-400">Created</span>
+                <span className="text-sm font-semibold text-neutral-600 dark:text-neutral-400">
+                  Created
+                </span>
               </div>
               <span className="text-sm font-bold text-neutral-900 dark:text-white">
                 {format(new Date(file.createdAt), 'PPP p')}
@@ -82,7 +98,9 @@ export const FileDetail: React.FC<Props> = ({
             <div className="flex items-center justify-between p-4 bg-neutral-50 dark:bg-neutral-900/40 rounded-2xl border border-neutral-100 dark:border-neutral-700">
               <div className="flex items-center gap-3">
                 <User size={18} className="text-neutral-400" />
-                <span className="text-sm font-semibold text-neutral-600 dark:text-neutral-400">Storage Key</span>
+                <span className="text-sm font-semibold text-neutral-600 dark:text-neutral-400">
+                  Storage Key
+                </span>
               </div>
               <span className="text-xs font-mono bg-neutral-200 dark:bg-neutral-700 px-2 py-1 rounded text-neutral-700 dark:text-neutral-300 max-w-[200px] truncate">
                 {file.s3Key}

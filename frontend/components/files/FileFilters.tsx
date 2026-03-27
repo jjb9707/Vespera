@@ -20,13 +20,16 @@ export const FileFilters: React.FC<Props> = ({
   filterType,
   setFilterType,
   sortBy,
-  setSortBy
+  setSortBy,
 }) => {
   return (
     <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-6">
       {/* Search */}
       <div className="relative w-full md:max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" size={18} />
+        <Search
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"
+          size={18}
+        />
         <input
           type="text"
           placeholder="Search files..."

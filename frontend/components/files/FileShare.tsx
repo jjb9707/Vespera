@@ -43,7 +43,7 @@ export const FileShare: React.FC<Props> = ({ file, onClose }) => {
             <Share2 size={20} className="text-brand-blue" />
             Share File
           </h2>
-          <button 
+          <button
             onClick={onClose}
             className="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-xl transition-colors text-neutral-500"
           >
@@ -54,11 +54,15 @@ export const FileShare: React.FC<Props> = ({ file, onClose }) => {
         <div className="p-8">
           <div className="flex items-center gap-4 mb-8 bg-neutral-50 dark:bg-neutral-900/50 p-4 rounded-2xl border border-neutral-100 dark:border-neutral-800">
             <div className="w-12 h-12 bg-white dark:bg-neutral-800 rounded-xl flex items-center justify-center shadow-sm">
-                <Share2 size={24} className="text-brand-blue" />
+              <Share2 size={24} className="text-brand-blue" />
             </div>
             <div className="flex-1 min-w-0">
-                <p className="font-bold text-neutral-900 dark:text-white truncate">{file.fileName}</p>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400 font-medium uppercase tracking-tighter">Private Share</p>
+              <p className="font-bold text-neutral-900 dark:text-white truncate">
+                {file.fileName}
+              </p>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400 font-medium uppercase tracking-tighter">
+                Private Share
+              </p>
             </div>
           </div>
 

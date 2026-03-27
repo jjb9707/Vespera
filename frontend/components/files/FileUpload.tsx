@@ -1,5 +1,12 @@
 import React, { useCallback, useState } from 'react';
-import { Upload, X, File as FileIcon, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import {
+  Upload,
+  X,
+  File as FileIcon,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+} from 'lucide-react';
 import { storageApi } from '../../lib/api/storage';
 
 interface Props {
@@ -11,15 +18,26 @@ interface Props {
 export const FileUpload: React.FC<Props> = ({
   isOpen,
   onClose,
-  onUploadSuccess
+  onUploadSuccess,
 }) => {
-  const [files, setFiles] = useState<{ file: File; status: 'idle' | 'uploading' | 'success' | 'error'; progress: number; error?: string }[]>([]);
+  const [files, setFiles] = useState<
+    {
+      file: File;
+      status: 'idle' | 'uploading' | 'success' | 'error';
+      progress: number;
+      error?: string;
+    }[]
+  >([]);
   const [isDragging, setIsDragging] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const newFiles = Array.from(e.target.files).map(f => ({ file: f, status: 'idle' as const, progress: 0 }));
-      setFiles(prev => [...prev, ...newFiles]);
+      const newFiles = Array.from(e.target.files).map((f) => ({
+        file: f,
+        status: 'idle' as const,
+        progress: 0,
+      }));
+      setFiles((prev) => [...prev, ...newFiles]);
     }
   };
 
@@ -27,50 +45,54 @@ export const FileUpload: React.FC<Props> = ({
     e.preventDefault();
     setIsDragging(false);
     if (e.dataTransfer.files) {
-      const newFiles = Array.from(e.dataTransfer.files).map(f => ({ file: f, status: 'idle' as const, progress: 0 }));
-      setFiles(prev => [...prev, ...newFiles]);
+      const newFiles = Array.from(e.dataTransfer.files).map((f) => ({
+        file: f,
+        status: 'idle' as const,
+        progress: 0,
+      }));
+      setFiles((prev) => [...prev, ...newFiles]);
     }
   }, []);
 
   const removeFile = (index: number) => {
-    setFiles(prev => prev.filter((_, i) => i !== index));
+    setFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   const uploadFiles = async () => {
     const updatedFiles = [...files];
-    
+
     for (let i = 0; i < updatedFiles.length; i++) {
-        if (updatedFiles[i].status === 'success') continue;
-        
-        try {
-            updatedFiles[i].status = 'uploading';
-            setFiles([...updatedFiles]);
+      if (updatedFiles[i].status === 'success') continue;
 
-            const { url, key } = await storageApi.getUploadUrl(
-                updatedFiles[i].file.name,
-                updatedFiles[i].file.size,
-                updatedFiles[i].file.type || 'application/octet-stream'
-            );
+      try {
+        updatedFiles[i].status = 'uploading';
+        setFiles([...updatedFiles]);
 
-            await storageApi.uploadToS3(url, updatedFiles[i].file);
+        const { url, key } = await storageApi.getUploadUrl(
+          updatedFiles[i].file.name,
+          updatedFiles[i].file.size,
+          updatedFiles[i].file.type || 'application/octet-stream',
+        );
 
-            updatedFiles[i].status = 'success';
-            updatedFiles[i].progress = 100;
-            setFiles([...updatedFiles]);
-        } catch (error) {
-            console.error('Upload failed:', error);
-            updatedFiles[i].status = 'error';
-            updatedFiles[i].error = 'Upload failed';
-            setFiles([...updatedFiles]);
-        }
+        await storageApi.uploadToS3(url, updatedFiles[i].file);
+
+        updatedFiles[i].status = 'success';
+        updatedFiles[i].progress = 100;
+        setFiles([...updatedFiles]);
+      } catch (error) {
+        console.error('Upload failed:', error);
+        updatedFiles[i].status = 'error';
+        updatedFiles[i].error = 'Upload failed';
+        setFiles([...updatedFiles]);
+      }
     }
 
-    if (updatedFiles.every(f => f.status === 'success')) {
-        setTimeout(() => {
-            onUploadSuccess();
-            onClose();
-            setFiles([]);
-        }, 1500);
+    if (updatedFiles.every((f) => f.status === 'success')) {
+      setTimeout(() => {
+        onUploadSuccess();
+        onClose();
+        setFiles([]);
+      }, 1500);
     }
   };
 
@@ -84,7 +106,7 @@ export const FileUpload: React.FC<Props> = ({
             <Upload size={20} className="text-brand-blue" />
             Upload Files
           </h2>
-          <button 
+          <button
             onClick={onClose}
             className="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-xl transition-colors text-neutral-500"
           >
@@ -94,12 +116,15 @@ export const FileUpload: React.FC<Props> = ({
 
         <div className="p-8">
           <div
-            onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setIsDragging(true);
+            }}
             onDragLeave={() => setIsDragging(false)}
             onDrop={onDrop}
             className={`relative border-2 border-dashed rounded-3xl p-12 flex flex-col items-center justify-center transition-all ${
-              isDragging 
-                ? 'border-brand-blue bg-blue-50/50 dark:bg-blue-900/10' 
+              isDragging
+                ? 'border-brand-blue bg-blue-50/50 dark:bg-blue-900/10'
                 : 'border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600 bg-neutral-50 dark:bg-neutral-900/50'
             }`}
           >
@@ -110,7 +135,8 @@ export const FileUpload: React.FC<Props> = ({
               {isDragging ? 'Drop files here' : 'Drag & drop files here'}
             </p>
             <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-6 font-medium">
-              or <span className="text-brand-blue">browse from your computer</span>
+              or{' '}
+              <span className="text-brand-blue">browse from your computer</span>
             </p>
             <input
               type="file"
@@ -123,7 +149,7 @@ export const FileUpload: React.FC<Props> = ({
           {files.length > 0 && (
             <div className="mt-8 space-y-3 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
               {files.map((item, index) => (
-                <div 
+                <div
                   key={index}
                   className="p-4 bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-100 dark:border-neutral-800 flex items-center gap-4 animate-in slide-in-from-bottom-2 duration-300"
                 >
@@ -140,15 +166,22 @@ export const FileUpload: React.FC<Props> = ({
                   </div>
                   <div className="flex items-center gap-3">
                     {item.status === 'uploading' && (
-                      <Loader2 size={20} className="animate-spin text-brand-blue" />
+                      <Loader2
+                        size={20}
+                        className="animate-spin text-brand-blue"
+                      />
                     )}
                     {item.status === 'success' && (
                       <CheckCircle2 size={20} className="text-green-500" />
                     )}
                     {item.status === 'error' && (
-                      <AlertCircle size={20} className="text-red-500" title={item.error} />
+                      <AlertCircle
+                        size={20}
+                        className="text-red-500"
+                        title={item.error}
+                      />
                     )}
-                    <button 
+                    <button
                       onClick={() => removeFile(index)}
                       className="p-1 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-lg text-neutral-400"
                       disabled={item.status === 'uploading'}
@@ -170,10 +203,15 @@ export const FileUpload: React.FC<Props> = ({
             </button>
             <button
               onClick={uploadFiles}
-              disabled={files.length === 0 || files.some(f => f.status === 'uploading')}
+              disabled={
+                files.length === 0 ||
+                files.some((f) => f.status === 'uploading')
+              }
               className="flex-1 py-4 bg-brand-blue hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-black rounded-2xl transition-all shadow-xl shadow-blue-500/20 active:scale-[0.98]"
             >
-              {files.some(f => f.status === 'uploading') ? 'Uploading...' : 'Start Upload'}
+              {files.some((f) => f.status === 'uploading')
+                ? 'Uploading...'
+                : 'Start Upload'}
             </button>
           </div>
         </div>
