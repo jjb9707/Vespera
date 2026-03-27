@@ -93,7 +93,9 @@ export const RefundRequestModal: React.FC<RefundRequestModalProps> = ({
       handleClose();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : 'Failed to submit refund request',
+        error instanceof Error
+          ? error.message
+          : 'Failed to submit refund request',
       );
     }
   };
@@ -103,7 +105,11 @@ export const RefundRequestModal: React.FC<RefundRequestModalProps> = ({
       isOpen={isOpen}
       onClose={handleClose}
       title="Request a Refund"
-      subtitle={propertyName ? `Payment for ${propertyName}` : 'Submit a refund request for review'}
+      subtitle={
+        propertyName
+          ? `Payment for ${propertyName}`
+          : 'Submit a refund request for review'
+      }
       size="md"
       footer={
         <div className="flex items-center justify-end gap-3 w-full">
@@ -183,7 +189,9 @@ export const RefundRequestModal: React.FC<RefundRequestModalProps> = ({
             />
           </div>
           {errors.requestedAmount && (
-            <p className="text-xs text-red-500 mt-2">{errors.requestedAmount.message}</p>
+            <p className="text-xs text-red-500 mt-2">
+              {errors.requestedAmount.message}
+            </p>
           )}
         </div>
 

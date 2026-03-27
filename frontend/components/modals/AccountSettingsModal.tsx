@@ -54,7 +54,10 @@ interface AccountSettingsModalProps {
   onClose: () => void;
   settings?: AccountSettingsData;
   onSaveSettings?: (data: AccountSettingsData) => Promise<void>;
-  onChangePassword?: (currentPassword: string, newPassword: string) => Promise<void>;
+  onChangePassword?: (
+    currentPassword: string,
+    newPassword: string,
+  ) => Promise<void>;
   onDeleteAccount?: () => Promise<void>;
 }
 
@@ -167,9 +170,13 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
   }) => (
     <label className="flex items-center justify-between gap-4 cursor-pointer py-3 border-b border-neutral-100 dark:border-neutral-800 last:border-0">
       <div>
-        <p className="font-semibold text-neutral-900 dark:text-white text-sm">{label}</p>
+        <p className="font-semibold text-neutral-900 dark:text-white text-sm">
+          {label}
+        </p>
         {description && (
-          <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">{description}</p>
+          <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+            {description}
+          </p>
         )}
       </div>
       <button
@@ -312,25 +319,33 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
               <div className="bg-neutral-50 dark:bg-neutral-800/50 rounded-2xl p-4">
                 <ToggleSwitch
                   checked={notifications.emailPayments}
-                  onChange={(v) => setNotifications((n) => ({ ...n, emailPayments: v }))}
+                  onChange={(v) =>
+                    setNotifications((n) => ({ ...n, emailPayments: v }))
+                  }
                   label="Payment Notifications"
                   description="Receive emails for payment confirmations and reminders"
                 />
                 <ToggleSwitch
                   checked={notifications.emailDisputes}
-                  onChange={(v) => setNotifications((n) => ({ ...n, emailDisputes: v }))}
+                  onChange={(v) =>
+                    setNotifications((n) => ({ ...n, emailDisputes: v }))
+                  }
                   label="Dispute Updates"
                   description="Get notified when disputes are filed or updated"
                 />
                 <ToggleSwitch
                   checked={notifications.emailMaintenance}
-                  onChange={(v) => setNotifications((n) => ({ ...n, emailMaintenance: v }))}
+                  onChange={(v) =>
+                    setNotifications((n) => ({ ...n, emailMaintenance: v }))
+                  }
                   label="Maintenance Requests"
                   description="Updates on maintenance request status changes"
                 />
                 <ToggleSwitch
                   checked={notifications.smsAlerts}
-                  onChange={(v) => setNotifications((n) => ({ ...n, smsAlerts: v }))}
+                  onChange={(v) =>
+                    setNotifications((n) => ({ ...n, smsAlerts: v }))
+                  }
                   label="SMS Alerts"
                   description="Receive urgent alerts via text message"
                 />
@@ -355,13 +370,17 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
               <div className="bg-neutral-50 dark:bg-neutral-800/50 rounded-2xl p-4">
                 <ToggleSwitch
                   checked={privacy.showProfile}
-                  onChange={(v) => setPrivacy((p) => ({ ...p, showProfile: v }))}
+                  onChange={(v) =>
+                    setPrivacy((p) => ({ ...p, showProfile: v }))
+                  }
                   label="Public Profile"
                   description="Allow other users to view your profile"
                 />
                 <ToggleSwitch
                   checked={privacy.showContactInfo}
-                  onChange={(v) => setPrivacy((p) => ({ ...p, showContactInfo: v }))}
+                  onChange={(v) =>
+                    setPrivacy((p) => ({ ...p, showContactInfo: v }))
+                  }
                   label="Show Contact Info"
                   description="Display your phone number and email on your profile"
                 />
@@ -385,21 +404,28 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
               </h3>
               <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-2xl p-6">
                 <div className="flex items-start gap-3 mb-4">
-                  <AlertTriangle className="text-red-600 shrink-0 mt-0.5" size={20} />
+                  <AlertTriangle
+                    className="text-red-600 shrink-0 mt-0.5"
+                    size={20}
+                  />
                   <div>
                     <p className="font-bold text-red-900 dark:text-red-100">
                       Delete Account
                     </p>
                     <p className="text-sm text-red-800 dark:text-red-200 mt-1">
-                      This will permanently delete your account and all associated
-                      data. This action cannot be undone.
+                      This will permanently delete your account and all
+                      associated data. This action cannot be undone.
                     </p>
                   </div>
                 </div>
 
                 <div className="space-y-3">
                   <label className="block text-sm font-semibold text-red-800 dark:text-red-200">
-                    Type <span className="font-mono bg-red-100 dark:bg-red-900/40 px-1.5 py-0.5 rounded">DELETE</span> to confirm
+                    Type{' '}
+                    <span className="font-mono bg-red-100 dark:bg-red-900/40 px-1.5 py-0.5 rounded">
+                      DELETE
+                    </span>{' '}
+                    to confirm
                   </label>
                   <input
                     type="text"
@@ -411,7 +437,11 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
                   <button
                     type="button"
                     onClick={handleDeleteAccount}
-                    disabled={deleteConfirm !== 'DELETE' || isDeletingAccount || !onDeleteAccount}
+                    disabled={
+                      deleteConfirm !== 'DELETE' ||
+                      isDeletingAccount ||
+                      !onDeleteAccount
+                    }
                     className="px-6 py-2.5 rounded-xl font-bold text-white bg-red-600 hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center gap-2"
                   >
                     {isDeletingAccount ? (

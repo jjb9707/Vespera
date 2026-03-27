@@ -26,7 +26,10 @@ const schema = z.object({
       'Please enter a valid phone number',
     ),
   bio: z.string().max(300, 'Bio cannot exceed 300 characters').optional(),
-  location: z.string().max(100, 'Location cannot exceed 100 characters').optional(),
+  location: z
+    .string()
+    .max(100, 'Location cannot exceed 100 characters')
+    .optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -165,7 +168,9 @@ export const UserProfileEditModal: React.FC<UserProfileEditModalProps> = ({
                 className="w-full px-4 py-2.5 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-blue"
               />
               {errors.firstName && (
-                <p className="text-xs text-red-500 mt-1">{errors.firstName.message}</p>
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.firstName.message}
+                </p>
               )}
             </div>
 
@@ -180,7 +185,9 @@ export const UserProfileEditModal: React.FC<UserProfileEditModalProps> = ({
                 className="w-full px-4 py-2.5 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-blue"
               />
               {errors.lastName && (
-                <p className="text-xs text-red-500 mt-1">{errors.lastName.message}</p>
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.lastName.message}
+                </p>
               )}
             </div>
           </div>
@@ -200,7 +207,9 @@ export const UserProfileEditModal: React.FC<UserProfileEditModalProps> = ({
               className="w-full px-4 py-2.5 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-blue"
             />
             {errors.email && (
-              <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>
+              <p className="text-xs text-red-500 mt-1">
+                {errors.email.message}
+              </p>
             )}
           </div>
 
@@ -216,7 +225,9 @@ export const UserProfileEditModal: React.FC<UserProfileEditModalProps> = ({
               className="w-full px-4 py-2.5 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-blue"
             />
             {errors.phone && (
-              <p className="text-xs text-red-500 mt-1">{errors.phone.message}</p>
+              <p className="text-xs text-red-500 mt-1">
+                {errors.phone.message}
+              </p>
             )}
           </div>
 
@@ -232,7 +243,9 @@ export const UserProfileEditModal: React.FC<UserProfileEditModalProps> = ({
               className="w-full px-4 py-2.5 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-blue"
             />
             {errors.location && (
-              <p className="text-xs text-red-500 mt-1">{errors.location.message}</p>
+              <p className="text-xs text-red-500 mt-1">
+                {errors.location.message}
+              </p>
             )}
           </div>
         </div>

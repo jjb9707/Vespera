@@ -381,7 +381,9 @@ export const ModalManager: React.FC = () => {
         <UserProfileEditModal
           isOpen={modalState.isOpen}
           onClose={closeModal}
-          profile={modalState.data?.profile as Partial<UserProfileData> | undefined}
+          profile={
+            modalState.data?.profile as Partial<UserProfileData> | undefined
+          }
           onSubmit={
             modalState.data?.onSubmit as
               | ((data: UserProfileData) => Promise<void>)
@@ -395,7 +397,9 @@ export const ModalManager: React.FC = () => {
         <AccountSettingsModal
           isOpen={modalState.isOpen}
           onClose={closeModal}
-          settings={modalState.data?.settings as AccountSettingsData | undefined}
+          settings={
+            modalState.data?.settings as AccountSettingsData | undefined
+          }
           onSaveSettings={
             modalState.data?.onSaveSettings as
               | ((data: AccountSettingsData) => Promise<void>)
@@ -403,11 +407,16 @@ export const ModalManager: React.FC = () => {
           }
           onChangePassword={
             modalState.data?.onChangePassword as
-              | ((currentPassword: string, newPassword: string) => Promise<void>)
+              | ((
+                  currentPassword: string,
+                  newPassword: string,
+                ) => Promise<void>)
               | undefined
           }
           onDeleteAccount={
-            modalState.data?.onDeleteAccount as (() => Promise<void>) | undefined
+            modalState.data?.onDeleteAccount as
+              | (() => Promise<void>)
+              | undefined
           }
         />
       );
