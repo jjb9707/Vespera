@@ -52,6 +52,7 @@ import { LoggerModule } from './common/services/logger.module';
 import { QueuesModule } from './modules/queues/queues.module';
 import { WebhooksModule } from './modules/webhooks/webhooks.module';
 import { ScreeningModule } from './modules/screening/screening.module';
+import { ReferralModule } from './modules/referral/referral.module';
 
 const appLogger = new Logger('AppModule');
 
@@ -219,6 +220,7 @@ const appLogger = new Logger('AppModule');
     AiModule,
     WebhooksModule,
     ScreeningModule,
+    ReferralModule,
     ...(process.env.OPENAPI_GENERATE !== 'true' ? [RateLimitingModule] : []),
     // Maintenance module
     require('./modules/maintenance/maintenance.module').MaintenanceModule,

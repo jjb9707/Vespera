@@ -144,4 +144,11 @@ export class User {
 
   @DeleteDateColumn({ name: 'deleted_at', nullable: true })
   deletedAt?: Date | null;
+
+  @Index({ unique: true })
+  @Column({ name: 'referral_code', type: 'varchar', length: 10, nullable: true })
+  referralCode?: string | null;
+
+  @Column({ name: 'referred_by_id', type: 'uuid', nullable: true })
+  referredById?: string | null;
 }

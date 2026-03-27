@@ -26,6 +26,7 @@ import {
 } from './dto/auth-response.dto';
 import { PasswordPolicyService } from './services/password-policy.service';
 import { MfaService } from './services/mfa.service';
+import { ReferralService } from '../referral/referral.service';
 import { LoggerService } from '../../common/logger/logger.service';
 import { Logging } from '../../common/logger/logging.decorator';
 
@@ -46,12 +47,13 @@ export class AuthService {
     private passwordPolicyService: PasswordPolicyService,
     private emailService: EmailService,
     private mfaService: MfaService,
+    private referralService: ReferralService,
     private readonly loggerService: LoggerService,
   ) {}
 
   @Logging({ service: 'AuthService' })
   async register(registerDto: RegisterDto): Promise<AuthSuccessResponseDto> {
-    const { email, password, firstName, lastName, role } = registerDto;
+    const { email, password, firstName, lastName, role, referralCode } = registerDto;
     const normalizedEmail = email.toLowerCase();
 
     // Validate password against policy
@@ -71,6 +73,7 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
     const verificationToken = crypto.randomBytes(32).toString('hex');
+    const userReferralCode = await this.referralService.generateReferralCode();
 
     const user = this.userRepository.create({
       email: normalizedEmail,
@@ -83,9 +86,18 @@ export class AuthService {
       failedLoginAttempts: 0,
       verificationToken,
       isActive: true,
+      referralCode: userReferralCode,
     });
 
     const savedUser = await this.userRepository.save(user);
+
+    // Track referral if code provided
+    if (referralCode) {
+      await this.referralService.trackReferral(savedUser, referralCode).catch((err) => {
+        this.logger.error(`Failed to track referral for user ${savedUser.id}: ${err.message}`);
+      });
+    }
+
     this.logger.log(`User registered successfully: ${savedUser.id}`);
 
     // Send verification email asynchronously
