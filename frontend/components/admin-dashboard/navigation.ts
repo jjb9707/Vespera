@@ -3,6 +3,7 @@
 import {
   Anchor,
   BarChart3,
+  ShieldAlert,
   ShieldCheck,
   ShieldX,
   UserCog,
@@ -31,6 +32,12 @@ const adminNavItems: AdminNavItem[] = [
     label: 'Audit Logs',
     href: '/admin/audit-logs',
     visibleFor: ['admin', 'auditor'],
+  },
+  {
+    icon: ShieldAlert,
+    label: 'Security Dashboard',
+    href: '/admin/security',
+    visibleFor: ['admin'],
   },
   {
     icon: Anchor,
