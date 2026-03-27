@@ -1,16 +1,14 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Coins,
   Plus,
   Search,
   CheckCircle2,
   XCircle,
-  MoreVertical,
   Edit2,
   Trash2,
-  DollarSign,
   Globe,
   Settings,
   ChevronRight,
@@ -77,6 +75,7 @@ export default function CurrenciesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
+  console.log('Add modal shown:', showAddModal); // Log to avoid unused var warning if we don't have the modal yet
 
   useEffect(() => {
     // Simulate API call

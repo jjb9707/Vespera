@@ -4,14 +4,9 @@ import React, { useState, useEffect, useMemo } from 'react';
 import {
   Users,
   Gift,
-  TrendingUp,
   Share2,
   Copy,
   CheckCircle2,
-  Clock,
-  ExternalLink,
-  ChevronRight,
-  UserPlus,
   Coins,
   ArrowRight,
   Sparkles,
@@ -282,8 +277,16 @@ export default function ReferralDashboard() {
   );
 }
 
-function StatCard({ title, value, icon: Icon, color, unit }: any) {
-  const colors: any = {
+interface StatCardProps {
+  title: string;
+  value: string | number;
+  icon: React.ElementType;
+  color: 'blue' | 'emerald' | 'amber';
+  unit?: string;
+}
+
+function StatCard({ title, value, icon: Icon, color, unit }: StatCardProps) {
+  const colors: Record<string, string> = {
     blue: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
     emerald: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
     amber: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
@@ -308,7 +311,13 @@ function StatCard({ title, value, icon: Icon, color, unit }: any) {
   );
 }
 
-function ShareButton({ icon: Icon, color, onClick }: any) {
+interface ShareButtonProps {
+  icon: React.ElementType;
+  color: string;
+  onClick: () => void;
+}
+
+function ShareButton({ icon: Icon, color, onClick }: ShareButtonProps) {
   return (
     <button 
       onClick={onClick}

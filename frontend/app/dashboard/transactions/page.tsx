@@ -3,24 +3,19 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import {
   ArrowUpRight,
-  ArrowDownLeft,
   Search,
   Filter,
   Download,
-  ExternalLink,
   ChevronRight,
   ChevronLeft,
-  Calendar,
   Wallet,
   CheckCircle2,
   Clock,
-  XCircle,
   Briefcase,
   Layers,
   Activity,
-  ArrowRight,
 } from 'lucide-react';
-import toast from 'react-hot-toast';
+// import toast from 'react-hot-toast'; // Not used in this page
 
 // Types for Stellar transaction data
 interface StellarTransaction {
@@ -40,7 +35,7 @@ interface StellarTransaction {
 // Mock data generator
 const generateMockTransactions = (count: number = 10): StellarTransaction[] => {
   const assets = ['USDC', 'NGN', 'XLM', 'EURC'];
-  const types: any[] = ['payment', 'create_account', 'change_trust', 'manage_offer'];
+  const types: StellarTransaction['type'][] = ['payment', 'create_account', 'change_trust', 'manage_offer'];
   
   return Array.from({ length: count }, (_, i) => ({
     id: `TXN-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
@@ -270,8 +265,16 @@ export default function StellarTransactionsPage() {
   );
 }
 
-function StatItem({ title, value, icon: Icon, color, unit }: any) {
-  const colors: any = {
+interface StatItemProps {
+  title: string;
+  value: string | number;
+  icon: React.ElementType;
+  color: 'blue' | 'emerald' | 'amber' | 'purple';
+  unit?: string;
+}
+
+function StatItem({ title, value, icon: Icon, color, unit }: StatItemProps) {
+  const colors: Record<string, string> = {
     blue: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
     emerald: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
     amber: 'bg-amber-500/10 text-amber-400 border-amber-500/20',

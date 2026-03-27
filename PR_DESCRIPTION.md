@@ -146,7 +146,6 @@ All changes committed in logical, atomic commits:
 9. `fix(tests): add EscrowContractService mock to stellar controller tests`
 
 ## Checklist
-
 - [x] Code follows project style guidelines
 - [x] Tests added and passing (451/451)
 - [x] Database migration created

@@ -1,17 +1,12 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Shield,
-  Users,
-  Key,
-  Clock,
   AlertTriangle,
   CheckCircle2,
   TrendingUp,
-  Filter,
   Download,
-  Calendar,
   MousePointer2,
 } from 'lucide-react';
 import {
@@ -257,8 +252,17 @@ export default function AuthMetricsPage() {
   );
 }
 
-function MetricCard({ title, value, icon: Icon, color = 'blue', trend, trendValue }: any) {
-  const colors: any = {
+interface MetricCardProps {
+  title: string;
+  value: string | number;
+  icon: React.ElementType;
+  color?: 'blue' | 'emerald' | 'red' | 'indigo';
+  trend?: 'up' | 'down';
+  trendValue?: string;
+}
+
+function MetricCard({ title, value, icon: Icon, color = 'blue', trend, trendValue }: MetricCardProps) {
+  const colors: Record<string, string> = {
     blue: 'bg-blue-500/20 text-blue-400 border-blue-500/20',
     emerald: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/20',
     red: 'bg-red-500/20 text-red-400 border-red-500/20',
@@ -287,7 +291,7 @@ function MetricCard({ title, value, icon: Icon, color = 'blue', trend, trendValu
 }
 
 function HealthIndicator({ label, value, status }: { label: string, value: string, status: 'good' | 'warning' | 'normal' }) {
-  const dots: any = {
+  const dots: Record<string, string> = {
     good: 'bg-emerald-400',
     warning: 'bg-yellow-400',
     normal: 'bg-blue-400',
