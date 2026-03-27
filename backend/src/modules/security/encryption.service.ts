@@ -6,12 +6,30 @@ import {
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
 
+
 const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 16;
 const TAG_LENGTH = 16;
 const SALT_LENGTH = 64;
 const KEY_LENGTH = 32;
 const ITERATIONS = 310_000;
+
+// Support for key rotation: ENV var SECURITY_ENCRYPTION_KEYS = comma-separated hex keys (current first)
+function getEncryptionKeys(configService: ConfigService): Buffer[] {
+  const keysEnv = configService.get<string>('SECURITY_ENCRYPTION_KEYS');
+  if (keysEnv) {
+    return keysEnv.split(',').map((k) => {
+      if (k.length < 64) throw new Error('Each key must be at least 64 hex chars');
+      return Buffer.from(k.slice(0, 64), 'hex');
+    });
+  }
+  // fallback to single key
+  const keyHex = configService.get<string>('SECURITY_ENCRYPTION_KEY');
+  if (keyHex && keyHex.length >= 64) {
+    return [Buffer.from(keyHex.slice(0, 64), 'hex')];
+  }
+  throw new Error('SECURITY_ENCRYPTION_KEYS or SECURITY_ENCRYPTION_KEY is required');
+}
 
 /**
  * Enterprise-grade encryption service using AES-256-GCM with PBKDF2-derived keys.
@@ -20,19 +38,12 @@ const ITERATIONS = 310_000;
 @Injectable()
 export class EncryptionService {
   private readonly logger = new Logger(EncryptionService.name);
-  private readonly masterKey: Buffer;
+  private readonly keys: Buffer[];
+  private readonly currentKey: Buffer;
 
   constructor(private configService: ConfigService) {
-    const keyHex = this.configService.get<string>('SECURITY_ENCRYPTION_KEY');
-    if (!keyHex) {
-      throw new Error('SECURITY_ENCRYPTION_KEY is required');
-    }
-    if (keyHex.length < 64) {
-      throw new Error(
-        'SECURITY_ENCRYPTION_KEY must be at least 64 hex characters (256-bit)',
-      );
-    }
-    this.masterKey = Buffer.from(keyHex.slice(0, 64), 'hex');
+    this.keys = getEncryptionKeys(configService);
+    this.currentKey = this.keys[0];
   }
 
   /**
@@ -43,7 +54,7 @@ export class EncryptionService {
     try {
       const salt = crypto.randomBytes(SALT_LENGTH);
       const iv = crypto.randomBytes(IV_LENGTH);
-      const derivedKey = this.deriveKey(this.masterKey, salt);
+      const derivedKey = this.deriveKey(this.currentKey, salt);
 
       const cipher = crypto.createCipheriv(ALGORITHM, derivedKey, iv, {
         authTagLength: TAG_LENGTH,
@@ -67,33 +78,75 @@ export class EncryptionService {
    * Decrypt a base64-encoded payload produced by encrypt().
    */
   decrypt(encryptedBase64: string): string {
-    try {
-      const payload = Buffer.from(encryptedBase64, 'base64');
+    const payload = Buffer.from(encryptedBase64, 'base64');
+    const salt = payload.subarray(0, SALT_LENGTH);
+    const iv = payload.subarray(SALT_LENGTH, SALT_LENGTH + IV_LENGTH);
+    const authTag = payload.subarray(
+      SALT_LENGTH + IV_LENGTH,
+      SALT_LENGTH + IV_LENGTH + TAG_LENGTH,
+    );
+    const ciphertext = payload.subarray(SALT_LENGTH + IV_LENGTH + TAG_LENGTH);
 
-      const salt = payload.subarray(0, SALT_LENGTH);
-      const iv = payload.subarray(SALT_LENGTH, SALT_LENGTH + IV_LENGTH);
-      const authTag = payload.subarray(
-        SALT_LENGTH + IV_LENGTH,
-        SALT_LENGTH + IV_LENGTH + TAG_LENGTH,
-      );
-      const ciphertext = payload.subarray(SALT_LENGTH + IV_LENGTH + TAG_LENGTH);
-
-      const derivedKey = this.deriveKey(this.masterKey, salt);
-
-      const decipher = crypto.createDecipheriv(ALGORITHM, derivedKey, iv, {
-        authTagLength: TAG_LENGTH,
-      });
-      decipher.setAuthTag(authTag);
-
-      const decrypted = Buffer.concat([
-        decipher.update(ciphertext),
-        decipher.final(),
-      ]);
-      return decrypted.toString('utf8');
-    } catch (error) {
-      this.logger.error('Decryption failed', error);
-      throw new InternalServerErrorException('Decryption failed');
+    // Try all keys for decryption (current and previous)
+    for (const key of this.keys) {
+      try {
+        const derivedKey = this.deriveKey(key, salt);
+        const decipher = crypto.createDecipheriv(ALGORITHM, derivedKey, iv, {
+          authTagLength: TAG_LENGTH,
+        });
+        decipher.setAuthTag(authTag);
+        const decrypted = Buffer.concat([
+          decipher.update(ciphertext),
+          decipher.final(),
+        ]);
+        return decrypted.toString('utf8');
+      } catch (error) {
+        // Try next key
+        continue;
+      }
     }
+    this.logger.error('Decryption failed with all known keys');
+    throw new InternalServerErrorException('Decryption failed');
+  }
+
+  /**
+   * Rotate encryption key: re-encrypts all KYC data with the new key.
+   * Should be called after updating SECURITY_ENCRYPTION_KEYS (new key first).
+   * Requires access to KYC repository and audit service.
+   */
+  async rotateKey(kycRepository: any, auditService: any, performedBy: string) {
+    this.logger.warn('Starting encryption key rotation');
+    const kycs = await kycRepository.find();
+    for (const kyc of kycs) {
+      try {
+        const decrypted = this.decrypt(kyc.encryptedKycData);
+        const reEncrypted = this.encrypt(decrypted);
+        kyc.encryptedKycData = reEncrypted;
+        kyc.encryptionVersion = (kyc.encryptionVersion || 1) + 1;
+        await kycRepository.save(kyc);
+        await auditService.log({
+          action: 'KYC_KEY_ROTATED',
+          entityType: 'Kyc',
+          entityId: kyc.id,
+          performedBy,
+          status: 'SUCCESS',
+          level: 'SECURITY',
+          metadata: { encryptionVersion: kyc.encryptionVersion },
+        });
+      } catch (error) {
+        this.logger.error(`Failed to rotate key for KYC ${kyc.id}`, error);
+        await auditService.log({
+          action: 'KYC_KEY_ROTATION_FAILED',
+          entityType: 'Kyc',
+          entityId: kyc.id,
+          performedBy,
+          status: 'FAILURE',
+          level: 'SECURITY',
+          errorMessage: error.message,
+        });
+      }
+    }
+    this.logger.warn('Encryption key rotation completed');
   }
 
   /**
@@ -101,8 +154,9 @@ export class EncryptionService {
    * Use this for lookups on encrypted fields (e.g., email search).
    */
   hash(value: string): string {
+    // Use current key for hashing
     return crypto
-      .createHmac('sha256', this.masterKey)
+      .createHmac('sha256', this.currentKey)
       .update(value.toLowerCase())
       .digest('hex');
   }
@@ -124,7 +178,7 @@ export class EncryptionService {
     const expires = Math.floor(Date.now() / 1000) + expiresInSeconds;
     const data = `${payload}:${expires}`;
     const signature = crypto
-      .createHmac('sha256', this.masterKey)
+      .createHmac('sha256', this.currentKey)
       .update(data)
       .digest('hex');
     return Buffer.from(`${data}:${signature}`).toString('base64url');
@@ -147,7 +201,7 @@ export class EncryptionService {
 
       const data = `${tokenPayload}:${expiresStr}`;
       const expectedSignature = crypto
-        .createHmac('sha256', this.masterKey)
+        .createHmac('sha256', this.currentKey)
         .update(data)
         .digest('hex');
 
