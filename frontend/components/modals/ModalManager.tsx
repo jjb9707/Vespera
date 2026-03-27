@@ -8,8 +8,14 @@ import { PropertyAgreementModal } from './PropertyAgreementModal';
 import { AgreementViewModal } from './AgreementViewModal';
 import { AgreementSigningModal } from './AgreementSigningModal';
 import { DisputeModal } from './DisputeModal';
+import { DisputeFilingModal } from './DisputeFilingModal';
+import type { DisputeFilingData } from './DisputeFilingModal';
 import { DisputeResolutionModal } from './DisputeResolutionModal';
+import { DisputeDetailModal } from './DisputeDetailModal';
+import { EvidenceUploadModal } from './EvidenceUploadModal';
+import type { EvidenceUploadData } from './EvidenceUploadModal';
 import { PaymentModal } from './PaymentModal';
+import type { DashboardDispute } from '@/lib/dashboard-data';
 import { RefundModal } from './RefundModal';
 import { UserManagementModal } from './UserManagementModal';
 import dynamic from 'next/dynamic';
@@ -223,6 +229,49 @@ export const ModalManager: React.FC = () => {
           onSubmit={
             modalState.data?.onSubmit as
               | ((data: DisputeData) => Promise<void>)
+              | undefined
+          }
+        />
+      );
+
+    case 'disputeFiling':
+      return (
+        <DisputeFilingModal
+          isOpen={modalState.isOpen}
+          onClose={closeModal}
+          agreementId={modalState.data?.agreementId as string | undefined}
+          onSubmit={
+            modalState.data?.onSubmit as
+              | ((data: DisputeFilingData) => Promise<void>)
+              | undefined
+          }
+        />
+      );
+
+    case 'disputeDetail':
+      return (
+        <DisputeDetailModal
+          isOpen={modalState.isOpen}
+          onClose={closeModal}
+          dispute={modalState.data?.dispute as DashboardDispute | null}
+          onUploadEvidence={
+            modalState.data?.onUploadEvidence as
+              | ((disputeId: string) => void)
+              | undefined
+          }
+        />
+      );
+
+    case 'evidenceUpload':
+      return (
+        <EvidenceUploadModal
+          isOpen={modalState.isOpen}
+          onClose={closeModal}
+          disputeId={(modalState.data?.disputeId as string) ?? ''}
+          disputeTitle={modalState.data?.disputeTitle as string | undefined}
+          onUpload={
+            modalState.data?.onUpload as
+              | ((data: EvidenceUploadData) => Promise<void>)
               | undefined
           }
         />
