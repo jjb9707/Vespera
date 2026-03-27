@@ -1,13 +1,17 @@
 'use client';
 
-import { useState } from 'react';
 import { X } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import type { Role } from '@/types';
 
+type RoleFormValues = {
+  name: string;
+  description?: string | null;
+};
+
 interface RoleFormProps {
   role?: Role;
-  onSubmit: (data: any) => Promise<void>;
+  onSubmit: (data: RoleFormValues) => Promise<void>;
   onCancel: () => void;
   isLoading?: boolean;
 }
@@ -18,14 +22,20 @@ export function RoleForm({
   onCancel,
   isLoading = false,
 }: RoleFormProps) {
-  const { register, handleSubmit, formState: { errors } } = useForm({
-    defaultValues: role ? {
-      name: role.name,
-      description: role.description,
-    } : {
-      name: '',
-      description: '',
-    },
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: role
+      ? {
+          name: role.name,
+          description: role.description,
+        }
+      : {
+          name: '',
+          description: '',
+        },
   });
 
   return (

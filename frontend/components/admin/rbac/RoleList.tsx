@@ -1,15 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import {
-  Plus,
-  RotateCcw,
-  Search,
-  Shield,
-  Edit2,
-  Trash2,
-  ChevronRight,
-} from 'lucide-react';
+import { Plus, RotateCcw, Search, Shield, Edit2, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import {
   useAdminRoles,
@@ -20,6 +12,7 @@ import {
 import { useAdminUsers } from '@/lib/query/hooks/use-admin-users';
 import { RoleForm } from './RoleForm';
 import { PermissionMatrix } from './PermissionMatrix';
+import type { Role } from '@/types';
 
 type RoleBadgeTone = 'blue' | 'emerald' | 'amber' | 'rose' | 'slate';
 
@@ -92,7 +85,10 @@ export function RoleList() {
     }
   };
 
-  const handleRoleSubmit = async (data: any) => {
+  const handleRoleSubmit = async (data: {
+    name: string;
+    description?: string | null;
+  }) => {
     try {
       if (editingRole) {
         await updateRoleMutation.mutateAsync({ id: editingRole, ...data });
@@ -106,9 +102,7 @@ export function RoleList() {
       setEditingRole(null);
     } catch {
       toast.error(
-        editingRole
-          ? 'Failed to update role'
-          : 'Failed to create role',
+        editingRole ? 'Failed to update role' : 'Failed to create role',
       );
     }
   };
@@ -156,13 +150,17 @@ export function RoleList() {
       {showForm && (
         <div className="bg-white/5 backdrop-blur-sm rounded-3xl p-6 border border-white/10">
           <RoleForm
-            role={editingRole ? roles.find((r) => r.id === editingRole) : undefined}
+            role={
+              editingRole ? roles.find((r) => r.id === editingRole) : undefined
+            }
             onSubmit={handleRoleSubmit}
             onCancel={() => {
               setShowForm(false);
               setEditingRole(null);
             }}
-            isLoading={createRoleMutation.isPending || updateRoleMutation.isPending}
+            isLoading={
+              createRoleMutation.isPending || updateRoleMutation.isPending
+            }
           />
         </div>
       )}
@@ -187,7 +185,9 @@ export function RoleList() {
             </div>
 
             {isLoading ? (
-              <div className="text-center py-4 text-blue-200/60">Loading roles...</div>
+              <div className="text-center py-4 text-blue-200/60">
+                Loading roles...
+              </div>
             ) : filteredRoles.length === 0 ? (
               <div className="text-center py-4 text-blue-200/60">
                 {roles.length === 0 ? 'No roles yet' : 'No matching roles'}
@@ -195,7 +195,6 @@ export function RoleList() {
             ) : (
               <div className="space-y-2 max-h-[600px] overflow-y-auto">
                 {filteredRoles.map((role) => {
-                  const tone = roleToneMap[role.name] ?? 'slate';
                   const userCount = usersPerRole[role.name] ?? 0;
                   const isSelected = selectedRoleId === role.id;
 
@@ -210,7 +209,9 @@ export function RoleList() {
                       }`}
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <span className={`text-xs font-semibold px-2 py-1 rounded-full border ${roleToneMap[role.name] === 'blue' ? 'text-blue-300 border-blue-400/30 bg-blue-500/10' : 'text-white/70 border-white/20'}`}>
+                        <span
+                          className={`text-xs font-semibold px-2 py-1 rounded-full border ${roleToneMap[role.name] === 'blue' ? 'text-blue-300 border-blue-400/30 bg-blue-500/10' : 'text-white/70 border-white/20'}`}
+                        >
                           {prettify(role.name)}
                         </span>
                         <span className="text-xs text-blue-200/60">
@@ -281,9 +282,13 @@ export function RoleList() {
               </div>
 
               <div className="border-t border-white/10 pt-6">
-                <h3 className="font-semibold text-white mb-4">Assigned Permissions</h3>
+                <h3 className="font-semibold text-white mb-4">
+                  Assigned Permissions
+                </h3>
                 {selectedRole.permissions.length === 0 ? (
-                  <p className="text-sm text-blue-200/60">No permissions assigned</p>
+                  <p className="text-sm text-blue-200/60">
+                    No permissions assigned
+                  </p>
                 ) : (
                   <div className="grid grid-cols-2 gap-2">
                     {selectedRole.permissions.map((permission) => (
@@ -292,7 +297,8 @@ export function RoleList() {
                         className="text-xs bg-white/5 border border-white/10 rounded-lg p-2.5"
                       >
                         <p className="text-white font-medium">
-                          {prettify(permission.action)} {prettify(permission.resource)}
+                          {prettify(permission.action)}{' '}
+                          {prettify(permission.resource)}
                         </p>
                         <p className="text-blue-200/60 mt-0.5">
                           {permission.description || permission.name}

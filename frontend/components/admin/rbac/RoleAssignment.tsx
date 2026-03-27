@@ -1,14 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import {
-  RotateCcw,
-  Search,
-  Filter,
-  Users,
-  Download,
-  Upload,
-} from 'lucide-react';
+import { RotateCcw, Search, Filter, Users, Download } from 'lucide-react';
 import toast from 'react-hot-toast';
 import {
   useAdminRoles,
@@ -40,7 +33,11 @@ export function RoleAssignment() {
   >({});
 
   const { data: roles = [] } = useAdminRoles();
-  const { data: usersResponse, isLoading, refetch } = useAdminUsers({
+  const {
+    data: usersResponse,
+    isLoading,
+    refetch,
+  } = useAdminUsers({
     page: 1,
     limit: 500,
   });
@@ -56,26 +53,19 @@ export function RoleAssignment() {
         user.email.toLowerCase().includes(normalizedSearch) ||
         (user.name ?? '').toLowerCase().includes(normalizedSearch);
 
-      const matchesRole =
-        !roleFilter || user.role === roleFilter;
+      const matchesRole = !roleFilter || user.role === roleFilter;
 
       return matchesSearch && matchesRole;
     });
   }, [search, users, roleFilter]);
 
   const roleOptions = useMemo(
-    () => roles.map((role) => ({ value: role.name, label: prettify(role.name) })),
+    () =>
+      roles.map((role) => ({ value: role.name, label: prettify(role.name) })),
     [roles],
   );
 
   const selectedCount = selectedUsers.size;
-  const rolesWithUsers = useMemo(() => {
-    return roles.reduce<Record<string, number>>((acc, role) => {
-      acc[role.name] = users.filter((u) => u.role === role.name).length;
-      return acc;
-    }, {});
-  }, [roles, users]);
-
   const handleRefresh = async () => {
     try {
       await refetch();
@@ -240,7 +230,9 @@ export function RoleAssignment() {
           <p className="text-xs text-blue-200/60 uppercase tracking-wider">
             Selected
           </p>
-          <h3 className="text-2xl font-bold text-white mt-1">{selectedCount}</h3>
+          <h3 className="text-2xl font-bold text-white mt-1">
+            {selectedCount}
+          </h3>
         </div>
       </div>
 
@@ -270,9 +262,7 @@ export function RoleAssignment() {
         <button
           onClick={handleBulkAssign}
           disabled={
-            !bulkRole ||
-            selectedCount === 0 ||
-            assignRoleMutation.isPending
+            !bulkRole || selectedCount === 0 || assignRoleMutation.isPending
           }
           className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl font-semibold text-sm transition-colors"
         >
@@ -334,7 +324,10 @@ export function RoleAssignment() {
                   <th className="px-4 py-3 w-8">
                     <input
                       type="checkbox"
-                      checked={selectedCount === filteredUsers.length && filteredUsers.length > 0}
+                      checked={
+                        selectedCount === filteredUsers.length &&
+                        filteredUsers.length > 0
+                      }
                       onChange={toggleAllUsers}
                       className="accent-blue-500"
                     />
@@ -393,9 +386,7 @@ export function RoleAssignment() {
                       <td className="px-4 py-3 text-right">
                         <button
                           onClick={() => handleAssignRole(user)}
-                          disabled={
-                            !changed || assignRoleMutation.isPending
-                          }
+                          disabled={!changed || assignRoleMutation.isPending}
                           className="px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-60 disabled:cursor-not-allowed text-white text-xs font-semibold transition-colors"
                         >
                           Save

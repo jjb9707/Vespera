@@ -47,7 +47,7 @@ export function PermissionMatrix({ roleId }: PermissionMatrixProps) {
   const currentPermissions = useMemo(() => {
     if (hasChanges) {
       return Object.entries(editedPermissions)
-        .filter(([_, isChecked]) => isChecked)
+        .filter(([, isChecked]) => isChecked)
         .map(([permId]) => permId);
     }
 
@@ -128,10 +128,15 @@ export function PermissionMatrix({ roleId }: PermissionMatrixProps) {
                     </td>
                   </tr>
                   {resourcePermissions.map((permission) => {
-                    const isChecked = currentPermissions.includes(permission.id);
+                    const isChecked = currentPermissions.includes(
+                      permission.id,
+                    );
 
                     return (
-                      <tr key={permission.id} className="border-t border-white/10 hover:bg-white/5 transition-colors">
+                      <tr
+                        key={permission.id}
+                        className="border-t border-white/10 hover:bg-white/5 transition-colors"
+                      >
                         <td className="px-6 py-3">
                           <div>
                             <p className="text-sm text-white font-medium">
@@ -169,12 +174,12 @@ export function PermissionMatrix({ roleId }: PermissionMatrixProps) {
       <div className="bg-white/5 rounded-2xl p-4 border border-white/10 flex items-center justify-between">
         <div>
           <p className="text-sm text-white font-medium">
-            {currentPermissions.length} of {permissions.length} permissions assigned
+            {currentPermissions.length} of {permissions.length} permissions
+            assigned
           </p>
           <p className="text-xs text-blue-200/60 mt-1">
-            {Math.round(
-              (currentPermissions.length / permissions.length) * 100,
-            )}% coverage
+            {Math.round((currentPermissions.length / permissions.length) * 100)}
+            % coverage
           </p>
         </div>
       </div>

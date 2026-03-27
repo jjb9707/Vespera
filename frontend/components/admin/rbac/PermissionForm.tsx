@@ -1,13 +1,19 @@
 'use client';
 
-import { useState } from 'react';
 import { X } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import type { Permission } from '@/types';
 
+type PermissionFormValues = {
+  name: string;
+  action: string;
+  resource: string;
+  description?: string | null;
+};
+
 interface PermissionFormProps {
   permission?: Permission;
-  onSubmit: (data: any) => Promise<void>;
+  onSubmit: (data: PermissionFormValues) => Promise<void>;
   onCancel: () => void;
   isLoading?: boolean;
 }
@@ -31,18 +37,24 @@ export function PermissionForm({
   onCancel,
   isLoading = false,
 }: PermissionFormProps) {
-  const { register, handleSubmit, formState: { errors } } = useForm({
-    defaultValues: permission ? {
-      name: permission.name,
-      action: permission.action,
-      resource: permission.resource,
-      description: permission.description,
-    } : {
-      name: '',
-      action: '',
-      resource: '',
-      description: '',
-    },
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: permission
+      ? {
+          name: permission.name,
+          action: permission.action,
+          resource: permission.resource,
+          description: permission.description,
+        }
+      : {
+          name: '',
+          action: '',
+          resource: '',
+          description: '',
+        },
   });
 
   return (

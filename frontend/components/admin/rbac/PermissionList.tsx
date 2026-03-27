@@ -1,14 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import {
-  Plus,
-  RotateCcw,
-  Search,
-  Lock,
-  Edit2,
-  Trash2,
-} from 'lucide-react';
+import { Plus, RotateCcw, Search, Lock, Edit2, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import {
   useAdminPermissions,
@@ -18,8 +11,7 @@ import {
 } from '@/lib/query/hooks/use-admin-roles';
 import { useAdminRoles } from '@/lib/query/hooks/use-admin-roles';
 import { PermissionForm } from './PermissionForm';
-
-type ResourceType = 'users' | 'roles' | 'permissions' | 'audit' | 'system' | string;
+import type { Permission } from '@/types';
 
 const resourceColors: Record<string, string> = {
   users: 'bg-blue-500/10 border-blue-500/30 text-blue-300',
@@ -63,17 +55,6 @@ export function PermissionList() {
     });
   }, [search, permissions, resourceFilter]);
 
-  const groupedByResource = useMemo(() => {
-    return filteredPermissions.reduce<Record<string, typeof filteredPermissions>>(
-      (acc, perm) => {
-        const resource = perm.resource;
-        acc[resource] = acc[resource] ? [...acc[resource], perm] : [perm];
-        return acc;
-      },
-      {},
-    );
-  }, [filteredPermissions]);
-
   const selectedPermission = useMemo(
     () => permissions.find((p) => p.id === selectedPermId),
     [permissions, selectedPermId],
@@ -108,7 +89,12 @@ export function PermissionList() {
     }
   };
 
-  const handlePermissionSubmit = async (data: any) => {
+  const handlePermissionSubmit = async (data: {
+    name: string;
+    action: string;
+    resource: string;
+    description?: string | null;
+  }) => {
     try {
       if (editingPerm) {
         await updatePermMutation.mutateAsync({ id: editingPerm, ...data });
@@ -240,7 +226,9 @@ export function PermissionList() {
               </div>
             ) : filteredPermissions.length === 0 ? (
               <div className="text-center py-4 text-blue-200/60">
-                {permissions.length === 0 ? 'No permissions yet' : 'No matching'}
+                {permissions.length === 0
+                  ? 'No permissions yet'
+                  : 'No matching'}
               </div>
             ) : (
               <div className="space-y-2 max-h-[600px] overflow-y-auto">
@@ -296,7 +284,8 @@ export function PermissionList() {
                     </h2>
                   </div>
                   <p className="text-blue-200/60 mt-2">
-                    {selectedPermission.description || 'No description provided'}
+                    {selectedPermission.description ||
+                      'No description provided'}
                   </p>
                 </div>
                 <div className="flex gap-2">
@@ -311,7 +300,9 @@ export function PermissionList() {
                     <Edit2 size={18} />
                   </button>
                   <button
-                    onClick={() => handleDeletePermission(selectedPermission.id)}
+                    onClick={() =>
+                      handleDeletePermission(selectedPermission.id)
+                    }
                     className="p-2.5 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 rounded-lg text-rose-400 transition-all"
                     title="Delete"
                   >

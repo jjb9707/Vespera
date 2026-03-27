@@ -6,7 +6,7 @@ import { PermissionList } from '@/components/admin/rbac/PermissionList';
 export default function PermissionsPage() {
   const { user } = useAuth();
 
-  if (user?.role !== 'admin' && user?.role !== 'super_admin') {
+  if (user?.role !== 'admin') {
     return (
       <div className="rounded-3xl border border-amber-300/20 bg-amber-500/10 p-6 text-amber-100">
         Only administrators can access permission management.
