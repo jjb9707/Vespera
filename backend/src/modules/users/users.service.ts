@@ -1,3 +1,83 @@
+import { AuditService } from '../audit/audit.service';
+import { AuditAction, AuditLevel, AuditStatus } from '../audit/entities/audit-log.entity';
+
+async exportUserData(userId: string): Promise<any> {
+    // Gather all user data for export (including related entities)
+    const user = await this.findById(userId, true);
+    // TODO: Add related data (KYC, agreements, etc.)
+    // For now, just return user entity (excluding sensitive fields)
+    const { password, ...exportData } = user;
+    // Audit log
+    this.logger.log(`GDPR export for user: ${user.email}`);
+    // TODO: Add auditService.log for compliance
+    await this.auditService.log({
+      action: AuditAction.DATA_EXPORT,
+      entityType: 'User',
+      entityId: user.id,
+      performedBy: user.id,
+      status: AuditStatus.SUCCESS,
+      level: AuditLevel.SECURITY,
+      metadata: { type: 'GDPR_EXPORT' },
+    });
+    return exportData;
+  }
+
+  async gdprDeleteAccount(userId: string): Promise<{ message: string }> {
+    const user = await this.findById(userId);
+    // Anonymize user data
+    user.email = `deleted_${user.id}@anonymized.local`;
+    user.firstName = null;
+    user.lastName = null;
+    user.phoneNumber = null;
+    user.emailHash = null;
+    user.phoneNumberHash = null;
+    user.password = '';
+    user.isActive = false;
+    user.deletedAt = new Date();
+    await this.userRepository.save(user);
+    // Soft delete
+    await this.userRepository.softDelete(userId);
+    this.logger.log(`GDPR account deletion and anonymization for user: ${user.id}`);
+    // TODO: Add auditService.log for compliance
+    await this.auditService.log({
+      action: AuditAction.DELETE,
+      entityType: 'User',
+      entityId: user.id,
+      performedBy: user.id,
+      status: AuditStatus.SUCCESS,
+      level: AuditLevel.SECURITY,
+      metadata: { type: 'GDPR_DELETE' },
+    });
+    return { message: 'Account deleted and data anonymized (GDPR)' };
+  }
+
+  async updateConsent(userId: string, consent: any): Promise<{ message: string }> {
+    // Store consent preferences (simple example, should be expanded)
+    const user = await this.findById(userId);
+    (user as any).consent = consent;
+    await this.userRepository.save(user);
+    this.logger.log(`Consent updated for user: ${user.email}`);
+    // TODO: Add auditService.log for compliance
+    await this.auditService.log({
+      action: AuditAction.UPDATE,
+      entityType: 'User',
+      entityId: user.id,
+      performedBy: user.id,
+      status: AuditStatus.SUCCESS,
+      level: AuditLevel.SECURITY,
+      metadata: { type: 'GDPR_CONSENT', consent },
+    });
+    return { message: 'Consent updated' };
+  }
+
+  async getPrivacySettings(userId: string): Promise<any> {
+    // Return privacy settings (simple example)
+    const user = await this.findById(userId);
+    return {
+      consent: (user as any).consent || {},
+      dataRetention: 'standard',
+    };
+  }
 import {
   Injectable,
   NotFoundException,
@@ -26,6 +106,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private readonly auditService: AuditService,
   ) {}
 
   async findById(id: string, includeDeleted = false): Promise<User> {
