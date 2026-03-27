@@ -175,11 +175,9 @@ export const FileUpload: React.FC<Props> = ({
                       <CheckCircle2 size={20} className="text-green-500" />
                     )}
                     {item.status === 'error' && (
-                      <AlertCircle
-                        size={20}
-                        className="text-red-500"
-                        title={item.error}
-                      />
+                      <span title={item.error}>
+                        <AlertCircle size={20} className="text-red-500" />
+                      </span>
                     )}
                     <button
                       onClick={() => removeFile(index)}
