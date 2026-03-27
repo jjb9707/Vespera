@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  Anchor,
-  BarChart3,
-  ShieldCheck,
-  ShieldX,
-  UserCog,
-} from 'lucide-react';
+import { Anchor, BarChart3, ShieldCheck, ShieldX, UserCog } from 'lucide-react';
 import { MdSecurity } from 'react-icons/md';
 import type { ComponentType } from 'react';
 
