@@ -1,6 +1,15 @@
 import { AuditService } from '../audit/audit.service';
 import { AuditAction, AuditLevel, AuditStatus } from '../audit/entities/audit-log.entity';
+import { LoggerService } from '../../common/logger/logger.service';
+import { Logging } from '../../common/logger/logging.decorator';
+import { InjectRepository } from '@nestjs/repository';
+import { Repository } from 'typeorm';
+import { User } from '../user/entities/user.entity';
+import * as bcrypt from 'bcrypt';
+import * as randomBytes from 'randombytes';
+import { SALT_ROUNDS } from '../../common/constants';
 
+@Logging({ service: 'UsersService' })
 async exportUserData(userId: string): Promise<any> {
     // Gather all user data for export (including related entities)
     const user = await this.findById(userId, true);
@@ -22,6 +31,7 @@ async exportUserData(userId: string): Promise<any> {
     return exportData;
   }
 
+  @Logging({ service: 'UsersService' })
   async gdprDeleteAccount(userId: string): Promise<{ message: string }> {
     const user = await this.findById(userId);
     // Anonymize user data
@@ -51,6 +61,7 @@ async exportUserData(userId: string): Promise<any> {
     return { message: 'Account deleted and data anonymized (GDPR)' };
   }
 
+  @Logging({ service: 'UsersService' })
   async updateConsent(userId: string, consent: any): Promise<{ message: string }> {
     // Store consent preferences (simple example, should be expanded)
     const user = await this.findById(userId);
@@ -77,47 +88,6 @@ async exportUserData(userId: string): Promise<any> {
       consent: (user as any).consent || {},
       dataRetention: 'standard',
     };
-  }
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-  UnauthorizedException,
-  Logger,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import * as bcrypt from 'bcryptjs';
-import { createHash, randomBytes } from 'crypto';
-import { User } from './entities/user.entity';
-import {
-  UpdateUserProfileDto,
-  ChangeEmailDto,
-  ChangePasswordDto,
-} from './dto/update-user.dto';
-import { UserRestoreDto } from './dto/user-restore.dto';
-
-const SALT_ROUNDS = 12;
-
-@Injectable()
-export class UsersService {
-  private readonly logger = new Logger(UsersService.name);
-
-  constructor(
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
-    private readonly auditService: AuditService,
-  ) {}
-
-  async findById(id: string, includeDeleted = false): Promise<User> {
-    const user = await this.userRepository.findOne({
-      where: { id },
-      withDeleted: includeDeleted,
-    });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-    return user;
   }
 
   async findByEmail(email: string): Promise<User | null> {
