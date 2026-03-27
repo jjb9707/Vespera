@@ -83,6 +83,7 @@ export const DisputeFilingModal: React.FC<DisputeFilingModalProps> = ({
     },
   });
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const description = watch('description');
 
   const handleClose = () => {

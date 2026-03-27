@@ -27,7 +27,6 @@ import type {
   AgreementSigningData,
 } from './types';
 
-// Import types for type safety
 interface PropertyAgreementData {
   propertyId: string;
   propertyTitle: string;
