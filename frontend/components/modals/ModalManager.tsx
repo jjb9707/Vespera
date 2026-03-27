@@ -2,7 +2,11 @@
 
 import React from 'react';
 import { useModal } from '@/contexts/ModalContext';
+import { PropertyDetailModal } from './PropertyDetailModal';
+import { PropertyInquiryModal } from './PropertyInquiryModal';
 import { PropertyAgreementModal } from './PropertyAgreementModal';
+import { AgreementViewModal } from './AgreementViewModal';
+import { AgreementSigningModal } from './AgreementSigningModal';
 import { DisputeModal } from './DisputeModal';
 import { DisputeFilingModal } from './DisputeFilingModal';
 import type { DisputeFilingData } from './DisputeFilingModal';
@@ -16,6 +20,12 @@ import { RefundModal } from './RefundModal';
 import { UserManagementModal } from './UserManagementModal';
 import dynamic from 'next/dynamic';
 import type { Document, DocumentMetadata } from '@/components/documents';
+import type {
+  PropertyDetailData,
+  PropertyInquiryData,
+  AgreementViewData,
+  AgreementSigningData,
+} from './types';
 
 interface PropertyAgreementData {
   propertyId: string;
@@ -125,13 +135,44 @@ const DocumentListModal = dynamic(
  * ```
  */
 export const ModalManager: React.FC = () => {
-  const { modalState, closeModal } = useModal();
+  const { modalState, closeModal, openModal } = useModal();
 
   if (!modalState.isOpen || !modalState.type) {
     return null;
   }
 
   switch (modalState.type) {
+    case 'propertyDetail':
+      return (
+        <PropertyDetailModal
+          isOpen={modalState.isOpen}
+          onClose={closeModal}
+          property={modalState.data?.property as PropertyDetailData | null}
+          onInquiryClick={(property) =>
+            openModal('propertyInquiry', {
+              propertyId: property.id,
+              propertyTitle: property.title,
+              onSubmit: modalState.data?.onInquirySubmit,
+            })
+          }
+        />
+      );
+
+    case 'propertyInquiry':
+      return (
+        <PropertyInquiryModal
+          isOpen={modalState.isOpen}
+          onClose={closeModal}
+          propertyId={modalState.data?.propertyId as string | undefined}
+          propertyTitle={modalState.data?.propertyTitle as string | undefined}
+          onSubmit={
+            modalState.data?.onSubmit as
+              | ((data: PropertyInquiryData) => Promise<void>)
+              | undefined
+          }
+        />
+      );
+
     case 'propertyAgreement':
       return (
         <PropertyAgreementModal
@@ -142,6 +183,37 @@ export const ModalManager: React.FC = () => {
           onSubmit={
             modalState.data?.onSubmit as
               | ((data: PropertyAgreementData) => Promise<void>)
+              | undefined
+          }
+        />
+      );
+
+    case 'agreementView':
+      return (
+        <AgreementViewModal
+          isOpen={modalState.isOpen}
+          onClose={closeModal}
+          agreement={modalState.data?.agreement as AgreementViewData | null}
+          onSignClick={(agreement) =>
+            openModal('agreementSigning', {
+              agreementId: agreement.agreementId,
+              signerName: agreement.tenantName,
+              onSubmit: modalState.data?.onSignSubmit,
+            })
+          }
+        />
+      );
+
+    case 'agreementSigning':
+      return (
+        <AgreementSigningModal
+          isOpen={modalState.isOpen}
+          onClose={closeModal}
+          agreementId={modalState.data?.agreementId as string | undefined}
+          signerName={modalState.data?.signerName as string | undefined}
+          onSubmit={
+            modalState.data?.onSubmit as
+              | ((data: AgreementSigningData) => Promise<void>)
               | undefined
           }
         />
