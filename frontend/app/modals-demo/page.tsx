@@ -13,7 +13,6 @@ import {
 } from 'lucide-react';
 import type { Document, DocumentMetadata } from '@/components/documents';
 
-// Import types for type safety
 interface PropertyAgreementData {
   propertyId: string;
   propertyTitle: string;

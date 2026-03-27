@@ -53,6 +53,7 @@ export const EvidenceUploadModal: React.FC<EvidenceUploadModalProps> = ({
     defaultValues: { description: '' },
   });
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const description = watch('description');
 
   const handleClose = () => {
