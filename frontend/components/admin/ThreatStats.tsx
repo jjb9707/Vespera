@@ -5,9 +5,6 @@ import {
   Shield, 
   ShieldAlert, 
   ShieldCheck, 
-  TrendingDown, 
-  TrendingUp, 
-  AlertTriangle,
   Activity
 } from 'lucide-react';
 import { ThreatStats as IThreatStats, ThreatLevel } from '@/types/security';

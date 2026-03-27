@@ -7,7 +7,6 @@ import {
   ShieldAlert, 
   ShieldCheck, 
   History, 
-  MapPin, 
   Globe, 
   ExternalLink,
   Code,
@@ -142,7 +141,7 @@ function DetailItem({ icon, label, value }: { icon: React.ReactNode, label: stri
   );
 }
 
-function Activity(props: any) {
+function Activity(props: Record<string, unknown>) {
   return (
     <svg
       {...props}

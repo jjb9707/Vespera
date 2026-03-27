@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Shield, RefreshCcw, Download, Search, Filter } from 'lucide-react';
+import { Shield, RefreshCcw, Download, Search } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { ThreatEvent, ThreatStats as IThreatStats } from '@/types/security';
 import { ThreatStats } from './ThreatStats';

@@ -4,7 +4,6 @@ import React from 'react';
 import { 
   AlertCircle, 
   ChevronRight, 
-  MoreHorizontal, 
   Shield, 
   ShieldAlert, 
   ShieldCheck, 
@@ -21,7 +20,7 @@ interface ThreatListProps {
     level: string;
     status: string;
   };
-  setFilters: (filters: any) => void;
+  setFilters: (filters: { type: string; level: string; status: string; search: string }) => void;
 }
 
 export function ThreatList({ threats, loading, onSelect, filters, setFilters }: ThreatListProps) {
@@ -162,7 +161,7 @@ export function ThreatList({ threats, loading, onSelect, filters, setFilters }: 
   );
 }
 
-function Activity(props: any) {
+function Activity(props: Record<string, unknown>) {
   return (
     <svg
       {...props}

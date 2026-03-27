@@ -4,11 +4,8 @@ import React from 'react';
 import { 
   Zap, 
   Target, 
-  TrendingUp, 
-  AlertOctagon,
   ShieldCheck,
   Search,
-  Fingerprint
 } from 'lucide-react';
 import { ThreatStats } from '@/types/security';
 

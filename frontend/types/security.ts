@@ -39,7 +39,7 @@ export interface ThreatEvent {
   threatType: ThreatType;
   threatLevel: ThreatLevel;
   status: ThreatStatus;
-  evidence: any;
+  evidence: Record<string, unknown>;
   description: string | null;
   blocked: boolean;
   autoMitigated: boolean;
