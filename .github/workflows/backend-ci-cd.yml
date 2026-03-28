@@ -10,7 +10,7 @@ on:
     paths:
       - 'backend/**'
       - '.github/workflows/backend-ci-cd.yml'
-  pull_request_target:
+  pull_request:
     branches:
       - develop
       - main
@@ -32,8 +32,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -121,8 +119,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -185,8 +181,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -227,8 +221,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
@@ -273,8 +265,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -369,8 +359,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -404,8 +392,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -449,8 +435,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -489,8 +473,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
