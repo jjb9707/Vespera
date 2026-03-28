@@ -38,6 +38,7 @@ export {
   useAdminUsers,
   useSuspendUser,
   useActivateUser,
+  useVerifyUser,
 } from './use-admin-users';
 
 export {

@@ -18,8 +18,6 @@ import { TerminateAgreementDto } from './dto/terminate-agreement.dto';
 import { QueryAgreementsDto } from './dto/query-agreements.dto';
 import { RenewAgreementDto } from './dto/renew-agreement.dto';
 import { AuditService } from '../audit/audit.service';
-import { AuditAction, AuditLevel } from '../audit/entities/audit-log.entity';
-import { AuditLog } from '../audit/decorators/audit-log.decorator';
 import { ReviewPromptService } from '../reviews/review-prompt.service';
 import { ChiomaContractService } from '../stellar/services/chioma-contract.service';
 import { BlockchainSyncService } from './blockchain-sync.service';
@@ -192,14 +190,14 @@ export class AgreementsService {
     };
   }
 
-  async terminate(id: string, dto: TerminateAgreementDto) {
+  async terminate(id: string, _dto: TerminateAgreementDto) {
     const agreement = await this.findOne(id);
     agreement.status = AgreementStatus.TERMINATED;
     return await this.agreementRepository.save(agreement);
   }
 
   async recordPayment(id: string, dto: RecordPaymentDto) {
-    const agreement = await this.findOne(id);
+    await this.findOne(id);
     const payment = this.paymentRepository.create({
       agreementId: id,
       amount: dto.amount,
