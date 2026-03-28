@@ -16,8 +16,10 @@ export class EncryptExistingKycDataAtRest implements MigrationInterface {
       if (kyc.encryptedKycData && typeof kyc.encryptedKycData === 'object') {
         // Encrypt the KYC data if not already encrypted (simple check)
         if (typeof Object.values(kyc.encryptedKycData)[0] !== 'string') {
-          const encrypted = encryptionService.encrypt(JSON.stringify(kyc.encryptedKycData));
-          kyc.encryptedKycData = encrypted;
+          const encrypted = encryptionService.encrypt(
+            JSON.stringify(kyc.encryptedKycData),
+          );
+          kyc.encryptedKycData = JSON.parse(encrypted) as Record<string, any>;
           kyc.encryptionVersion = 1;
           await queryRunner.manager.save(kyc);
         }
@@ -25,7 +27,7 @@ export class EncryptExistingKycDataAtRest implements MigrationInterface {
     }
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
+  public async down(_queryRunner: QueryRunner): Promise<void> {
     // No-op: cannot decrypt without original keys
   }
 }

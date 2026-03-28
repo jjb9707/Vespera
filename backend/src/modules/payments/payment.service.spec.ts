@@ -278,9 +278,25 @@ describe('PaymentService', () => {
         userId: 'user_1',
         status: PaymentStatus.COMPLETED,
         amount: 100,
-        refundedAmount: 0,
+        refundAmount: 0,
         currency: 'NGN',
         metadata: { chargeId: 'charge_1' },
+        user: {} as any,
+        agreementId: null,
+        transactionFee: 0,
+        netAmount: 100,
+        paymentMethod: null,
+        paymentMethodRelation: null,
+        paymentMethodRelationId: null,
+        receiptUrl: '',
+        referenceNumber: null,
+        processedAt: new Date(),
+        idempotencyKey: null,
+        refundStatus: 'none',
+        refundReason: null,
+        notes: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       } as unknown as Payment;
 
       (paymentRepository.findOne as jest.Mock).mockResolvedValue(payment);
@@ -291,7 +307,7 @@ describe('PaymentService', () => {
       (paymentRepository.save as jest.Mock).mockResolvedValue({
         ...payment,
         status: PaymentStatus.REFUNDED,
-        refundedAmount: 100,
+        refundAmount: 100,
       });
 
       const dto: ProcessRefundDto = { amount: 100, reason: 'test' };
@@ -313,8 +329,25 @@ describe('PaymentService', () => {
         userId: 'user_1',
         status: PaymentStatus.COMPLETED,
         amount: 100,
-        refundedAmount: 0,
+        refundAmount: 0,
         metadata: {},
+        user: {} as any,
+        agreementId: null,
+        transactionFee: 0,
+        netAmount: 100,
+        paymentMethod: null,
+        paymentMethodRelation: null,
+        paymentMethodRelationId: null,
+        receiptUrl: '',
+        referenceNumber: null,
+        processedAt: new Date(),
+        idempotencyKey: null,
+        refundStatus: 'none',
+        refundReason: null,
+        notes: null,
+        currency: 'NGN',
+        createdAt: new Date(),
+        updatedAt: new Date(),
       } as unknown as Payment;
 
       (paymentRepository.findOne as jest.Mock).mockResolvedValue(payment);

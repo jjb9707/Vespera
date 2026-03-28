@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { FaArrowRightFromBracket } from 'react-icons/fa6';
+
 import Logo from '@/components/Logo';
 import { useAuth } from '@/store/authStore';
 import { getAdminNavItems } from './navigation';
@@ -11,6 +12,7 @@ import { getAdminNavItems } from './navigation';
 export default function AdminSidebar() {
   const pathname = usePathname();
   const { user } = useAuth();
+
   const navItems = getAdminNavItems(user?.role);
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(' ');
 
@@ -42,6 +44,7 @@ export default function AdminSidebar() {
             </Link>
           );
         })}
+
         {navItems.length === 0 && (
           <p className="px-6 py-4 text-xs text-blue-200/60">
             No admin pages are available for your role.

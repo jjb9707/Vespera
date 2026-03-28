@@ -27,8 +27,8 @@ import { IdempotencyService } from '../../../common/idempotency';
 describe('DisputesService', () => {
   let service: DisputesService;
   let disputeRepository: Repository<Dispute>;
-  let agreementRepository: Repository<RentAgreement>;
-  let userRepository: Repository<User>;
+  let _agreementRepository: Repository<RentAgreement>;
+  let _userRepository: Repository<User>;
   let dataSource: DataSource;
 
   const mockUser: User = {
@@ -163,10 +163,10 @@ describe('DisputesService', () => {
     disputeRepository = module.get<Repository<Dispute>>(
       getRepositoryToken(Dispute),
     );
-    agreementRepository = module.get<Repository<RentAgreement>>(
+    _agreementRepository = module.get<Repository<RentAgreement>>(
       getRepositoryToken(RentAgreement),
     );
-    userRepository = module.get<Repository<User>>(getRepositoryToken(User));
+    _userRepository = module.get<Repository<User>>(getRepositoryToken(User));
     dataSource = module.get<DataSource>(DataSource);
   });
 

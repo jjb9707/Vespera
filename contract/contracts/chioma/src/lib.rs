@@ -6,7 +6,7 @@
 //! @title Chioma
 //! @notice On-chain rental agreement lifecycle: create, sign, submit, cancel, and query agreements.
 
-use soroban_sdk::{contract, contractimpl, Address, Env, String, Vec};
+use soroban_sdk::{contract, contractimpl, Address, Bytes, Env, String, Vec};
 
 mod agreement;
 mod deposit_interest;
@@ -56,12 +56,13 @@ pub use multi_token::{
     is_token_supported, remove_supported_token, set_exchange_rate,
 };
 pub use storage::DataKey;
-    pub use types::{
+pub use types::{
     ActionType, AdminProposal, AgreementInput, AgreementStatus, AgreementTerms, AgreementWithToken,
-    Attribute, CompoundingFrequency, Config, ContractState, DepositInterest, DepositInterestConfig,
-    ErrorContext, InterestAccrual, InterestRecipient, MultiSigConfig, PauseState, PaymentSplit,
-    RateLimitConfig, RateLimitReason, RentAgreement, RoyaltyConfig, RoyaltyPayment, SupportedToken,
-    TimelockAction, TimelockActionType, TokenExchangeRate, UserCallCount, ContractVersion, VersionStatus,
+    Attribute, CompoundingFrequency, Config, ContractState, ContractVersion, DepositInterest,
+    DepositInterestConfig, ErrorContext, InterestAccrual, InterestRecipient, MultiSigConfig,
+    PauseState, PaymentSplit, RateLimitConfig, RateLimitReason, RentAgreement, RoyaltyConfig,
+    RoyaltyPayment, SupportedToken, TimelockAction, TimelockActionType, TokenExchangeRate,
+    UserCallCount, VersionStatus,
 };
 
 /// Chioma rental agreement contract.
@@ -96,16 +97,20 @@ impl Contract {
         let state = Self::get_state(env.clone()).ok_or(RentalError::InvalidState)?;
         state.admin.require_auth();
 
-        env.storage().instance().set(&DataKey::CurrentVersion, &version);
+        env.storage()
+            .instance()
+            .set(&DataKey::CurrentVersion, &version);
 
         let mut history: Vec<ContractVersion> = env
             .storage()
             .instance()
             .get(&DataKey::VersionHistory)
             .unwrap_or(Vec::new(&env));
-        
+
         history.push_back(version.clone());
-        env.storage().instance().set(&DataKey::VersionHistory, &history);
+        env.storage()
+            .instance()
+            .set(&DataKey::VersionHistory, &history);
         env.storage().instance().extend_ttl(500000, 500000);
 
         events::version_updated(&env, version.major, version.minor, version.patch);
@@ -136,13 +141,13 @@ impl Contract {
             if v.major == major && v.minor == minor && v.patch == patch {
                 v.status = status.clone();
                 history.set(i, v.clone());
-                
+
                 // If this is the current version, update it too
                 let current = Self::get_version(env.clone());
                 if current.major == major && current.minor == minor && current.patch == patch {
                     env.storage().instance().set(&DataKey::CurrentVersion, &v);
                 }
-                
+
                 found = true;
                 break;
             }
@@ -152,7 +157,9 @@ impl Contract {
             return Err(RentalError::InvalidState); // Version not found
         }
 
-        env.storage().instance().set(&DataKey::VersionHistory, &history);
+        env.storage()
+            .instance()
+            .set(&DataKey::VersionHistory, &history);
         Ok(())
     }
 

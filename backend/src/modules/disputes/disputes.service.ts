@@ -3,11 +3,10 @@ import {
   NotFoundException,
   BadRequestException,
   ForbiddenException,
-  InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, In } from 'typeorm';
-import { Dispute, DisputeStatus, DisputeType } from './entities/dispute.entity';
+import { Dispute, DisputeStatus } from './entities/dispute.entity';
 import { DisputeEvidence } from './entities/dispute-evidence.entity';
 import { DisputeComment } from './entities/dispute-comment.entity';
 import {
@@ -158,7 +157,7 @@ export class DisputesService {
    */
   async findAll(
     query: QueryDisputesDto,
-    userId?: string,
+    _userId?: string,
   ): Promise<{ disputes: Dispute[]; total: number }> {
     const queryBuilder = this.disputeRepository
       .createQueryBuilder('dispute')

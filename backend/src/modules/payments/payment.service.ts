@@ -46,7 +46,6 @@ import {
   ProcessStellarRentGatewayDto,
 } from './dto/payment-gateway.dto';
 import { RefundEscrowDto, ReleaseEscrowDto } from '../stellar/dto/escrow.dto';
-import { EscrowStatus } from '../stellar/entities/stellar-escrow.entity';
 import { TransactionStatus } from '../stellar/entities/stellar-transaction.entity';
 import { Idempotent, IdempotencyService } from '../../common/idempotency';
 
@@ -252,7 +251,7 @@ export class PaymentService {
     ensureUserId(userId);
     const payment = await this.paymentRepository.findOne({
       where: { id: paymentId, userId },
-      relations: ['user', 'paymentMethod'],
+      relations: ['user', 'paymentMethodRelation'],
     });
 
     if (!payment) {
@@ -308,7 +307,7 @@ export class PaymentService {
     const query = this.paymentRepository
       .createQueryBuilder('payment')
       .leftJoinAndSelect('payment.user', 'user')
-      .leftJoinAndSelect('payment.paymentMethod', 'paymentMethod');
+      .leftJoinAndSelect('payment.paymentMethodRelation', 'paymentMethod');
 
     query.andWhere('payment.userId = :userId', { userId });
 
@@ -349,7 +348,7 @@ export class PaymentService {
     ensureUserId(userId);
     const payment = await this.paymentRepository.findOne({
       where: { id, userId },
-      relations: ['user', 'paymentMethod'],
+      relations: ['user', 'paymentMethodRelation'],
     });
 
     if (!payment) {
