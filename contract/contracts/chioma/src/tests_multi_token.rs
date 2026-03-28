@@ -423,8 +423,7 @@ fn test_cancel_agreement_from_draft() {
         attributes: Vec::new(&env).clone(),
     });
 
-    let result = client.try_cancel_agreement(&tenant, &agreement_id);
-    assert!(result.is_ok());
+    client.cancel_agreement(&landlord, &agreement_id);
 }
 
 #[test]

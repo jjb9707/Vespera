@@ -496,6 +496,7 @@ fn test_get_property_returns_all_fields() {
     let landlord = Address::generate(&env);
 
     env.mock_all_auths();
+    env.ledger().with_mut(|li| li.timestamp = 1);
 
     client.initialize(&admin);
 
