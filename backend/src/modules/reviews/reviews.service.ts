@@ -71,7 +71,10 @@ export class ReviewsService {
     await this.reviewRepository.update(reviewId, { reported: true });
   }
 
-  async postGuestReview(dto: PostGuestReviewDto, hostId: string): Promise<GuestReview> {
+  async postGuestReview(
+    dto: PostGuestReviewDto,
+    hostId: string,
+  ): Promise<GuestReview> {
     if (containsProhibitedLanguage(dto.comment ?? '')) {
       throw new BadRequestException('Review contains prohibited language.');
     }
@@ -114,7 +117,10 @@ export class ReviewsService {
     return this.guestReviewRepository.save(review);
   }
 
-  async postHostReview(dto: PostHostReviewDto, guestId: string): Promise<HostReview> {
+  async postHostReview(
+    dto: PostHostReviewDto,
+    guestId: string,
+  ): Promise<HostReview> {
     if (containsProhibitedLanguage(dto.comment ?? '')) {
       throw new BadRequestException('Review contains prohibited language.');
     }
@@ -193,7 +199,8 @@ export class ReviewsService {
     const guestAvg =
       guestReviews.length > 0
         ? guestReviews.reduce(
-            (sum, r) => sum + r.cleanliness + r.communication + r.respectForRules,
+            (sum, r) =>
+              sum + r.cleanliness + r.communication + r.respectForRules,
             0,
           ) /
           (guestReviews.length * 3)
@@ -203,7 +210,13 @@ export class ReviewsService {
       hostReviews.length > 0
         ? hostReviews.reduce(
             (sum, r) =>
-              sum + r.accuracy + r.cleanliness + r.checkIn + r.communication + r.location + r.value,
+              sum +
+              r.accuracy +
+              r.cleanliness +
+              r.checkIn +
+              r.communication +
+              r.location +
+              r.value,
             0,
           ) /
           (hostReviews.length * 6)
@@ -216,7 +229,9 @@ export class ReviewsService {
         wouldHostAgainPercentage:
           guestReviews.length === 0
             ? 0
-            : (guestReviews.filter((r) => r.wouldHostAgain).length / guestReviews.length) * 100,
+            : (guestReviews.filter((r) => r.wouldHostAgain).length /
+                guestReviews.length) *
+              100,
       },
       asGuest: {
         averageRating: Math.round(hostAvg * 10) / 10,
@@ -226,7 +241,9 @@ export class ReviewsService {
   }
 
   async updateReview(id: string, dto: UpdateReviewDto, userId: string) {
-    const guestReview = await this.guestReviewRepository.findOne({ where: { id } });
+    const guestReview = await this.guestReviewRepository.findOne({
+      where: { id },
+    });
     if (guestReview) {
       if (guestReview.hostId !== userId) {
         throw new ForbiddenException('Not authorized');
@@ -235,7 +252,9 @@ export class ReviewsService {
       return this.guestReviewRepository.save(guestReview);
     }
 
-    const hostReview = await this.hostReviewRepository.findOne({ where: { id } });
+    const hostReview = await this.hostReviewRepository.findOne({
+      where: { id },
+    });
     if (hostReview) {
       if (hostReview.guestId !== userId) {
         throw new ForbiddenException('Not authorized');
@@ -248,7 +267,9 @@ export class ReviewsService {
   }
 
   async deleteReview(id: string, userId: string) {
-    const guestReview = await this.guestReviewRepository.findOne({ where: { id } });
+    const guestReview = await this.guestReviewRepository.findOne({
+      where: { id },
+    });
     if (guestReview) {
       if (guestReview.hostId !== userId) {
         throw new ForbiddenException('Not authorized');
@@ -257,7 +278,9 @@ export class ReviewsService {
       return { deleted: true };
     }
 
-    const hostReview = await this.hostReviewRepository.findOne({ where: { id } });
+    const hostReview = await this.hostReviewRepository.findOne({
+      where: { id },
+    });
     if (hostReview) {
       if (hostReview.guestId !== userId) {
         throw new ForbiddenException('Not authorized');

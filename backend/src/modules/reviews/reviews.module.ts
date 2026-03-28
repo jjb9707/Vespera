@@ -9,7 +9,9 @@ import { HostReview } from './entities/host-review.entity';
 import { RentAgreement } from '../rent/entities/rent-contract.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Review, GuestReview, HostReview, RentAgreement])],
+  imports: [
+    TypeOrmModule.forFeature([Review, GuestReview, HostReview, RentAgreement]),
+  ],
   providers: [ReviewsService, ReviewPromptService],
   controllers: [ReviewsController],
   exports: [ReviewsService, ReviewPromptService],

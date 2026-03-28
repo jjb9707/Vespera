@@ -102,7 +102,11 @@ export class ReviewsController {
     @Query('page') page = 1,
     @Query('limit') limit = 20,
   ) {
-    return this.reviewsService.getGuestReviews(userId, Number(page), Number(limit));
+    return this.reviewsService.getGuestReviews(
+      userId,
+      Number(page),
+      Number(limit),
+    );
   }
 
   @Get('host/:userId')
@@ -111,7 +115,11 @@ export class ReviewsController {
     @Query('page') page = 1,
     @Query('limit') limit = 20,
   ) {
-    return this.reviewsService.getHostReviews(userId, Number(page), Number(limit));
+    return this.reviewsService.getHostReviews(
+      userId,
+      Number(page),
+      Number(limit),
+    );
   }
 
   @Get('reputation/:userId')

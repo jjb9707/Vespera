@@ -11,7 +11,6 @@ import {
 } from './entities/payment-schedule.entity';
 import { PaymentGatewayService } from './payment-gateway.service';
 import { NotificationsService } from '../notifications/notifications.service';
-import { UsersService } from '../users/users.service';
 import { PaymentStatus } from './entities/payment.entity';
 import { CreatePaymentRecordDto } from './dto/record-payment.dto';
 import { ProcessRefundDto } from './dto/process-refund.dto';
@@ -21,6 +20,8 @@ import { PaymentInterval } from './entities/payment-schedule.entity';
 import { PaymentProcessingService } from '../stellar/services/payment-processing.service';
 import { StellarService } from '../stellar/services/stellar.service';
 import * as StellarSdk from '@stellar/stellar-sdk';
+import { LockService } from '../../common/lock';
+import { IdempotencyService } from '../../common/idempotency';
 
 const mockPaymentRepository = () => ({
   findOne: jest.fn(),
@@ -75,6 +76,18 @@ const mockStellarService = {
   getTransactionByHash: jest.fn(),
 };
 
+const mockLockService = {
+  withLock: jest.fn(
+    async (_key: string, _ttlMs: number, fn: () => Promise<unknown>) => fn(),
+  ),
+};
+
+const mockIdempotencyService = {
+  process: jest.fn(
+    async (_key: string, _ttlMs: number, fn: () => Promise<unknown>) => fn(),
+  ),
+};
+
 // DataSource mock — transaction() runs the callback with a mock entity manager.
 const mockEntityManager = {
   findOne: jest.fn(),
@@ -118,7 +131,7 @@ describe('PaymentService', () => {
           useValue: mockNotificationsService,
         },
         {
-          provide: UsersService,
+          provide: Object,
           useValue: mockUsersService,
         },
         {
@@ -128,6 +141,14 @@ describe('PaymentService', () => {
         {
           provide: StellarService,
           useValue: mockStellarService,
+        },
+        {
+          provide: LockService,
+          useValue: mockLockService,
+        },
+        {
+          provide: IdempotencyService,
+          useValue: mockIdempotencyService,
         },
         {
           provide: DataSource,
@@ -626,7 +647,7 @@ describe('PaymentService', () => {
       (paymentRepository.find as jest.Mock).mockResolvedValue([
         {
           amount: 10,
-          refundedAmount: 0,
+          refundAmount: 0,
           currency: 'XLM',
           status: PaymentStatus.COMPLETED,
           metadata: { flow: 'rent' },

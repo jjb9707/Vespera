@@ -59,7 +59,8 @@ export class PropertiesService {
       createPropertyDto;
 
     if (!actingUser || actingUser.role !== UserRole.ADMIN) {
-      delete (propertyData as { verificationStatus?: string }).verificationStatus;
+      delete (propertyData as { verificationStatus?: string })
+        .verificationStatus;
     }
 
     const property = this.propertyRepository.create({

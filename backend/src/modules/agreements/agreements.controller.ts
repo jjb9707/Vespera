@@ -117,10 +117,7 @@ export class AgreementsController {
     description:
       'Extends endDate by extendMonths (default 12) from the current end date when renewalOption is true.',
   })
-  async renew(
-    @Param('id') id: string,
-    @Body() body: RenewAgreementDto,
-  ) {
+  async renew(@Param('id') id: string, @Body() body: RenewAgreementDto) {
     return await this.agreementsService.renew(id, body);
   }
 

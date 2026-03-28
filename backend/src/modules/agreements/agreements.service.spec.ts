@@ -81,7 +81,10 @@ describe('AgreementsService (lease extensions)', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AgreementsService,
-        { provide: getRepositoryToken(RentAgreement), useValue: mockAgreementRepo },
+        {
+          provide: getRepositoryToken(RentAgreement),
+          useValue: mockAgreementRepo,
+        },
         { provide: getRepositoryToken(Payment), useValue: mockPaymentRepo },
         { provide: AuditService, useValue: {} },
         { provide: ReviewPromptService, useValue: {} },
@@ -89,7 +92,10 @@ describe('AgreementsService (lease extensions)', () => {
         { provide: BlockchainSyncService, useValue: {} },
         { provide: EscrowIntegrationService, useValue: {} },
         { provide: TemplateRenderingService, useValue: { render: jest.fn() } },
-        { provide: PDFGenerationService, useValue: { generateAgreement: jest.fn() } },
+        {
+          provide: PDFGenerationService,
+          useValue: { generateAgreement: jest.fn() },
+        },
       ],
     }).compile();
 

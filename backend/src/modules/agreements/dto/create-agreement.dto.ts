@@ -172,7 +172,17 @@ export class CreateAgreementDto {
   termsAndConditions?: string;
 
   @ApiPropertyOptional({
-    description: 'Whether the lease may auto-renew or be extended under renewal terms',
+    description:
+      'Optional idempotency key for safely retrying agreement creation',
+    example: '66b2c4b6-38c6-4f18-a591-2e0f9d4f1d4e',
+  })
+  @IsOptional()
+  @IsString()
+  idempotencyKey?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Whether the lease may auto-renew or be extended under renewal terms',
   })
   @IsOptional()
   @IsBoolean()
@@ -210,7 +220,8 @@ export class CreateAgreementDto {
   utilitiesIncluded?: boolean;
 
   @ApiPropertyOptional({
-    description: 'Who handles routine maintenance (e.g. landlord, tenant, split)',
+    description:
+      'Who handles routine maintenance (e.g. landlord, tenant, split)',
     example: 'Landlord handles major; tenant handles minor',
   })
   @IsOptional()
@@ -228,7 +239,8 @@ export class CreateAgreementDto {
   earlyTerminationFee?: number;
 
   @ApiPropertyOptional({
-    description: 'Late rent penalty as percentage of monthly rent (e.g. 5 = 5%)',
+    description:
+      'Late rent penalty as percentage of monthly rent (e.g. 5 = 5%)',
     example: 5,
   })
   @IsOptional()

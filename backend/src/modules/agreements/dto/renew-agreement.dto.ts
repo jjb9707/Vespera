@@ -4,7 +4,8 @@ import { Type } from 'class-transformer';
 
 export class RenewAgreementDto {
   @ApiPropertyOptional({
-    description: 'Number of months to extend the lease end date from the current end date',
+    description:
+      'Number of months to extend the lease end date from the current end date',
     example: 12,
     minimum: 1,
     maximum: 120,

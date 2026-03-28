@@ -1,8 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddRentAgreementLeaseManagementFields1781100000000
-  implements MigrationInterface
-{
+export class AddRentAgreementLeaseManagementFields1781100000000 implements MigrationInterface {
   name = 'AddRentAgreementLeaseManagementFields1781100000000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {

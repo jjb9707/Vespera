@@ -1,8 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddPropertyAnalyticsAndDetailFields1781000000000
-  implements MigrationInterface
-{
+export class AddPropertyAnalyticsAndDetailFields1781000000000 implements MigrationInterface {
   name = 'AddPropertyAnalyticsAndDetailFields1781000000000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {

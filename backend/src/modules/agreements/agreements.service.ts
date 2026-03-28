@@ -24,6 +24,8 @@ import { BlockchainSyncService } from './blockchain-sync.service';
 import { EscrowIntegrationService } from './escrow-integration.service';
 import { TemplateRenderingService } from './template-rendering.service';
 import { PDFGenerationService } from './pdf-generation.service';
+import { Locked, LockService } from '../../common/lock';
+import { Idempotent, IdempotencyService } from '../../common/idempotency';
 
 @Injectable()
 export class AgreementsService {
@@ -41,8 +43,23 @@ export class AgreementsService {
     private readonly escrowIntegration: EscrowIntegrationService,
     private readonly templateService: TemplateRenderingService,
     private readonly pdfService: PDFGenerationService,
+    private readonly lockService: LockService,
+    private readonly idempotencyService: IdempotencyService,
   ) {}
 
+  @Locked({
+    key: (createAgreementDto: CreateAgreementDto) =>
+      `agreement:create:${createAgreementDto.propertyId}:${createAgreementDto.tenantId}:${createAgreementDto.startDate}`,
+    ttlMs: 10000,
+  })
+  @Idempotent({
+    ttlMs: 604_800_000,
+    key: (createAgreementDto: CreateAgreementDto) =>
+      createAgreementDto.idempotencyKey
+        ? `agreement:create:${createAgreementDto.landlordId}:${createAgreementDto.idempotencyKey}`
+        : null,
+    requireKey: false,
+  })
   async create(createAgreementDto: CreateAgreementDto) {
     const {
       startDate: startDateStr,
@@ -126,6 +143,7 @@ export class AgreementsService {
     return await this.agreementRepository.save(agreement);
   }
 
+  @Locked({ key: (id: string) => `agreement:terminate:${id}`, ttlMs: 5000 })
   async renew(id: string, dto: RenewAgreementDto) {
     const agreement = await this.findOne(id);
     if (agreement.renewalOption !== true) {
@@ -136,9 +154,7 @@ export class AgreementsService {
       );
     }
     const months = dto.extendMonths ?? 12;
-    const base = agreement.endDate
-      ? new Date(agreement.endDate)
-      : new Date();
+    const base = agreement.endDate ? new Date(agreement.endDate) : new Date();
     const newEnd = new Date(base.getTime());
     newEnd.setMonth(newEnd.getMonth() + months);
     agreement.endDate = newEnd;

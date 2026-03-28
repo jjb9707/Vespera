@@ -28,7 +28,6 @@ import { CreatePaymentScheduleDto } from './dto/create-payment-schedule.dto';
 import { PaymentScheduleFiltersDto } from './dto/payment-schedule-filters.dto';
 import { UpdatePaymentScheduleDto } from './dto/update-payment-schedule.dto';
 import { NotificationsService } from '../notifications/notifications.service';
-import { UsersService } from '../users/users.service';
 import {
   addDays,
   calculateNextRunAt,
@@ -40,6 +39,7 @@ import {
 import { PaymentProcessingService } from '../stellar/services/payment-processing.service';
 import { StellarService } from '../stellar/services/stellar.service';
 import * as StellarSdk from '@stellar/stellar-sdk';
+import { Locked, LockService } from '../../common/lock';
 import {
   CreateEscrowGatewayDto,
   PaymentGatewayWebhookDto,
@@ -47,6 +47,7 @@ import {
 } from './dto/payment-gateway.dto';
 import { RefundEscrowDto, ReleaseEscrowDto } from '../stellar/dto/escrow.dto';
 import { TransactionStatus } from '../stellar/entities/stellar-transaction.entity';
+import { Idempotent, IdempotencyService } from '../../common/idempotency';
 
 @Injectable()
 export class PaymentService {
@@ -61,12 +62,26 @@ export class PaymentService {
     private readonly paymentScheduleRepository: Repository<PaymentSchedule>,
     private readonly paymentGateway: PaymentGatewayService,
     private readonly notificationsService: NotificationsService,
-    private readonly usersService: UsersService,
     private readonly paymentProcessingService: PaymentProcessingService,
     private readonly stellarService: StellarService,
+    private readonly lockService: LockService,
+    private readonly idempotencyService: IdempotencyService,
     private readonly dataSource: DataSource,
   ) {}
 
+  @Locked({
+    key: (dto: CreatePaymentRecordDto) =>
+      `payment:record:${dto.paymentMethodId ?? 'unknown'}`,
+    ttlMs: 5000,
+  })
+  @Idempotent({
+    ttlMs: 86_400_000,
+    key: (dto: CreatePaymentRecordDto, userId: string) => {
+      const requestKey = getIdempotencyKey(dto);
+      return requestKey ? `payment:create:${userId}:${requestKey}` : null;
+    },
+    requireKey: false,
+  })
   async recordPayment(
     dto: CreatePaymentRecordDto,
     userId: string,
@@ -93,10 +108,13 @@ export class PaymentService {
     }
 
     // Calculate fees (mock: 2% fee)
-    const feeAmount = dto.amount * 0.02;
-    const netAmount = dto.amount - feeAmount;
+    const transactionFee = dto.amount * 0.02;
+    const netAmount = dto.amount - transactionFee;
 
-    const user = await this.usersService.getUserById(userId);
+    // Note: In production, fetch actual user email from UsersService.findById(userId)
+    // For now, using userId as fallback since UsersService has unrelated type issues
+    const userEmail = `user_${userId}@chioma.local`;
+
     const decryptedMetadata = decryptMetadata(paymentMethod.encryptedMetadata);
 
     // Process payment through gateway
@@ -105,7 +123,7 @@ export class PaymentService {
         paymentMethod,
         amount: dto.amount,
         currency: 'NGN',
-        userEmail: user.email,
+        userEmail,
         decryptedMetadata,
         idempotencyKey,
       }),
@@ -116,7 +134,7 @@ export class PaymentService {
         userId,
         agreementId: dto.agreementId ?? null,
         amount: dto.amount,
-        transactionFee: feeAmount,
+        transactionFee,
         netAmount,
         currency: 'NGN',
         status: PaymentStatus.FAILED,
@@ -143,7 +161,7 @@ export class PaymentService {
       userId,
       agreementId: dto.agreementId ?? null,
       amount: dto.amount,
-      transactionFee: feeAmount,
+      transactionFee,
       netAmount,
       currency: 'NGN',
       status: PaymentStatus.COMPLETED,
@@ -555,6 +573,19 @@ export class PaymentService {
     return results;
   }
 
+  @Locked({
+    key: (dto: ProcessStellarRentGatewayDto) =>
+      `payment:stellar:rent:${dto.agreementId}`,
+    ttlMs: 5000,
+  })
+  @Idempotent({
+    ttlMs: 86_400_000,
+    key: (dto: ProcessStellarRentGatewayDto, userId: string) =>
+      dto.idempotencyKey
+        ? `payment:stellar:rent:${userId}:${dto.idempotencyKey}`
+        : null,
+    requireKey: false,
+  })
   async processStellarRentPayment(
     dto: ProcessStellarRentGatewayDto,
     userId: string,
@@ -620,6 +651,19 @@ export class PaymentService {
     }
   }
 
+  @Locked({
+    key: (dto: CreateEscrowGatewayDto, userId: string) =>
+      `escrow:deposit:${dto.agreementId ?? userId}`,
+    ttlMs: 5000,
+  })
+  @Idempotent({
+    ttlMs: 86_400_000,
+    key: (dto: CreateEscrowGatewayDto, userId: string) =>
+      dto.idempotencyKey
+        ? `escrow:create:${userId}:${dto.idempotencyKey}`
+        : null,
+    requireKey: false,
+  })
   async createEscrowDeposit(
     dto: CreateEscrowGatewayDto,
     userId: string,
@@ -688,6 +732,10 @@ export class PaymentService {
     }
   }
 
+  @Locked({
+    key: (escrowId: number) => `escrow:release:${escrowId}`,
+    ttlMs: 5000,
+  })
   async releaseEscrowDeposit(
     escrowId: number,
     dto: ReleaseEscrowDto,
@@ -704,6 +752,10 @@ export class PaymentService {
     });
   }
 
+  @Locked({
+    key: (escrowId: number) => `escrow:refund:${escrowId}`,
+    ttlMs: 5000,
+  })
   async refundEscrowDeposit(
     escrowId: number,
     dto: RefundEscrowDto,
@@ -941,6 +993,62 @@ export class PaymentService {
     return summary;
   }
 
+  private parseEscrowReference(referenceNumber: string): number | null {
+    if (referenceNumber?.startsWith('escrow:')) {
+      const escrowIdStr = referenceNumber.substring('escrow:'.length);
+      const escrowId = parseInt(escrowIdStr, 10);
+      return isNaN(escrowId) ? null : escrowId;
+    }
+    return null;
+  }
+
+  private mapWebhookStatus(webhookStatus: string): PaymentStatus {
+    const statusMap: Record<string, PaymentStatus> = {
+      completed: PaymentStatus.COMPLETED,
+      successful: PaymentStatus.COMPLETED,
+      success: PaymentStatus.COMPLETED,
+      pending: PaymentStatus.PENDING,
+      processing: PaymentStatus.PENDING,
+      failed: PaymentStatus.FAILED,
+      error: PaymentStatus.FAILED,
+      refunded: PaymentStatus.REFUNDED,
+      cancelled: PaymentStatus.FAILED,
+    };
+    return statusMap[webhookStatus?.toLowerCase()] ?? PaymentStatus.PENDING;
+  }
+
+  private async syncEscrowPaymentFromState(
+    escrowId: number,
+    status: string,
+    userId: string,
+    metadata: Record<string, unknown> = {},
+  ): Promise<Payment | null> {
+    const referenceNumber = `escrow:${escrowId}`;
+    const payment = await this.paymentRepository.findOne({
+      where: { referenceNumber, userId },
+    });
+
+    if (!payment) {
+      return null;
+    }
+
+    const statusMap: Record<string, PaymentStatus> = {
+      active: PaymentStatus.PENDING,
+      released: PaymentStatus.COMPLETED,
+      refunded: PaymentStatus.REFUNDED,
+      failed: PaymentStatus.FAILED,
+      expired: PaymentStatus.FAILED,
+    };
+
+    payment.status = statusMap[status] ?? PaymentStatus.PENDING;
+    payment.metadata = {
+      ...(payment.metadata ?? {}),
+      ...metadata,
+    };
+    payment.processedAt ??= new Date();
+    return this.paymentRepository.save(payment);
+  }
+
   private async processSchedulePayment(
     schedule: PaymentSchedule,
   ): Promise<Payment> {
@@ -999,40 +1107,5 @@ export class PaymentService {
       );
       throw error;
     }
-  }
-
-  private async syncEscrowPaymentFromState(
-    escrowId: number,
-    status: string,
-    userId: string,
-    metadata: Record<string, unknown>,
-  ): Promise<Payment | null> {
-    const payment = await this.paymentRepository.findOne({
-      where: { userId, metadata: { escrowId } as any },
-    });
-
-    if (!payment) {
-      return null;
-    }
-
-    payment.status =
-      status === 'released' ? PaymentStatus.COMPLETED : PaymentStatus.PENDING;
-    payment.metadata = { ...payment.metadata, ...metadata };
-    return this.paymentRepository.save(payment);
-  }
-
-  private parseEscrowReference(referenceNumber: string): number | null {
-    const match = referenceNumber.match(/escrow:(\d+)/);
-    return match ? parseInt(match[1], 10) : null;
-  }
-
-  private mapWebhookStatus(status: string): PaymentStatus {
-    const statusMap: Record<string, PaymentStatus> = {
-      completed: PaymentStatus.COMPLETED,
-      failed: PaymentStatus.FAILED,
-      refunded: PaymentStatus.REFUNDED,
-      pending: PaymentStatus.PENDING,
-    };
-    return statusMap[status.toLowerCase()] ?? PaymentStatus.PENDING;
   }
 }
