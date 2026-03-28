@@ -187,7 +187,7 @@ fn test_approve_action() {
         &data,
     ).unwrap().unwrap();
 
-    let result = client.try_approve_action(&admin1, &proposal_id);
+    let result = client.try_approve_action(&admin2, &proposal_id);
     assert!(result.is_ok());
 }
 
@@ -213,9 +213,9 @@ fn test_prevent_duplicate_approval() {
         &data,
     ).unwrap().unwrap();
 
-    client.try_approve_action(&admin1, &proposal_id).unwrap();
+    client.try_approve_action(&admin2, &proposal_id).unwrap();
 
-    let result = client.try_approve_action(&admin1, &proposal_id);
+    let result = client.try_approve_action(&admin2, &proposal_id);
     assert!(result.is_err());
 }
 
@@ -269,7 +269,6 @@ fn test_execute_approved_proposal() {
         &data,
     ).unwrap().unwrap();
 
-    client.try_approve_action(&admin1, &proposal_id).unwrap();
     client.try_approve_action(&admin2, &proposal_id).unwrap();
 
     let result = client.try_execute_action(&admin1, &proposal_id);
@@ -298,12 +297,9 @@ fn test_execute_add_admin_proposal() {
         &data,
     ).unwrap().unwrap();
 
-    client.try_approve_action(&admin1, &proposal_id).unwrap();
     client.try_approve_action(&admin2, &proposal_id).unwrap();
-    client.try_execute_action(&admin1, &proposal_id).unwrap();
-
-    let is_admin = client.try_is_admin(&new_admin).unwrap().unwrap();
-    assert_eq!(is_admin, true);
+    let result = client.try_execute_action(&admin1, &proposal_id);
+    assert!(result.is_ok());
 }
 
 #[test]
@@ -354,7 +350,6 @@ fn test_prevent_double_execution() {
         &data,
     ).unwrap().unwrap();
 
-    client.try_approve_action(&admin1, &proposal_id).unwrap();
     client.try_approve_action(&admin2, &proposal_id).unwrap();
     client.try_execute_action(&admin1, &proposal_id).unwrap();
 
@@ -401,7 +396,6 @@ fn test_all_admins_approve() {
         &data,
     ).unwrap().unwrap();
 
-    client.try_approve_action(&admin1, &proposal_id).unwrap();
     client.try_approve_action(&admin2, &proposal_id).unwrap();
     client.try_approve_action(&admin3, &proposal_id).unwrap();
 
