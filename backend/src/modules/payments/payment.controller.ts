@@ -86,7 +86,10 @@ export class PaymentController {
     @Body() dto: ProcessStellarRentGatewayDto,
     @Request() req: { user?: { id: string } },
   ) {
-    return this.paymentService.processStellarRentPayment(dto, req.user?.id || '');
+    return this.paymentService.processStellarRentPayment(
+      dto,
+      req.user?.id || '',
+    );
   }
 
   @Post('stellar/escrow')
@@ -144,14 +147,15 @@ export class PaymentController {
     @Body() dto: RetryFailedPaymentsDto,
     @Request() req: { user?: { id: string } },
   ) {
-    return this.paymentService.retryFailedPayments(req.user?.id || '', dto.limit);
+    return this.paymentService.retryFailedPayments(
+      req.user?.id || '',
+      dto.limit,
+    );
   }
 
   @Get('analytics/summary')
   @ApiOperation({ summary: 'Get payment analytics summary' })
-  async getPaymentAnalytics(
-    @Request() req: { user?: { id: string } },
-  ) {
+  async getPaymentAnalytics(@Request() req: { user?: { id: string } }) {
     return this.paymentService.getPaymentAnalytics(req.user?.id || '');
   }
 

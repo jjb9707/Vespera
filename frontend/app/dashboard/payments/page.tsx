@@ -628,15 +628,6 @@ export default function PaymentMonitoring() {
   const [filters, setFilters] = useState<PaymentFilters>(DEFAULT_FILTERS);
   const [isExporting, setIsExporting] = useState(false);
 
-  // Generate mock data based on filters
-  const dateRange = useMemo<DateRange>(
-    () => ({
-      startDate: filters.startDate,
-      endDate: filters.endDate,
-    }),
-    [filters.startDate, filters.endDate],
-  );
-
   const metrics = useMemo(() => generateMockMetrics(), []);
   const allFailedPayments = useMemo(() => generateMockFailedPayments(20), []);
   const pendingRefunds = useMemo(() => generateMockPendingRefunds(), []);

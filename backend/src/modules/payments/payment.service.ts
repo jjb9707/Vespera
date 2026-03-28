@@ -45,11 +45,7 @@ import {
   PaymentGatewayWebhookDto,
   ProcessStellarRentGatewayDto,
 } from './dto/payment-gateway.dto';
-import {
-  RefundEscrowDto,
-  ReleaseEscrowDto,
-} from '../stellar/dto/escrow.dto';
-import { EscrowStatus } from '../stellar/entities/stellar-escrow.entity';
+import { RefundEscrowDto, ReleaseEscrowDto } from '../stellar/dto/escrow.dto';
 import { TransactionStatus } from '../stellar/entities/stellar-transaction.entity';
 
 @Injectable()
@@ -119,11 +115,12 @@ export class PaymentService {
         userId,
         agreementId: dto.agreementId ?? null,
         amount: dto.amount,
-        feeAmount,
+        transactionFee: feeAmount,
         netAmount,
         currency: 'NGN',
         status: PaymentStatus.FAILED,
-        paymentMethodId: paymentMethod.id,
+        paymentMethod: paymentMethod.paymentType,
+        paymentMethodRelationId: paymentMethod.id,
         referenceNumber: dto.referenceNumber,
         processedAt: new Date(),
         metadata: { error: chargeResult.error } as PaymentMetadata,
@@ -145,11 +142,12 @@ export class PaymentService {
       userId,
       agreementId: dto.agreementId ?? null,
       amount: dto.amount,
-      feeAmount,
+      transactionFee: feeAmount,
       netAmount,
       currency: 'NGN',
       status: PaymentStatus.COMPLETED,
-      paymentMethodId: paymentMethod.id,
+      paymentMethod: paymentMethod.paymentType,
+      paymentMethodRelationId: paymentMethod.id,
       referenceNumber: dto.referenceNumber || chargeResult.chargeId,
       processedAt: new Date(),
       metadata: { chargeId: chargeResult.chargeId },
@@ -188,7 +186,7 @@ export class PaymentService {
       throw new BadRequestException('Only completed payments can be refunded');
     }
 
-    if (dto.amount > payment.amount - payment.refundedAmount) {
+    if (dto.amount > payment.amount - payment.refundAmount) {
       throw new BadRequestException('Refund amount exceeds available amount');
     }
 
@@ -206,10 +204,11 @@ export class PaymentService {
     }
 
     // Update payment
-    payment.refundedAmount += dto.amount;
+    payment.refundAmount += dto.amount;
     payment.refundReason = dto.reason;
+    payment.refundStatus = 'completed'; // Mocking success for now
     payment.status =
-      payment.refundedAmount >= payment.amount
+      payment.refundAmount >= payment.amount
         ? PaymentStatus.REFUNDED
         : PaymentStatus.PARTIAL_REFUND;
     payment.metadata = {
@@ -672,7 +671,8 @@ export class PaymentService {
           flow: 'escrow_deposit',
           sourcePublicKey: dto.sourcePublicKey,
           destinationPublicKey: dto.destinationPublicKey,
-          error: error instanceof Error ? error.message : 'Escrow creation failed',
+          error:
+            error instanceof Error ? error.message : 'Escrow creation failed',
         } as PaymentMetadata,
       });
       await this.paymentRepository.save(failedPayment);
@@ -760,7 +760,8 @@ export class PaymentService {
           continue;
         }
 
-        const tx = await this.stellarService.getTransactionByHash(transactionHash);
+        const tx =
+          await this.stellarService.getTransactionByHash(transactionHash);
         const nextStatus =
           tx.status === TransactionStatus.COMPLETED
             ? PaymentStatus.COMPLETED
@@ -912,9 +913,11 @@ export class PaymentService {
       summary.totalVolume += amount;
       summary.totalRefunded += refundedAmount;
 
-      if (payment.status === PaymentStatus.COMPLETED) summary.completedPayments += 1;
+      if (payment.status === PaymentStatus.COMPLETED)
+        summary.completedPayments += 1;
       if (payment.status === PaymentStatus.FAILED) summary.failedPayments += 1;
-      if (payment.status === PaymentStatus.PENDING) summary.pendingPayments += 1;
+      if (payment.status === PaymentStatus.PENDING)
+        summary.pendingPayments += 1;
 
       const currency = payment.currency || 'UNKNOWN';
       if (!summary.byCurrency[currency]) {
@@ -990,4 +993,3 @@ export class PaymentService {
     }
   }
 }
-

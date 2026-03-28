@@ -13,7 +13,6 @@ import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import { EmailService } from '../notifications/email.service';
 import { User } from '../users/entities/user.entity';
-import { MfaDevice } from './entities/mfa-device.entity';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
@@ -26,6 +25,9 @@ import {
 } from './dto/auth-response.dto';
 import { PasswordPolicyService } from './services/password-policy.service';
 import { MfaService } from './services/mfa.service';
+import { ReferralService } from '../referral/referral.service';
+import { LoggerService } from '../../common/logger/logger.service';
+import { Logging } from '../../common/logger/logging.decorator';
 
 const SALT_ROUNDS = 12;
 const MAX_FAILED_ATTEMPTS = 5;
@@ -44,10 +46,14 @@ export class AuthService {
     private passwordPolicyService: PasswordPolicyService,
     private emailService: EmailService,
     private mfaService: MfaService,
+    private referralService: ReferralService,
+    private readonly loggerService: LoggerService,
   ) {}
 
+  @Logging({ service: 'AuthService' })
   async register(registerDto: RegisterDto): Promise<AuthSuccessResponseDto> {
-    const { email, password, firstName, lastName, role } = registerDto;
+    const { email, password, firstName, lastName, role, referralCode } =
+      registerDto;
     const normalizedEmail = email.toLowerCase();
 
     // Validate password against policy
@@ -67,6 +73,7 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
     const verificationToken = crypto.randomBytes(32).toString('hex');
+    const userReferralCode = await this.referralService.generateReferralCode();
 
     const user = this.userRepository.create({
       email: normalizedEmail,
@@ -79,9 +86,22 @@ export class AuthService {
       failedLoginAttempts: 0,
       verificationToken,
       isActive: true,
+      referralCode: userReferralCode,
     });
 
     const savedUser = await this.userRepository.save(user);
+
+    // Track referral if code provided
+    if (referralCode) {
+      await this.referralService
+        .trackReferral(savedUser, referralCode)
+        .catch((err) => {
+          this.logger.error(
+            `Failed to track referral for user ${savedUser.id}: ${err.message}`,
+          );
+        });
+    }
+
     this.logger.log(`User registered successfully: ${savedUser.id}`);
 
     // Send verification email asynchronously
@@ -130,9 +150,6 @@ export class AuthService {
     if (user.accountLockedUntil) {
       const now = new Date();
       if (user.accountLockedUntil > now) {
-        const minutesRemaining = Math.ceil(
-          (user.accountLockedUntil.getTime() - now.getTime()) / (1000 * 60),
-        );
         this.logger.warn(`Login attempt for locked account: ${email}`);
         throw new UnauthorizedException('Invalid email or password');
       } else {
@@ -152,6 +169,7 @@ export class AuthService {
     user.failedLoginAttempts = 0;
     user.accountLockedUntil = null;
     user.lastLoginAt = new Date();
+    user.loginCount = (user.loginCount || 0) + 1;
 
     await this.userRepository.save(user);
 
@@ -450,7 +468,6 @@ export class AuthService {
   }
 
   public sanitizeUser(user: User) {
-    /* eslint-disable @typescript-eslint/no-unused-vars */
     const {
       password: _password,
       refreshToken: _refreshToken,
@@ -458,7 +475,6 @@ export class AuthService {
       verificationToken: _verificationToken,
       ...sanitized
     } = user;
-    /* eslint-enable @typescript-eslint/no-unused-vars */
     return sanitized;
   }
 

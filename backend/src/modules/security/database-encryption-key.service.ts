@@ -63,7 +63,9 @@ export class DatabaseEncryptionKeyService {
     const intervalDays = Number(
       this.configService.get<string>('DB_ENCRYPTION_ROTATION_DAYS', '90'),
     );
-    this.logger.debug(`DB encryption rotation configured: ${intervalDays} days`);
+    this.logger.debug(
+      `DB encryption rotation configured: ${intervalDays} days`,
+    );
     return { enabled: true, intervalDays };
   }
 }

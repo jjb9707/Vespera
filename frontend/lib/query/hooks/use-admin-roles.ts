@@ -70,3 +70,130 @@ export function useUpdateRolePermissions() {
     },
   });
 }
+
+export function useCreateRole() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { name: string; description?: string | null }) => {
+      const { data: role } = await apiClient.post<Role>(
+        '/api/v1/security/rbac/roles',
+        data,
+      );
+      return role;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.roles.all });
+    },
+  });
+}
+
+export function useUpdateRole() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      name,
+      description,
+    }: {
+      id: string;
+      name: string;
+      description?: string | null;
+    }) => {
+      const { data: role } = await apiClient.patch<Role>(
+        `/api/v1/security/rbac/roles/${id}`,
+        { name, description },
+      );
+      return role;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.roles.all });
+    },
+  });
+}
+
+export function useDeleteRole() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (roleId: string) => {
+      await apiClient.delete(`/api/v1/security/rbac/roles/${roleId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.roles.all });
+    },
+  });
+}
+
+export function useCreatePermission() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: {
+      name: string;
+      action: string;
+      resource: string;
+      description?: string | null;
+    }) => {
+      const { data: permission } = await apiClient.post<Permission>(
+        '/api/v1/security/rbac/permissions',
+        data,
+      );
+      return permission;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.roles.permissions(),
+      });
+    },
+  });
+}
+
+export function useUpdatePermission() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      name,
+      action,
+      resource,
+      description,
+    }: {
+      id: string;
+      name: string;
+      action: string;
+      resource: string;
+      description?: string | null;
+    }) => {
+      const { data: permission } = await apiClient.patch<Permission>(
+        `/api/v1/security/rbac/permissions/${id}`,
+        { name, action, resource, description },
+      );
+      return permission;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.roles.permissions(),
+      });
+    },
+  });
+}
+
+export function useDeletePermission() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (permissionId: string) => {
+      await apiClient.delete(
+        `/api/v1/security/rbac/permissions/${permissionId}`,
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.roles.permissions(),
+      });
+    },
+  });
+}

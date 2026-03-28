@@ -32,11 +32,22 @@ export class User {
   @Column({ type: 'varchar', unique: true })
   email: string;
 
-  @Column({ name: 'email_encrypted', type: 'bytea', nullable: true, select: false })
+  @Column({
+    name: 'email_encrypted',
+    type: 'bytea',
+    nullable: true,
+    select: false,
+  })
   emailEncrypted?: Buffer | null;
 
   @Index('idx_users_email_hash', { unique: false })
-  @Column({ name: 'email_hash', type: 'varchar', length: 64, nullable: true, select: false })
+  @Column({
+    name: 'email_hash',
+    type: 'varchar',
+    length: 64,
+    nullable: true,
+    select: false,
+  })
   emailHash?: string | null;
 
   @Exclude()
@@ -52,11 +63,22 @@ export class User {
   @Column({ name: 'phone_number', nullable: true, type: 'varchar' })
   phoneNumber: string | null;
 
-  @Column({ name: 'phone_number_encrypted', type: 'bytea', nullable: true, select: false })
+  @Column({
+    name: 'phone_number_encrypted',
+    type: 'bytea',
+    nullable: true,
+    select: false,
+  })
   phoneNumberEncrypted?: Buffer | null;
 
   @Index('idx_users_phone_hash', { unique: false })
-  @Column({ name: 'phone_number_hash', type: 'varchar', length: 64, nullable: true, select: false })
+  @Column({
+    name: 'phone_number_hash',
+    type: 'varchar',
+    length: 64,
+    nullable: true,
+    select: false,
+  })
   phoneNumberHash?: string | null;
 
   @Column({ name: 'avatar_url', nullable: true, type: 'varchar' })
@@ -98,6 +120,32 @@ export class User {
   @Column({ name: 'last_login_at', nullable: true, type: 'timestamp' })
   lastLoginAt: Date | null;
 
+  @Column({ name: 'login_count', type: 'int', default: 0 })
+  loginCount: number;
+
+  @Column({
+    name: 'preferred_language',
+    type: 'varchar',
+    length: 10,
+    default: 'en',
+  })
+  preferredLanguage: string;
+
+  @Column({ name: 'timezone', type: 'varchar', length: 50, default: 'UTC' })
+  timezone: string;
+
+  @Column({ name: 'two_factor_enabled', type: 'boolean', default: false })
+  twoFactorEnabled: boolean;
+
+  @Column({ name: 'email_notifications', type: 'boolean', default: true })
+  emailNotifications: boolean;
+
+  @Column({ name: 'sms_notifications', type: 'boolean', default: false })
+  smsNotifications: boolean;
+
+  @Column({ name: 'marketing_opt_in', type: 'boolean', default: false })
+  marketingOptIn: boolean;
+
   @Column({ name: 'is_active', type: 'boolean', default: true })
   isActive: boolean;
 
@@ -109,11 +157,22 @@ export class User {
   })
   walletAddress: string | null;
 
-  @Column({ name: 'wallet_address_encrypted', type: 'bytea', nullable: true, select: false })
+  @Column({
+    name: 'wallet_address_encrypted',
+    type: 'bytea',
+    nullable: true,
+    select: false,
+  })
   walletAddressEncrypted?: Buffer | null;
 
   @Index('idx_users_wallet_hash', { unique: false })
-  @Column({ name: 'wallet_address_hash', type: 'varchar', length: 64, nullable: true, select: false })
+  @Column({
+    name: 'wallet_address_hash',
+    type: 'varchar',
+    length: 64,
+    nullable: true,
+    select: false,
+  })
   walletAddressHash?: string | null;
 
   @Column({
@@ -144,4 +203,16 @@ export class User {
 
   @DeleteDateColumn({ name: 'deleted_at', nullable: true })
   deletedAt?: Date | null;
+
+  @Index({ unique: true })
+  @Column({
+    name: 'referral_code',
+    type: 'varchar',
+    length: 10,
+    nullable: true,
+  })
+  referralCode?: string | null;
+
+  @Column({ name: 'referred_by_id', type: 'uuid', nullable: true })
+  referredById?: string | null;
 }

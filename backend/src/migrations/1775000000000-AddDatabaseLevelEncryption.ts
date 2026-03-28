@@ -1,8 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddDatabaseLevelEncryption1775000000000
-  implements MigrationInterface
-{
+export class AddDatabaseLevelEncryption1775000000000 implements MigrationInterface {
   name = 'AddDatabaseLevelEncryption1775000000000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -73,7 +71,9 @@ export class AddDatabaseLevelEncryption1775000000000
       $$;
     `);
 
-    await queryRunner.query(`DROP TRIGGER IF EXISTS users_encrypt_sensitive_fields ON "users"`);
+    await queryRunner.query(
+      `DROP TRIGGER IF EXISTS users_encrypt_sensitive_fields ON "users"`,
+    );
     await queryRunner.query(`
       CREATE TRIGGER users_encrypt_sensitive_fields
       BEFORE INSERT OR UPDATE ON "users"
@@ -94,8 +94,12 @@ export class AddDatabaseLevelEncryption1775000000000
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP TRIGGER IF EXISTS users_encrypt_sensitive_fields ON "users"`);
-    await queryRunner.query(`DROP FUNCTION IF EXISTS encrypt_users_sensitive_fields`);
+    await queryRunner.query(
+      `DROP TRIGGER IF EXISTS users_encrypt_sensitive_fields ON "users"`,
+    );
+    await queryRunner.query(
+      `DROP FUNCTION IF EXISTS encrypt_users_sensitive_fields`,
+    );
     await queryRunner.query(`DROP INDEX IF EXISTS "idx_users_wallet_hash"`);
     await queryRunner.query(`DROP INDEX IF EXISTS "idx_users_phone_hash"`);
     await queryRunner.query(`DROP INDEX IF EXISTS "idx_users_email_hash"`);
@@ -114,7 +118,9 @@ export class AddDatabaseLevelEncryption1775000000000
     await queryRunner.query(
       `ALTER TABLE "users" DROP COLUMN IF EXISTS "phone_number_encrypted"`,
     );
-    await queryRunner.query(`ALTER TABLE "users" DROP COLUMN IF EXISTS "email_hash"`);
+    await queryRunner.query(
+      `ALTER TABLE "users" DROP COLUMN IF EXISTS "email_hash"`,
+    );
     await queryRunner.query(
       `ALTER TABLE "users" DROP COLUMN IF EXISTS "email_encrypted"`,
     );

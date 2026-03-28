@@ -422,7 +422,9 @@ describe('PaymentService', () => {
       );
 
       expect(result.id).toBe('payment_xlm_1');
-      expect(mockPaymentProcessingService.processRentPayment).toHaveBeenCalled();
+      expect(
+        mockPaymentProcessingService.processRentPayment,
+      ).toHaveBeenCalled();
     });
 
     it('creates a stellar escrow deposit payment record', async () => {
