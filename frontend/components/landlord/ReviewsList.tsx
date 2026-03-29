@@ -4,19 +4,36 @@ import Link from 'next/link';
 import StarRating from '@/components/common/StarRating';
 
 const MOCK_REVIEWS = [
-  { id: '1', rating: 5, text: 'Great landlord!', tenant: 'Alice', date: '2026-03-25', status: 'published' },
-  { id: '2', rating: 2, text: 'Slow maintenance.', tenant: 'Bob', date: '2026-03-20', status: 'responded' }
+  {
+    id: '1',
+    rating: 5,
+    text: 'Great landlord!',
+    tenant: 'Alice',
+    date: '2026-03-25',
+    status: 'published',
+  },
+  {
+    id: '2',
+    rating: 2,
+    text: 'Slow maintenance.',
+    tenant: 'Bob',
+    date: '2026-03-20',
+    status: 'responded',
+  },
 ];
 
 export default function ReviewsList() {
   const [filter, setFilter] = useState('all');
-  
-  const filtered = filter === 'all' ? MOCK_REVIEWS : MOCK_REVIEWS.filter(r => r.status === filter);
+
+  const filtered =
+    filter === 'all'
+      ? MOCK_REVIEWS
+      : MOCK_REVIEWS.filter((r) => r.status === filter);
 
   return (
     <div className="bg-slate-800/50 border border-white/10 rounded-2xl p-6 shadow-lg">
       <div className="flex gap-4 mb-6">
-        <select 
+        <select
           className="bg-slate-700 text-white rounded-lg p-2 border border-white/10"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
@@ -28,8 +45,12 @@ export default function ReviewsList() {
       </div>
 
       <div className="space-y-4">
-        {filtered.map(r => (
-          <Link key={r.id} href={`/landlords/reviews/${r.id}`} className="block">
+        {filtered.map((r) => (
+          <Link
+            key={r.id}
+            href={`/landlords/reviews/${r.id}`}
+            className="block"
+          >
             <div className="bg-slate-700/50 hover:bg-slate-600 transition-all rounded-xl p-4 border border-white/5 flex flex-col gap-2">
               <div className="flex justify-between">
                 <StarRating rating={r.rating} />

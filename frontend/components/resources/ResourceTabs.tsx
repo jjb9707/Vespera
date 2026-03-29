@@ -1,13 +1,19 @@
-export default function ResourceTabs({ active, onChange }: { active: string, onChange: (val: string) => void }) {
+export default function ResourceTabs({
+  active,
+  onChange,
+}: {
+  active: string;
+  onChange: (val: string) => void;
+}) {
   const tabs = [
     { id: 'tenant', label: 'Tenants' },
     { id: 'landlord', label: 'Landlords' },
-    { id: 'agent', label: 'Agents' }
+    { id: 'agent', label: 'Agents' },
   ];
 
   return (
     <div className="flex justify-center border-b border-white/10 mb-8">
-      {tabs.map(tab => (
+      {tabs.map((tab) => (
         <button
           key={tab.id}
           onClick={() => onChange(tab.id)}

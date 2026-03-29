@@ -1,11 +1,17 @@
 'use client';
 import { Search } from 'lucide-react';
 
-export default function ResourceSearch({ query, onChange }: { query: string, onChange: (val: string) => void }) {
+export default function ResourceSearch({
+  query,
+  onChange,
+}: {
+  query: string;
+  onChange: (val: string) => void;
+}) {
   return (
     <div className="max-w-2xl mx-auto relative mb-8">
       <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-      <input 
+      <input
         type="text"
         placeholder="Search for articles, guides..."
         value={query}

@@ -1,7 +1,13 @@
 'use client';
 import { useState } from 'react';
 
-export default function ReviewResponse({ reviewId: _reviewId, existingResponse }: { reviewId: string, existingResponse: string | null }) {
+export default function ReviewResponse({
+  reviewId: _reviewId,
+  existingResponse,
+}: {
+  reviewId: string;
+  existingResponse: string | null;
+}) {
   const [response, setResponse] = useState(existingResponse || '');
   const [isEditing, setIsEditing] = useState(!existingResponse);
 
@@ -22,14 +28,24 @@ export default function ReviewResponse({ reviewId: _reviewId, existingResponse }
             onChange={(e) => setResponse(e.target.value)}
             placeholder="Write your response here..."
           />
-          <button onClick={handleSave} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all">Submit Response</button>
+          <button
+            onClick={handleSave}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all"
+          >
+            Submit Response
+          </button>
         </div>
       ) : (
         <div className="space-y-4">
           <div className="bg-slate-700/50 rounded-lg p-4 text-slate-300">
             {response}
           </div>
-          <button onClick={() => setIsEditing(true)} className="text-blue-400 hover:text-blue-300">Edit Response</button>
+          <button
+            onClick={() => setIsEditing(true)}
+            className="text-blue-400 hover:text-blue-300"
+          >
+            Edit Response
+          </button>
         </div>
       )}
     </div>
