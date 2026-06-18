@@ -18,8 +18,8 @@ Vespera, set in a serif display face. Latin for "evening star". Always one word.
 
 ## Logo files
 
-- `assets/vespera-logo.svg` — square mark with crescent and evening star
-- `assets/vespera-banner.svg` — wide banner with wordmark and twilight sky
+- `assets/vespera-logo.jpg` — square mark with crescent and evening star
+- `assets/vespera-banner.jpg` — wide banner with wordmark and twilight sky
 
 ## Voice
 

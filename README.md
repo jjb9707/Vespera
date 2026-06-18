@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/vespera-banner.svg" alt="Vespera" width="100%"/>
+  <img src="assets/vespera-banner.jpg" alt="Vespera" width="100%"/>
 </p>
 
 <h1 align="center">Vespera</h1>
