@@ -18,6 +18,17 @@ cp .env.example .env.local
 pnpm dev
 ```
 
+
+## Environment Variables
+
+Copy `.env.example` to `.env.local` for local development. The frontend currently reads only the Stellar network variable; the other public variables are documented placeholders for planned chain-read and contract-call work.
+
+| Variable | Purpose | Accepted values | Required? | Current usage |
+| --- | --- | --- | --- | --- |
+| `NEXT_PUBLIC_STELLAR_NETWORK` | Selects the Stellar network passphrase used by `frontend/lib/stellar.ts` when building transactions for Freighter signing. | `TESTNET` or `PUBLIC` | Optional; defaults to `TESTNET` when unset. | Consumed by `frontend/lib/stellar.ts`. |
+| `NEXT_PUBLIC_HORIZON_URL` | Planned Horizon endpoint for future frontend chain reads. | Full Horizon URL, such as `https://horizon-testnet.stellar.org`. | Optional. | Not currently consumed by frontend code. |
+| `NEXT_PUBLIC_RENTAL_CONTRACT_ID` | Planned Soroban rental contract ID for real rent-payment signing. | Deployed rental contract ID. | Optional until the payment flow is wired to a deployed contract. | Not currently consumed by frontend code. |
+
 ## Layout
 
 ```
