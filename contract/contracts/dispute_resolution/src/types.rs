@@ -62,7 +62,7 @@ pub struct ContractState {
     pub admin: Address,
     pub initialized: bool,
     pub min_votes_required: u32,
-    pub chioma_contract: Address,
+    pub rental_contract: Address,
 }
 
 #[contracttype]

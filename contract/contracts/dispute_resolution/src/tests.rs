@@ -29,12 +29,12 @@ fn inject_open_dispute(env: &Env, client: &DisputeResolutionContractClient, disp
     });
 }
 
-/// Mock chioma contract that returns a valid RentAgreement for testing.
+/// Mock rental contract that returns a valid RentAgreement for testing.
 #[contract]
-pub struct MockChiomaContract;
+pub struct MockRentalContract;
 
 #[contractimpl]
-impl MockChiomaContract {
+impl MockRentalContract {
     /// Returns a mock active RentAgreement for any agreement_id.
     /// The raiser must be set as either the tenant or landlord for
     /// raise_dispute authorization to pass.
@@ -55,19 +55,19 @@ fn test_successful_initialization() {
     let client = create_contract(&env);
 
     let admin = Address::generate(&env);
-    let chioma_contract = Address::generate(&env);
+    let rental_contract = Address::generate(&env);
     let min_votes = 3u32;
 
     env.mock_all_auths();
 
-    let result = client.try_initialize(&admin, &min_votes, &chioma_contract);
+    let result = client.try_initialize(&admin, &min_votes, &rental_contract);
     assert!(result.is_ok());
 
     let state = client.get_state().unwrap();
     assert_eq!(state.admin, admin);
     assert!(state.initialized);
     assert_eq!(state.min_votes_required, min_votes);
-    assert_eq!(state.chioma_contract, chioma_contract);
+    assert_eq!(state.rental_contract, rental_contract);
 }
 
 #[test]
@@ -77,9 +77,9 @@ fn test_initialize_fails_without_admin_auth() {
     let client = create_contract(&env);
 
     let admin = Address::generate(&env);
-    let chioma_contract = Address::generate(&env);
+    let rental_contract = Address::generate(&env);
 
-    client.initialize(&admin, &3, &chioma_contract);
+    client.initialize(&admin, &3, &rental_contract);
 }
 
 #[test]
@@ -89,12 +89,12 @@ fn test_double_initialization_fails() {
     let client = create_contract(&env);
 
     let admin = Address::generate(&env);
-    let chioma_contract = Address::generate(&env);
+    let rental_contract = Address::generate(&env);
 
     env.mock_all_auths();
 
-    client.initialize(&admin, &3, &chioma_contract);
-    client.initialize(&admin, &3, &chioma_contract);
+    client.initialize(&admin, &3, &rental_contract);
+    client.initialize(&admin, &3, &rental_contract);
 }
 
 #[test]
@@ -151,7 +151,7 @@ fn test_add_arbiter_fails_when_already_exists() {
     client.add_arbiter(&admin, &arbiter);
 }
 
-// NOTE: Tests for raise_dispute require a mock chioma contract
+// NOTE: Tests for raise_dispute require a mock rental contract
 // These tests are temporarily disabled until integration test setup is complete
 // See INTEGRATION.md for cross-contract testing approach
 
@@ -183,7 +183,7 @@ fn test_raise_dispute_success() {
 }
 */
 
-// NOTE: Tests for raise_dispute require a mock chioma contract
+// NOTE: Tests for raise_dispute require a mock rental contract
 // These tests are temporarily disabled until integration test setup is complete
 // See INTEGRATION.md for cross-contract testing approach
 
@@ -195,11 +195,11 @@ fn test_raise_dispute_fails_when_already_exists() {
     let client = create_contract(&env);
 
     let admin = Address::generate(&env);
-    let (mock_chioma, tenant, _landlord) = setup_mock_chioma(&env);
+    let (mock_rental, tenant, _landlord) = setup_mock_rental(&env);
 
     env.mock_all_auths();
 
-    client.initialize(&admin, &3, &mock_chioma);
+    client.initialize(&admin, &3, &mock_rental);
 
     let agreement_id = String::from_str(&env, "agreement_001");
     let details_hash = String::from_str(&env, "QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco");
@@ -237,11 +237,11 @@ fn test_vote_on_dispute_success() {
 
     let admin = Address::generate(&env);
     let arbiter = Address::generate(&env);
-    let (mock_chioma, tenant, _landlord) = setup_mock_chioma(&env);
+    let (mock_rental, tenant, _landlord) = setup_mock_rental(&env);
 
     env.mock_all_auths();
 
-    client.initialize(&admin, &3, &mock_chioma);
+    client.initialize(&admin, &3, &mock_rental);
     client.add_arbiter(&admin, &arbiter);
 
     let agreement_id = String::from_str(&env, "agreement_001");
@@ -272,11 +272,11 @@ fn test_vote_fails_when_not_arbiter() {
 
     let admin = Address::generate(&env);
     let non_arbiter = Address::generate(&env);
-    let (mock_chioma, tenant, _landlord) = setup_mock_chioma(&env);
+    let (mock_rental, tenant, _landlord) = setup_mock_rental(&env);
 
     env.mock_all_auths();
 
-    client.initialize(&admin, &3, &mock_chioma);
+    client.initialize(&admin, &3, &mock_rental);
 
     let agreement_id = String::from_str(&env, "agreement_001");
     let details_hash = String::from_str(&env, "QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco");
@@ -314,11 +314,11 @@ fn test_vote_fails_when_already_voted() {
 
     let admin = Address::generate(&env);
     let arbiter = Address::generate(&env);
-    let (mock_chioma, tenant, _landlord) = setup_mock_chioma(&env);
+    let (mock_rental, tenant, _landlord) = setup_mock_rental(&env);
 
     env.mock_all_auths();
 
-    client.initialize(&admin, &3, &mock_chioma);
+    client.initialize(&admin, &3, &mock_rental);
     client.add_arbiter(&admin, &arbiter);
 
     let agreement_id = String::from_str(&env, "agreement_001");
@@ -340,11 +340,11 @@ fn test_resolve_dispute_favor_landlord() {
     let arbiter1 = Address::generate(&env);
     let arbiter2 = Address::generate(&env);
     let arbiter3 = Address::generate(&env);
-    let (mock_chioma, tenant, _landlord) = setup_mock_chioma(&env);
+    let (mock_rental, tenant, _landlord) = setup_mock_rental(&env);
 
     env.mock_all_auths();
 
-    client.initialize(&admin, &3, &mock_chioma);
+    client.initialize(&admin, &3, &mock_rental);
     client.add_arbiter(&admin, &arbiter1);
     client.add_arbiter(&admin, &arbiter2);
     client.add_arbiter(&admin, &arbiter3);
@@ -383,11 +383,11 @@ fn test_resolve_dispute_favor_tenant() {
     let arbiter1 = Address::generate(&env);
     let arbiter2 = Address::generate(&env);
     let arbiter3 = Address::generate(&env);
-    let (mock_chioma, tenant, _landlord) = setup_mock_chioma(&env);
+    let (mock_rental, tenant, _landlord) = setup_mock_rental(&env);
 
     env.mock_all_auths();
 
-    client.initialize(&admin, &3, &mock_chioma);
+    client.initialize(&admin, &3, &mock_rental);
     client.add_arbiter(&admin, &arbiter1);
     client.add_arbiter(&admin, &arbiter2);
     client.add_arbiter(&admin, &arbiter3);
@@ -421,11 +421,11 @@ fn test_resolve_dispute_fails_with_insufficient_votes() {
 
     let admin = Address::generate(&env);
     let arbiter1 = Address::generate(&env);
-    let (mock_chioma, tenant, _landlord) = setup_mock_chioma(&env);
+    let (mock_rental, tenant, _landlord) = setup_mock_rental(&env);
 
     env.mock_all_auths();
 
-    client.initialize(&admin, &3, &mock_chioma);
+    client.initialize(&admin, &3, &mock_rental);
     client.add_arbiter(&admin, &arbiter1);
 
     let agreement_id = String::from_str(&env, "agreement_001");
@@ -449,11 +449,11 @@ fn test_resolve_dispute_fails_when_already_resolved() {
     let arbiter1 = Address::generate(&env);
     let arbiter2 = Address::generate(&env);
     let arbiter3 = Address::generate(&env);
-    let (mock_chioma, tenant, _landlord) = setup_mock_chioma(&env);
+    let (mock_rental, tenant, _landlord) = setup_mock_rental(&env);
 
     env.mock_all_auths();
 
-    client.initialize(&admin, &3, &mock_chioma);
+    client.initialize(&admin, &3, &mock_rental);
     client.add_arbiter(&admin, &arbiter1);
     client.add_arbiter(&admin, &arbiter2);
     client.add_arbiter(&admin, &arbiter3);
@@ -484,11 +484,11 @@ fn test_vote_fails_after_dispute_resolved() {
     let arbiter2 = Address::generate(&env);
     let arbiter3 = Address::generate(&env);
     let arbiter4 = Address::generate(&env);
-    let (mock_chioma, tenant, _landlord) = setup_mock_chioma(&env);
+    let (mock_rental, tenant, _landlord) = setup_mock_rental(&env);
 
     env.mock_all_auths();
 
-    client.initialize(&admin, &3, &mock_chioma);
+    client.initialize(&admin, &3, &mock_rental);
     client.add_arbiter(&admin, &arbiter1);
     client.add_arbiter(&admin, &arbiter2);
     client.add_arbiter(&admin, &arbiter3);
@@ -519,11 +519,11 @@ fn test_multiple_disputes() {
     let arbiter1 = Address::generate(&env);
     let arbiter2 = Address::generate(&env);
     let arbiter3 = Address::generate(&env);
-    let (mock_chioma, tenant, _landlord) = setup_mock_chioma(&env);
+    let (mock_rental, tenant, _landlord) = setup_mock_rental(&env);
 
     env.mock_all_auths();
 
-    client.initialize(&admin, &3, &mock_chioma);
+    client.initialize(&admin, &3, &mock_rental);
     client.add_arbiter(&admin, &arbiter1);
     client.add_arbiter(&admin, &arbiter2);
     client.add_arbiter(&admin, &arbiter3);

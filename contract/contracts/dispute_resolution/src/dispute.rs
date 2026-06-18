@@ -177,9 +177,9 @@ pub fn raise_dispute(
         return Err(DisputeError::DisputeAlreadyExists);
     }
 
-    // Cross-contract call to get agreement from chioma contract
+    // Cross-contract call to get agreement from rental contract
     let agreement: Option<RentAgreement> = env.invoke_contract(
-        &state.chioma_contract,
+        &state.rental_contract,
         &soroban_sdk::symbol_short!("get_agr"),
         soroban_sdk::vec![env, agreement_id.clone().into()],
     );
