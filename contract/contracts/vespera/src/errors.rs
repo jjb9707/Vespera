@@ -30,6 +30,7 @@ pub enum RentalError {
     InterestConfigNotFound = 25,
     InterestAlreadyInitialized = 26,
     NoPrincipal = 27,
+    RoyaltyNotFound = 28,
 
     // Payment errors
     PaymentInsufficientFunds = 201,
@@ -109,6 +110,7 @@ impl RentalError {
                 "Deposit interest is already initialized for this agreement."
             }
             RentalError::NoPrincipal => "No security deposit found to accrue interest on.",
+            RentalError::RoyaltyNotFound => "Royalty configuration for the token not found.",
 
             RentalError::PaymentInsufficientFunds => {
                 "Insufficient funds. Please ensure you have enough balance."
