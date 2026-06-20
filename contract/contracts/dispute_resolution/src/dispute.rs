@@ -930,14 +930,12 @@ pub fn vote_on_dispute_weighted(
     // `resolve_dispute_weighted` still picks the correct side.
     match vote.clone() {
         DisputeOutcome::FavorLandlord => {
-            wdisp.weighted_votes_favor_landlord = wdisp
-                .weighted_votes_favor_landlord
-                .saturating_add(weight);
+            wdisp.weighted_votes_favor_landlord =
+                wdisp.weighted_votes_favor_landlord.saturating_add(weight);
         }
         DisputeOutcome::FavorTenant => {
-            wdisp.weighted_votes_favor_tenant = wdisp
-                .weighted_votes_favor_tenant
-                .saturating_add(weight);
+            wdisp.weighted_votes_favor_tenant =
+                wdisp.weighted_votes_favor_tenant.saturating_add(weight);
         }
     }
 
