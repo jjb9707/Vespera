@@ -240,9 +240,7 @@ export class AnchorService {
         message: anchorTx.message,
       });
     } catch (error) {
-      this.logger.error(
-        `Failed to fetch transaction status: ${error.message}`,
-      );
+      this.logger.error(`Failed to fetch transaction status: ${error.message}`);
       return transaction;
     }
   }
@@ -458,6 +456,29 @@ export class AnchorService {
         return transaction;
       }
 
+      // Sequence-monotonicity guard: if the anchor stamps payloads
+      // with a `sequence` and the row has already absorbed a higher
+      // one, this delivery is out-of-order and must not regress
+      // state. Recording the event id makes the eventual retry of the
+      // newer payload a no-op.
+      const lastSequence = this.readLastSequence(transaction);
+      if (
+        payload.sequence !== undefined &&
+        lastSequence !== undefined &&
+        payload.sequence < lastSequence
+      ) {
+        this.logger.warn(
+          `Dropping stale anchor delivery tx=${transaction.id} sequence=${payload.sequence} < last=${lastSequence}`,
+        );
+        transaction.processedEventIds = this.trackEventId(
+          transaction.processedEventIds,
+          eventId,
+        );
+        await repo.save(transaction);
+        await queryRunner.commitTransaction();
+        return transaction;
+      }
+
       const newStatus = this.mapAnchorStatus(payload.status);
 
       if (
@@ -522,7 +543,10 @@ export class AnchorService {
     return `${payload.id}:status:${payload.status}`;
   }
 
-  private trackEventId(existing: string[] | undefined, eventId: string): string[] {
+  private trackEventId(
+    existing: string[] | undefined,
+    eventId: string,
+  ): string[] {
     const next = existing ? [...existing, eventId] : [eventId];
     // Keep the list bounded so the row doesn't grow without limit; we
     // only need enough history to absorb in-flight redeliveries.
@@ -530,6 +554,11 @@ export class AnchorService {
       return next.slice(next.length - PROCESSED_EVENT_WINDOW);
     }
     return next;
+  }
+
+  private readLastSequence(transaction: AnchorTransaction): number | undefined {
+    const stored = transaction.metadata?.last_sequence;
+    return typeof stored === 'number' ? stored : undefined;
   }
 
   private extractKnownMetadata(

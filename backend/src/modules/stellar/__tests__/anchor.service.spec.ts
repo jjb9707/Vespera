@@ -297,6 +297,31 @@ describe('AnchorService', () => {
       expect(queryRunner.release).toHaveBeenCalledTimes(2);
     });
 
+    it("drops an out-of-order delivery whose sequence is below the row's last_sequence", async () => {
+      const row = buildRow({
+        status: AnchorTransactionStatus.PROCESSING,
+        metadata: { last_sequence: 5 },
+      });
+      mockAnchorTransactionRepo.findOne.mockResolvedValue({ id: row.id });
+      txRepo.findOne.mockResolvedValue(row);
+      txRepo.save.mockImplementation((value) => value);
+
+      await service.handleWebhook({
+        id: 'anchor-tx-123',
+        status: 'pending_anchor',
+        event_id: 'evt-stale',
+        sequence: 3,
+      });
+
+      const saved = txRepo.save.mock.calls[0][0];
+      // Status stays where it was — the late delivery does not regress
+      // it. The event id IS recorded so a redelivery of the same stale
+      // payload is dropped at the dedup check next time.
+      expect(saved.status).toBe(AnchorTransactionStatus.PROCESSING);
+      expect(saved.metadata).toEqual({ last_sequence: 5 });
+      expect(saved.processedEventIds).toContain('evt-stale');
+    });
+
     it('logs and returns early for an unknown anchor transaction id', async () => {
       mockAnchorTransactionRepo.findOne.mockResolvedValue(null);
 
