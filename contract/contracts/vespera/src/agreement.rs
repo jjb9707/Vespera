@@ -502,9 +502,7 @@ pub fn release_escrow_with_token(
     // wound down through the platform's state machine — never on
     // Draft/Pending agreements that never funded.
     match agreement.status {
-        AgreementStatus::Active
-        | AgreementStatus::Completed
-        | AgreementStatus::Terminated => {}
+        AgreementStatus::Active | AgreementStatus::Completed | AgreementStatus::Terminated => {}
         _ => return Err(RentalError::InvalidState),
     }
 
@@ -530,8 +528,14 @@ pub fn release_escrow_with_token(
         return Err(RentalError::EscrowInsufficientFunds);
     }
 
-    client.transfer(&contract_addr, &agreement.landlord, &owed);
+    // CEI ordering: debit the per-agreement ledger BEFORE the token
+    // transfer (Checks-Effects-Interactions). Soroban's auth model
+    // makes token-transfer reentrancy a non-issue here, but doing the
+    // bookkeeping first means a hypothetical future change that
+    // dispatches into untrusted code via the transfer can't observe a
+    // still-positive owed amount on this row.
     debit_agreement_escrow(env, &agreement_id, &token, owed);
+    client.transfer(&contract_addr, &agreement.landlord, &owed);
 
     events::escrow_released_with_token(env, escrow_id, token, owed);
 
