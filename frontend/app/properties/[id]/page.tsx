@@ -14,7 +14,11 @@ export default async function PropertyDetail({
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-12">
-      <div className="aspect-[16/7] rounded-2xl bg-brand-50" />
+      <div
+        className="aspect-[16/7] rounded-2xl bg-brand-50"
+        role="img"
+        aria-label={`${property.title} property photo`}
+      />
       <h1 className="mt-8 text-3xl font-semibold">{property.title}</h1>
       <p className="mt-1 text-ink-muted">{property.location}</p>
 

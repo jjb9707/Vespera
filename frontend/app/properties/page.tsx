@@ -21,7 +21,11 @@ export default function PropertiesPage() {
             href={`/properties/${p.id}`}
             className="rounded-2xl border border-ink/10 p-5 transition hover:border-brand"
           >
-            <div className="aspect-[4/3] rounded-xl bg-brand-50" />
+            <div
+              className="aspect-[4/3] rounded-xl bg-brand-50"
+              role="img"
+              aria-label={`${p.title} property photo`}
+            />
             <div className="mt-4 flex items-start justify-between gap-3">
               <div>
                 <div className="font-semibold">{p.title}</div>
