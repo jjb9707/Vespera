@@ -443,7 +443,13 @@ pub fn make_payment_with_token(
     // Rounding: integer division floors, so the protocol collects *at most*
     // fee_bps/10 000 of the payment — it never creates value.  The landlord
     // receives the exact remainder:
-    //   landlord_amount + platform_amount == amount_in_base  (invariant)
+    //   landlord_amount + platform_amount == amount  (invariant)
+    //
+    // The split is always computed from `amount` (the actual token units
+    // transferred in), not `amount_in_base`, so that the forwarded fee and
+    // the escrowed landlord amount sum to exactly what the contract received.
+    // amount_in_base is used only for total_rent_paid bookkeeping and the
+    // monthly_rent check above.
     //
     // All multiplications use checked arithmetic; an overflow is a contract
     // bug rather than a silent loss, so we surface it as InsufficientPayment
@@ -458,14 +464,14 @@ pub fn make_payment_with_token(
             .map(|s| (s.config.fee_bps as i128, s.config.fee_collector))
             .unwrap_or((0_i128, env.current_contract_address()));
 
-        // platform_amount = ⌊ amount_in_base × fee_bps / 10_000 ⌋
-        let platform = amount_in_base
+        // platform_amount = ⌊ amount × fee_bps / 10_000 ⌋
+        let platform = amount
             .checked_mul(fee_bps)
             .ok_or(RentalError::InsufficientPayment)?
             .checked_div(10_000)
             .ok_or(RentalError::InsufficientPayment)?;
 
-        let landlord = amount_in_base
+        let landlord = amount
             .checked_sub(platform)
             .ok_or(RentalError::InsufficientPayment)?;
 

@@ -25,7 +25,7 @@
                         "symbol": "fee_bps"
                       },
                       "val": {
-                        "u32": 100
+                        "u32": 200
                       }
                     },
                     {
@@ -200,7 +200,7 @@
                         "symbol": "agreement_id"
                       },
                       "val": {
-                        "string": "PROP1"
+                        "string": "CROSS_TOKEN_FEE"
                       }
                     },
                     {
@@ -314,7 +314,7 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM"
                 },
                 {
-                  "string": "PROP1"
+                  "string": "CROSS_TOKEN_FEE"
                 }
               ]
             }
@@ -336,7 +336,7 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAITA4"
                 },
                 {
-                  "string": "PROP1"
+                  "string": "CROSS_TOKEN_FEE"
                 }
               ]
             }
@@ -377,7 +377,7 @@
               "function_name": "make_payment_with_token",
               "args": [
                 {
-                  "string": "PROP1"
+                  "string": "CROSS_TOKEN_FEE"
                 },
                 {
                   "i128": "1000"
@@ -413,6 +413,35 @@
         }
       ]
     ],
+    [],
+    [],
+    [],
+    [],
+    [
+      [
+        "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM",
+        {
+          "function": {
+            "contract_fn": {
+              "contract_address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
+              "function_name": "release_escrow_with_token",
+              "args": [
+                {
+                  "string": "CROSS_TOKEN_FEE"
+                },
+                {
+                  "address": "CCFPZOCU33AWX2NKX47XD6W5JNYFP7MU57DTQFB5XOOQSJLSSC4PMX25"
+                }
+              ]
+            }
+          },
+          "sub_invocations": []
+        }
+      ]
+    ],
+    [],
+    [],
+    [],
     []
   ],
   "ledger": {
@@ -557,7 +586,7 @@
                   "symbol": "Agreement"
                 },
                 {
-                  "string": "PROP1"
+                  "string": "CROSS_TOKEN_FEE"
                 }
               ]
             },
@@ -577,7 +606,7 @@
                       "symbol": "Agreement"
                     },
                     {
-                      "string": "PROP1"
+                      "string": "CROSS_TOKEN_FEE"
                     }
                   ]
                 },
@@ -603,7 +632,7 @@
                         "symbol": "agreement_id"
                       },
                       "val": {
-                        "string": "PROP1"
+                        "string": "CROSS_TOKEN_FEE"
                       }
                     },
                     {
@@ -741,7 +770,7 @@
                   "symbol": "AgreementEscrowBalance"
                 },
                 {
-                  "string": "PROP1"
+                  "string": "CROSS_TOKEN_FEE"
                 },
                 {
                   "address": "CCFPZOCU33AWX2NKX47XD6W5JNYFP7MU57DTQFB5XOOQSJLSSC4PMX25"
@@ -764,7 +793,7 @@
                       "symbol": "AgreementEscrowBalance"
                     },
                     {
-                      "string": "PROP1"
+                      "string": "CROSS_TOKEN_FEE"
                     },
                     {
                       "address": "CCFPZOCU33AWX2NKX47XD6W5JNYFP7MU57DTQFB5XOOQSJLSSC4PMX25"
@@ -773,7 +802,7 @@
                 },
                 "durability": "persistent",
                 "val": {
-                  "i128": "990"
+                  "i128": "0"
                 }
               }
             },
@@ -792,7 +821,7 @@
                   "symbol": "AgreementToken"
                 },
                 {
-                  "string": "PROP1"
+                  "string": "CROSS_TOKEN_FEE"
                 }
               ]
             },
@@ -812,7 +841,7 @@
                       "symbol": "AgreementToken"
                     },
                     {
-                      "string": "PROP1"
+                      "string": "CROSS_TOKEN_FEE"
                     }
                   ]
                 },
@@ -1011,7 +1040,7 @@
                   "symbol": "PaymentRecord"
                 },
                 {
-                  "string": "PROP1"
+                  "string": "CROSS_TOKEN_FEE"
                 },
                 {
                   "u32": 1
@@ -1034,7 +1063,7 @@
                       "symbol": "PaymentRecord"
                     },
                     {
-                      "string": "PROP1"
+                      "string": "CROSS_TOKEN_FEE"
                     },
                     {
                       "u32": 1
@@ -1049,7 +1078,7 @@
                         "symbol": "landlord_amount"
                       },
                       "val": {
-                        "i128": "990"
+                        "i128": "980"
                       }
                     },
                     {
@@ -1073,7 +1102,7 @@
                         "symbol": "platform_amount"
                       },
                       "val": {
-                        "i128": "10"
+                        "i128": "20"
                       }
                     },
                     {
@@ -1483,7 +1512,7 @@
                                       "symbol": "fee_bps"
                                     },
                                     "val": {
-                                      "u32": 100
+                                      "u32": 200
                                     }
                                   },
                                   {
@@ -1763,6 +1792,39 @@
             "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM",
             "key": {
               "ledger_key_nonce": {
+                "nonce": "3126073502131104533"
+              }
+            },
+            "durability": "temporary"
+          }
+        },
+        [
+          {
+            "last_modified_ledger_seq": 0,
+            "data": {
+              "contract_data": {
+                "ext": "v0",
+                "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM",
+                "key": {
+                  "ledger_key_nonce": {
+                    "nonce": "3126073502131104533"
+                  }
+                },
+                "durability": "temporary",
+                "val": "void"
+              }
+            },
+            "ext": "v0"
+          },
+          6311999
+        ]
+      ],
+      [
+        {
+          "contract_data": {
+            "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM",
+            "key": {
+              "ledger_key_nonce": {
                 "nonce": "6277191135259896685"
               }
             },
@@ -1865,7 +1927,7 @@
                         "symbol": "amount"
                       },
                       "val": {
-                        "i128": "990"
+                        "i128": "0"
                       }
                     },
                     {
@@ -1935,7 +1997,7 @@
                         "symbol": "amount"
                       },
                       "val": {
-                        "i128": "10"
+                        "i128": "20"
                       }
                     },
                     {
@@ -2006,6 +2068,76 @@
                       },
                       "val": {
                         "i128": "0"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "authorized"
+                      },
+                      "val": {
+                        "bool": true
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "clawback"
+                      },
+                      "val": {
+                        "bool": false
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "ext": "v0"
+          },
+          518400
+        ]
+      ],
+      [
+        {
+          "contract_data": {
+            "contract": "CCFPZOCU33AWX2NKX47XD6W5JNYFP7MU57DTQFB5XOOQSJLSSC4PMX25",
+            "key": {
+              "vec": [
+                {
+                  "symbol": "Balance"
+                },
+                {
+                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM"
+                }
+              ]
+            },
+            "durability": "persistent"
+          }
+        },
+        [
+          {
+            "last_modified_ledger_seq": 0,
+            "data": {
+              "contract_data": {
+                "ext": "v0",
+                "contract": "CCFPZOCU33AWX2NKX47XD6W5JNYFP7MU57DTQFB5XOOQSJLSSC4PMX25",
+                "key": {
+                  "vec": [
+                    {
+                      "symbol": "Balance"
+                    },
+                    {
+                      "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM"
+                    }
+                  ]
+                },
+                "durability": "persistent",
+                "val": {
+                  "map": [
+                    {
+                      "key": {
+                        "symbol": "amount"
+                      },
+                      "val": {
+                        "i128": "980"
                       }
                     },
                     {
