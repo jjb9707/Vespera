@@ -292,4 +292,172 @@ impl DisputeResolutionContract {
     ) -> Result<Vec<WeightedVote>, DisputeError> {
         dispute::get_dispute_votes_weighted(&env, dispute_id)
     }
+
+    /// Pause the contract (admin only).
+    pub fn pause(env: Env, admin: Address, reason: String) -> Result<(), DisputeError> {
+        let state = Self::get_state(env.clone()).ok_or(DisputeError::NotInitialized)?;
+        
+        admin.require_auth();
+        
+        if admin != state.admin {
+            return Err(DisputeError::Unauthorized);
+        }
+
+        if Self::is_paused(env.clone()) {
+            return Err(DisputeError::AlreadyPaused);
+        }
+
+        let pause_state = types::PauseState {
+            is_paused: true,
+            paused_at: env.ledger().timestamp(),
+            paused_by: admin.clone(),
+            pause_reason: reason.clone(),
+        };
+
+        env.storage()
+            .instance()
+            .set(&storage::DataKey::PauseState, &pause_state);
+        env.storage().instance().extend_ttl(500000, 500000);
+
+        events::paused(&env, reason, admin);
+        Ok(())
+    }
+
+    /// Unpause the contract (admin only).
+    pub fn unpause(env: Env, admin: Address) -> Result<(), DisputeError> {
+        let state = Self::get_state(env.clone()).ok_or(DisputeError::NotInitialized)?;
+        
+        admin.require_auth();
+        
+        if admin != state.admin {
+            return Err(DisputeError::Unauthorized);
+        }
+
+        if !Self::is_paused(env.clone()) {
+            return Err(DisputeError::NotPaused);
+        }
+
+        env.storage().instance().remove(&storage::DataKey::PauseState);
+
+        events::unpaused(&env, admin);
+        Ok(())
+    }
+
+    /// Check if the contract is paused.
+    pub fn is_paused(env: Env) -> bool {
+        env.storage()
+            .instance()
+            .get::<storage::DataKey, types::PauseState>(&storage::DataKey::PauseState)
+            .map(|ps| ps.is_paused)
+            .unwrap_or(false)
+    }
+
+    /// Propose a new admin (two-step transfer).
+    pub fn propose_admin(env: Env, admin: Address, new_admin: Address) -> Result<(), DisputeError> {
+        let state = Self::get_state(env.clone()).ok_or(DisputeError::NotInitialized)?;
+        
+        admin.require_auth();
+        
+        if admin != state.admin {
+            return Err(DisputeError::Unauthorized);
+        }
+
+        env.storage()
+            .instance()
+            .set(&storage::DataKey::PendingAdmin, &new_admin);
+        env.storage().instance().extend_ttl(500000, 500000);
+
+        events::admin_proposed(&env, admin, new_admin);
+        Ok(())
+    }
+
+    /// Accept admin role (pending admin only).
+    pub fn accept_admin(env: Env, new_admin: Address) -> Result<(), DisputeError> {
+        let mut state = Self::get_state(env.clone()).ok_or(DisputeError::NotInitialized)?;
+        
+        new_admin.require_auth();
+
+        let pending_admin: Address = env
+            .storage()
+            .instance()
+            .get(&storage::DataKey::PendingAdmin)
+            .ok_or(DisputeError::NoPendingAdmin)?;
+
+        if new_admin != pending_admin {
+            return Err(DisputeError::NotPendingAdmin);
+        }
+
+        let old_admin = state.admin.clone();
+        state.admin = new_admin.clone();
+
+        env.storage().instance().set(&storage::DataKey::State, &state);
+        env.storage().instance().extend_ttl(500000, 500000);
+        env.storage().instance().remove(&storage::DataKey::PendingAdmin);
+
+        events::admin_transferred(&env, old_admin, new_admin);
+        Ok(())
+    }
+
+    /// Get the pending admin address if any.
+    pub fn get_pending_admin(env: Env) -> Option<Address> {
+        env.storage().instance().get(&storage::DataKey::PendingAdmin)
+    }
+
+    /// Deactivate an arbiter (admin only). Prevents them from voting on new disputes.
+    pub fn deactivate_arbiter(env: Env, admin: Address, arbiter: Address) -> Result<(), DisputeError> {
+        let state = Self::get_state(env.clone()).ok_or(DisputeError::NotInitialized)?;
+        
+        admin.require_auth();
+        
+        if admin != state.admin {
+            return Err(DisputeError::Unauthorized);
+        }
+
+        let key = storage::DataKey::Arbiter(arbiter.clone());
+        let mut arbiter_data: types::Arbiter = env
+            .storage()
+            .persistent()
+            .get(&key)
+            .ok_or(DisputeError::ArbiterNotFound)?;
+
+        if !arbiter_data.active {
+            return Err(DisputeError::ArbiterAlreadyInactive);
+        }
+
+        arbiter_data.active = false;
+        env.storage().persistent().set(&key, &arbiter_data);
+        env.storage().persistent().extend_ttl(&key, 500000, 500000);
+
+        events::arbiter_deactivated(&env, admin, arbiter);
+        Ok(())
+    }
+
+    /// Reactivate an arbiter (admin only).
+    pub fn reactivate_arbiter(env: Env, admin: Address, arbiter: Address) -> Result<(), DisputeError> {
+        let state = Self::get_state(env.clone()).ok_or(DisputeError::NotInitialized)?;
+        
+        admin.require_auth();
+        
+        if admin != state.admin {
+            return Err(DisputeError::Unauthorized);
+        }
+
+        let key = storage::DataKey::Arbiter(arbiter.clone());
+        let mut arbiter_data: types::Arbiter = env
+            .storage()
+            .persistent()
+            .get(&key)
+            .ok_or(DisputeError::ArbiterNotFound)?;
+
+        if arbiter_data.active {
+            return Err(DisputeError::ArbiterAlreadyActive);
+        }
+
+        arbiter_data.active = true;
+        env.storage().persistent().set(&key, &arbiter_data);
+        env.storage().persistent().extend_ttl(&key, 500000, 500000);
+
+        events::arbiter_reactivated(&env, admin, arbiter);
+        Ok(())
+    }
 }

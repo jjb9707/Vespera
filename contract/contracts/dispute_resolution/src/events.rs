@@ -187,3 +187,69 @@ pub(crate) fn dispute_resolved_by_weight(
     }
     .publish(env);
 }
+#[contractevent(topics = ["paused"])]
+pub struct Paused {
+    pub reason: String,
+    pub paused_by: Address,
+}
+
+#[contractevent(topics = ["unpaused"])]
+pub struct Unpaused {
+    pub unpaused_by: Address,
+}
+
+#[contractevent(topics = ["admin_proposed"])]
+pub struct AdminProposed {
+    pub current_admin: Address,
+    pub pending_admin: Address,
+}
+
+#[contractevent(topics = ["admin_transferred"])]
+pub struct AdminTransferred {
+    pub old_admin: Address,
+    pub new_admin: Address,
+}
+
+#[contractevent(topics = ["arbiter_deactivated"])]
+pub struct ArbiterDeactivated {
+    #[topic]
+    pub admin: Address,
+    #[topic]
+    pub arbiter: Address,
+}
+
+#[contractevent(topics = ["arbiter_reactivated"])]
+pub struct ArbiterReactivated {
+    #[topic]
+    pub admin: Address,
+    #[topic]
+    pub arbiter: Address,
+}
+
+pub(crate) fn paused(env: &Env, reason: String, paused_by: Address) {
+    Paused { reason, paused_by }.publish(env);
+}
+
+pub(crate) fn unpaused(env: &Env, unpaused_by: Address) {
+    Unpaused { unpaused_by }.publish(env);
+}
+
+pub(crate) fn admin_proposed(env: &Env, current_admin: Address, pending_admin: Address) {
+    AdminProposed {
+        current_admin,
+        pending_admin,
+    }
+    .publish(env);
+}
+
+pub(crate) fn admin_transferred(env: &Env, old_admin: Address, new_admin: Address) {
+    AdminTransferred { old_admin, new_admin }.publish(env);
+}
+
+pub(crate) fn arbiter_deactivated(env: &Env, admin: Address, arbiter: Address) {
+    ArbiterDeactivated { admin, arbiter }.publish(env);
+}
+
+pub(crate) fn arbiter_reactivated(env: &Env, admin: Address, arbiter: Address) {
+    ArbiterReactivated { admin, arbiter }.publish(env);
+}

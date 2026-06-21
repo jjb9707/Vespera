@@ -3,6 +3,9 @@ use soroban_sdk::contracterror;
 #[contracterror]
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 #[repr(u32)]
+#[contracterror]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[repr(u32)]
 pub enum DisputeError {
     AlreadyInitialized = 1,
     NotInitialized = 2,
@@ -33,4 +36,11 @@ pub enum DisputeError {
     RateLimitExceeded = 27,
     CooldownNotMet = 28,
     InvalidDisputesResolved = 29,
+    ContractPaused = 30,
+    AlreadyPaused = 31,
+    NotPaused = 32,
+    NoPendingAdmin = 33,
+    NotPendingAdmin = 34,
+    ArbiterAlreadyInactive = 35,
+    ArbiterAlreadyActive = 36,
 }

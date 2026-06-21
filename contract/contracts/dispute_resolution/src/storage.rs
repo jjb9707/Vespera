@@ -2,6 +2,8 @@ use soroban_sdk::{contracttype, Address, String};
 
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum DataKey {
     Arbiter(Address),
     ArbiterList,
@@ -24,4 +26,7 @@ pub enum DataKey {
     RateLimitConfig,
     UserCallCount(Address, String),
     BlockCallCount(u64, String),
+    // Admin and Pause
+    PauseState,
+    PendingAdmin,
 }
