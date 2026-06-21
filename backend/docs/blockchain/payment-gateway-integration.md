@@ -19,6 +19,7 @@ This backend now exposes a payments orchestration layer that bridges the generic
 - Stellar escrow creation assumes the source and destination Stellar accounts are already registered in Vespera.
 - If `PAYMENT_WEBHOOK_SECRET` is configured, webhook callers must provide it in `x-vespera-payment-secret`.
 - Escrow-backed payments are stored as `pending` until reconciliation observes `RELEASED` or `REFUNDED`.
+- Webhook signing, timeout, and retry details are documented in [Webhook and Stellar resilience](WEBHOOKS_AND_RESILIENCE.md).
 
 ## Reconciliation model
 
