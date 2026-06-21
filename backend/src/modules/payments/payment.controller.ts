@@ -11,6 +11,8 @@ import {
   UseGuards,
   UseInterceptors,
   Headers,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -29,10 +31,13 @@ import { PaymentMethodFiltersDto } from './dto/payment-method-filters.dto';
 import { CreatePaymentScheduleDto } from './dto/create-payment-schedule.dto';
 import { UpdatePaymentScheduleDto } from './dto/update-payment-schedule.dto';
 import { PaymentScheduleFiltersDto } from './dto/payment-schedule-filters.dto';
+import { Public } from '../auth/decorators/public.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AuditLog } from '../audit/decorators/audit-log.decorator';
 import { AuditAction, AuditLevel } from '../audit/entities/audit-log.entity';
 import { AuditLogInterceptor } from '../audit/interceptors/audit-log.interceptor';
+import { WebhookSecret } from '../webhooks/decorators/webhook-secret.decorator';
+import { WebhookSignatureGuard } from '../webhooks/guards/webhook-signature.guard';
 import {
   CreateEscrowGatewayDto,
   PaymentGatewayWebhookDto,
@@ -385,11 +390,12 @@ export class PaymentWebhookController {
   constructor(private readonly paymentService: PaymentService) {}
 
   @Post('gateway')
+  @HttpCode(HttpStatus.OK)
+  @Public()
+  @UseGuards(WebhookSignatureGuard)
+  @WebhookSecret('PAYMENT_WEBHOOK_SECRET')
   @ApiOperation({ summary: 'Handle payment gateway webhook events' })
-  async handleGatewayWebhook(
-    @Body() dto: PaymentGatewayWebhookDto,
-    @Headers('x-chioma-payment-secret') secret?: string,
-  ) {
-    return this.paymentService.handlePaymentGatewayWebhook(dto, secret);
+  async handleGatewayWebhook(@Body() dto: PaymentGatewayWebhookDto) {
+    return this.paymentService.handlePaymentGatewayWebhook(dto);
   }
 }
