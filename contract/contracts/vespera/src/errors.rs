@@ -100,7 +100,7 @@ impl RentalError {
             RentalError::NoPrincipal => "No deposit",
             RentalError::RoyaltyNotFound => "No royalty",
 
-            RentalError::PaymentInsufficientFunds => "Insufficient funds",
+            RentalError::PaymentInsufficientFunds => "No funds",
             RentalError::PaymentAlreadyProcessed => "Payment already processed",
             RentalError::PaymentFailed => "Payment transfer failed",
             RentalError::PaymentInvalidAmount => "Invalid payment amount",
