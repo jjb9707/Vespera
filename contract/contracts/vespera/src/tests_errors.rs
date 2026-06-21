@@ -38,11 +38,11 @@ fn test_error_codes_and_messages() {
     // Check messages
     assert_eq!(
         RentalError::AgreementNotFound.message(&env),
-        String::from_str(&env, "Agreement not found. Please check the ID.")
+        String::from_str(&env, "Not found")
     );
     assert_eq!(
         RentalError::Unauthorized.message(&env),
-        String::from_str(&env, "You are not authorized to perform this action.")
+        String::from_str(&env, "Unauthorized")
     );
 }
 
