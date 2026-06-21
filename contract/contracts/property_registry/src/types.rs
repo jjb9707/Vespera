@@ -17,3 +17,12 @@ pub struct ContractState {
     pub admin: Address,
     pub initialized: bool,
 }
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct PauseState {
+    pub is_paused: bool,
+    pub paused_at: u64,
+    pub paused_by: Address,
+    pub pause_reason: String,
+}

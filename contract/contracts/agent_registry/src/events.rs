@@ -38,6 +38,29 @@ pub struct TransactionRegistered {
     pub agent: Address,
 }
 
+#[contractevent(topics = ["paused"])]
+pub struct Paused {
+    pub reason: String,
+    pub paused_by: Address,
+}
+
+#[contractevent(topics = ["unpaused"])]
+pub struct Unpaused {
+    pub unpaused_by: Address,
+}
+
+#[contractevent(topics = ["admin_proposed"])]
+pub struct AdminProposed {
+    pub current_admin: Address,
+    pub pending_admin: Address,
+}
+
+#[contractevent(topics = ["admin_transferred"])]
+pub struct AdminTransferred {
+    pub old_admin: Address,
+    pub new_admin: Address,
+}
+
 pub(crate) fn contract_initialized(env: &Env, admin: Address) {
     ContractInitialized { admin }.publish(env);
 }
@@ -69,4 +92,24 @@ pub(crate) fn transaction_registered(env: &Env, transaction_id: String, agent: A
         agent,
     }
     .publish(env);
+}
+
+pub(crate) fn paused(env: &Env, reason: String, paused_by: Address) {
+    Paused { reason, paused_by }.publish(env);
+}
+
+pub(crate) fn unpaused(env: &Env, unpaused_by: Address) {
+    Unpaused { unpaused_by }.publish(env);
+}
+
+pub(crate) fn admin_proposed(env: &Env, current_admin: Address, pending_admin: Address) {
+    AdminProposed {
+        current_admin,
+        pending_admin,
+    }
+    .publish(env);
+}
+
+pub(crate) fn admin_transferred(env: &Env, old_admin: Address, new_admin: Address) {
+    AdminTransferred { old_admin, new_admin }.publish(env);
 }

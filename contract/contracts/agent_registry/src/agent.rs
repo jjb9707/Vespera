@@ -3,7 +3,20 @@ use soroban_sdk::{Address, Env, String, Vec};
 use crate::errors::AgentError;
 use crate::events;
 use crate::storage::DataKey;
-use crate::types::{AgentInfo, AgentTransaction, ContractState};
+use crate::types::{AgentInfo, AgentTransaction, ContractState, PauseState};
+
+fn check_paused(env: &Env) -> Result<(), AgentError> {
+    if env
+        .storage()
+        .instance()
+        .get::<DataKey, PauseState>(&DataKey::PauseState)
+        .map(|ps| ps.is_paused)
+        .unwrap_or(false)
+    {
+        return Err(AgentError::ContractPaused);
+    }
+    Ok(())
+}
 
 pub fn register_agent(
     env: &Env,
@@ -13,6 +26,8 @@ pub fn register_agent(
     if !env.storage().persistent().has(&DataKey::Initialized) {
         return Err(AgentError::NotInitialized);
     }
+
+    check_paused(env)?;
 
     agent.require_auth();
 
@@ -57,6 +72,8 @@ pub fn verify_agent(env: &Env, admin: Address, agent: Address) -> Result<(), Age
         .instance()
         .get(&DataKey::State)
         .ok_or(AgentError::NotInitialized)?;
+
+    check_paused(env)?;
 
     admin.require_auth();
 

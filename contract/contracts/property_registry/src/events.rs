@@ -29,6 +29,33 @@ pub struct PropertyVerified {
     pub property_id: String,
 }
 
+/// Event emitted when contract is paused
+#[contractevent(topics = ["paused"])]
+pub struct Paused {
+    pub reason: String,
+    pub paused_by: Address,
+}
+
+/// Event emitted when contract is unpaused
+#[contractevent(topics = ["unpaused"])]
+pub struct Unpaused {
+    pub unpaused_by: Address,
+}
+
+/// Event emitted when admin transfer is proposed
+#[contractevent(topics = ["admin_proposed"])]
+pub struct AdminProposed {
+    pub current_admin: Address,
+    pub pending_admin: Address,
+}
+
+/// Event emitted when admin transfer is accepted
+#[contractevent(topics = ["admin_transferred"])]
+pub struct AdminTransferred {
+    pub old_admin: Address,
+    pub new_admin: Address,
+}
+
 /// Helper function to emit contract initialized event
 pub(crate) fn contract_initialized(env: &Env, admin: Address) {
     ContractInitialized { admin }.publish(env);
@@ -52,4 +79,28 @@ pub(crate) fn property_registered(
 /// Helper function to emit property verified event
 pub(crate) fn property_verified(env: &Env, property_id: String, admin: Address) {
     PropertyVerified { admin, property_id }.publish(env);
+}
+
+/// Helper function to emit paused event
+pub(crate) fn paused(env: &Env, reason: String, paused_by: Address) {
+    Paused { reason, paused_by }.publish(env);
+}
+
+/// Helper function to emit unpaused event
+pub(crate) fn unpaused(env: &Env, unpaused_by: Address) {
+    Unpaused { unpaused_by }.publish(env);
+}
+
+/// Helper function to emit admin proposed event
+pub(crate) fn admin_proposed(env: &Env, current_admin: Address, pending_admin: Address) {
+    AdminProposed {
+        current_admin,
+        pending_admin,
+    }
+    .publish(env);
+}
+
+/// Helper function to emit admin transferred event
+pub(crate) fn admin_transferred(env: &Env, old_admin: Address, new_admin: Address) {
+    AdminTransferred { old_admin, new_admin }.publish(env);
 }

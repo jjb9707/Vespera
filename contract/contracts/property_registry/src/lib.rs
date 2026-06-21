@@ -16,7 +16,7 @@ pub use property::{
     get_property, get_property_count, has_property, register_property, verify_property,
 };
 pub use storage::DataKey;
-pub use types::{ContractState, PropertyDetails};
+pub use types::{ContractState, PauseState, PropertyDetails};
 
 #[contract]
 pub struct PropertyRegistryContract;
@@ -131,5 +131,154 @@ impl PropertyRegistryContract {
     /// * `u32` - The total number of properties registered
     pub fn get_property_count(env: Env) -> u32 {
         property::get_property_count(&env)
+    }
+
+    /// Pause the contract (admin only).
+    ///
+    /// # Arguments
+    /// * `admin` - The admin address performing the pause
+    /// * `reason` - The reason for pausing
+    ///
+    /// # Errors
+    /// * `NotInitialized` - If the contract hasn't been initialized
+    /// * `Unauthorized` - If the caller is not the admin
+    /// * `AlreadyPaused` - If the contract is already paused
+    pub fn pause(env: Env, admin: Address, reason: String) -> Result<(), PropertyError> {
+        let state = Self::get_state(env.clone()).ok_or(PropertyError::NotInitialized)?;
+        
+        admin.require_auth();
+        
+        if admin != state.admin {
+            return Err(PropertyError::Unauthorized);
+        }
+
+        if Self::is_paused(env.clone()) {
+            return Err(PropertyError::AlreadyPaused);
+        }
+
+        let pause_state = PauseState {
+            is_paused: true,
+            paused_at: env.ledger().timestamp(),
+            paused_by: admin.clone(),
+            pause_reason: reason.clone(),
+        };
+
+        env.storage()
+            .instance()
+            .set(&DataKey::PauseState, &pause_state);
+        env.storage().instance().extend_ttl(500000, 500000);
+
+        events::paused(&env, reason, admin);
+        Ok(())
+    }
+
+    /// Unpause the contract (admin only).
+    ///
+    /// # Arguments
+    /// * `admin` - The admin address performing the unpause
+    ///
+    /// # Errors
+    /// * `NotInitialized` - If the contract hasn't been initialized
+    /// * `Unauthorized` - If the caller is not the admin
+    /// * `NotPaused` - If the contract is not paused
+    pub fn unpause(env: Env, admin: Address) -> Result<(), PropertyError> {
+        let state = Self::get_state(env.clone()).ok_or(PropertyError::NotInitialized)?;
+        
+        admin.require_auth();
+        
+        if admin != state.admin {
+            return Err(PropertyError::Unauthorized);
+        }
+
+        if !Self::is_paused(env.clone()) {
+            return Err(PropertyError::NotPaused);
+        }
+
+        env.storage().instance().remove(&DataKey::PauseState);
+
+        events::unpaused(&env, admin);
+        Ok(())
+    }
+
+    /// Check if the contract is paused.
+    ///
+    /// # Returns
+    /// * `bool` - True if the contract is paused
+    pub fn is_paused(env: Env) -> bool {
+        env.storage()
+            .instance()
+            .get::<DataKey, PauseState>(&DataKey::PauseState)
+            .map(|ps| ps.is_paused)
+            .unwrap_or(false)
+    }
+
+    /// Propose a new admin (two-step transfer, current admin only).
+    ///
+    /// # Arguments
+    /// * `admin` - The current admin address
+    /// * `new_admin` - The address of the proposed new admin
+    ///
+    /// # Errors
+    /// * `NotInitialized` - If the contract hasn't been initialized
+    /// * `Unauthorized` - If the caller is not the current admin
+    pub fn propose_admin(env: Env, admin: Address, new_admin: Address) -> Result<(), PropertyError> {
+        let state = Self::get_state(env.clone()).ok_or(PropertyError::NotInitialized)?;
+        
+        admin.require_auth();
+        
+        if admin != state.admin {
+            return Err(PropertyError::Unauthorized);
+        }
+
+        env.storage()
+            .instance()
+            .set(&DataKey::PendingAdmin, &new_admin);
+        env.storage().instance().extend_ttl(500000, 500000);
+
+        events::admin_proposed(&env, admin, new_admin);
+        Ok(())
+    }
+
+    /// Accept admin role (pending admin only).
+    ///
+    /// # Arguments
+    /// * `new_admin` - The pending admin address accepting the role
+    ///
+    /// # Errors
+    /// * `NotInitialized` - If the contract hasn't been initialized
+    /// * `NoPendingAdmin` - If there's no pending admin transfer
+    /// * `NotPendingAdmin` - If the caller is not the pending admin
+    pub fn accept_admin(env: Env, new_admin: Address) -> Result<(), PropertyError> {
+        let mut state = Self::get_state(env.clone()).ok_or(PropertyError::NotInitialized)?;
+        
+        new_admin.require_auth();
+
+        let pending_admin: Address = env
+            .storage()
+            .instance()
+            .get(&DataKey::PendingAdmin)
+            .ok_or(PropertyError::NoPendingAdmin)?;
+
+        if new_admin != pending_admin {
+            return Err(PropertyError::NotPendingAdmin);
+        }
+
+        let old_admin = state.admin.clone();
+        state.admin = new_admin.clone();
+
+        env.storage().instance().set(&DataKey::State, &state);
+        env.storage().instance().extend_ttl(500000, 500000);
+        env.storage().instance().remove(&DataKey::PendingAdmin);
+
+        events::admin_transferred(&env, old_admin, new_admin);
+        Ok(())
+    }
+
+    /// Get the pending admin address if any.
+    ///
+    /// # Returns
+    /// * `Option<Address>` - The pending admin address if one is set
+    pub fn get_pending_admin(env: Env) -> Option<Address> {
+        env.storage().instance().get(&DataKey::PendingAdmin)
     }
 }
