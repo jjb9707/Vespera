@@ -965,7 +965,17 @@ export class PaymentService {
         continue;
       }
 
+      const retryIdempotencyKey = `${payment.id}-retry`;
+
       try {
+        const existingRetry = await this.paymentRepository.findOne({
+          where: { userId, idempotencyKey: retryIdempotencyKey },
+        });
+        if (existingRetry) {
+          skipped += 1;
+          continue;
+        }
+
         await this.recordPayment(
           {
             agreementId: payment.agreementId ?? undefined,
@@ -973,7 +983,7 @@ export class PaymentService {
             paymentMethodId: String(payment.paymentMethodRelationId),
             notes: payment.notes ?? undefined,
             referenceNumber: payment.referenceNumber ?? undefined,
-            idempotencyKey: `${payment.id}-retry`,
+            idempotencyKey: retryIdempotencyKey,
           },
           userId,
         );
