@@ -138,6 +138,59 @@ fn test_propose_remove_admin() {
 }
 
 #[test]
+fn test_admin_governance_requires_multisig_approval() {
+    let (env, client, _admin) = create_contract();
+
+    let admin1 = Address::generate(&env);
+    let admin2 = Address::generate(&env);
+    let non_admin = Address::generate(&env);
+
+    let mut admins = Vec::new(&env);
+    admins.push_back(admin1.clone());
+    admins.push_back(admin2.clone());
+
+    let _ = client.try_initialize_multisig(&admins, &2).unwrap();
+
+    let data = Bytes::new(&env);
+    let remove_result = client.try_propose_action(
+        &non_admin,
+        &ActionType::RemoveAdmin,
+        &Some(admin2.clone()),
+        &data,
+    );
+    assert!(remove_result.is_err());
+
+    let required_data = Bytes::from_slice(&env, &2u32.to_be_bytes());
+    let required_result = client.try_propose_action(
+        &non_admin,
+        &ActionType::UpdateRequiredSignatures,
+        &None,
+        &required_data,
+    );
+    assert!(required_result.is_err());
+
+    let proposal_data = Bytes::new(&env);
+    let remove_proposal = client
+        .try_propose_action(&admin1, &ActionType::RemoveAdmin, &Some(admin2.clone()), &proposal_data)
+        .unwrap()
+        .unwrap();
+    let exec_remove = client.try_execute_action(&admin1, &remove_proposal);
+    assert!(exec_remove.is_err());
+
+    let update_proposal = client
+        .try_propose_action(
+            &admin1,
+            &ActionType::UpdateRequiredSignatures,
+            &None,
+            &required_data,
+        )
+        .unwrap()
+        .unwrap();
+    let exec_update = client.try_execute_action(&admin1, &update_proposal);
+    assert!(exec_update.is_err());
+}
+
+#[test]
 fn test_get_active_proposals() {
     let (env, client, _admin) = create_contract();
 

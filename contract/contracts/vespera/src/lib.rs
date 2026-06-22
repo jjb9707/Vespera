@@ -848,27 +848,6 @@ impl Contract {
         multi_sig::reject_action(&env, caller, proposal_id)
     }
 
-    /// Add a new admin (must be called through proposal execution)
-    pub fn add_admin(env: Env, new_admin: Address) -> Result<(), RentalError> {
-        // This should only be called through execute_action after approval
-        // For now, we'll add a check for multi-sig admin
-        let caller = new_admin.clone(); // In real scenario, get from context
-        multi_sig::require_admin(&env, &caller)?;
-        multi_sig::add_admin_internal(&env, new_admin)
-    }
-
-    /// Remove an admin (must be called through proposal execution)
-    pub fn remove_admin(env: Env, admin_to_remove: Address) -> Result<(), RentalError> {
-        // This should only be called through execute_action after approval
-        multi_sig::remove_admin_internal(&env, admin_to_remove)
-    }
-
-    /// Update required signatures (must be called through proposal execution)
-    pub fn update_required_signatures(env: Env, new_required: u32) -> Result<(), RentalError> {
-        // This should only be called through execute_action after approval
-        multi_sig::update_required_signatures_internal(&env, new_required)
-    }
-
     /// Get a proposal by ID
     pub fn get_proposal(env: Env, proposal_id: String) -> Result<AdminProposal, RentalError> {
         multi_sig::get_proposal(&env, proposal_id)

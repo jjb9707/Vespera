@@ -402,6 +402,9 @@
                                   },
                                   {
                                     "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM"
+                                  },
+                                  {
+                                    "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMDR4"
                                   }
                                 ]
                               }
@@ -419,7 +422,7 @@
                                 "symbol": "total_admins"
                               },
                               "val": {
-                                "u32": 2
+                                "u32": 3
                               }
                             }
                           ]
