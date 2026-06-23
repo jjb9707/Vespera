@@ -56,6 +56,31 @@ import { LockModule } from './common/lock';
 import { IdempotencyModule } from './common/idempotency';
 
 const appLogger = new Logger('AppModule');
+/**
+ * Parse a rate-limit environment variable into a positive integer.
+ * Falls back to the provided default when the variable is unset or empty.
+ * Fails fast when the value is present but non-numeric or non-positive.
+ */
+function parseRateLimitInt(
+  value: string | undefined,
+  defaultValue: number,
+  name: string,
+): number {
+  if (value === undefined || value === '') {
+    appLogger.warn(
+      `[RateLimit] ${name} not set, using default ${defaultValue}`,
+    );
+    return defaultValue;
+  }
+  const parsed = parseInt(value, 10);
+  if (isNaN(parsed) || parsed <= 0) {
+    throw new Error(
+      `Invalid rate-limit config: ${name}=${JSON.stringify(value)} is not a valid positive integer`,
+    );
+  }
+  return parsed;
+}
+
 
 @Module({
   imports: [
@@ -131,18 +156,18 @@ const appLogger = new Logger('AppModule');
     ThrottlerModule.forRoot([
       {
         name: 'default',
-        ttl: parseInt(process.env.RATE_LIMIT_TTL!),
-        limit: parseInt(process.env.RATE_LIMIT_MAX!),
+        ttl: parseRateLimitInt(process.env.RATE_LIMIT_TTL, 60000, 'RATE_LIMIT_TTL'),
+        limit: parseRateLimitInt(process.env.RATE_LIMIT_MAX, 10, 'RATE_LIMIT_MAX'),
       },
       {
         name: 'auth',
-        ttl: parseInt(process.env.RATE_LIMIT_AUTH_TTL!),
-        limit: parseInt(process.env.RATE_LIMIT_AUTH_MAX!),
+        ttl: parseRateLimitInt(process.env.RATE_LIMIT_AUTH_TTL, 30000, 'RATE_LIMIT_AUTH_TTL'),
+        limit: parseRateLimitInt(process.env.RATE_LIMIT_AUTH_MAX, 5, 'RATE_LIMIT_AUTH_MAX'),
       },
       {
         name: 'strict',
-        ttl: parseInt(process.env.RATE_LIMIT_STRICT_TTL!),
-        limit: parseInt(process.env.RATE_LIMIT_STRICT_MAX!),
+        ttl: parseRateLimitInt(process.env.RATE_LIMIT_STRICT_TTL, 60000, 'RATE_LIMIT_STRICT_TTL'),
+        limit: parseRateLimitInt(process.env.RATE_LIMIT_STRICT_MAX, 3, 'RATE_LIMIT_STRICT_MAX'),
       },
     ]),
     TypeOrmModule.forRootAsync({
@@ -269,9 +294,24 @@ export class AppModule implements NestModule {
 
     const missing = required.filter((key) => !process.env[key]);
     if (missing.length > 0) {
-      throw new Error(
-        `Missing required environment variables: ${missing.join(', ')}`,
+      appLogger.warn(
+        `Rate-limit environment variables not set, using defaults: ${missing.join(', ')}`,
       );
+    }
+
+    // Validate numeric values for set variables (parseRateLimitInt already
+    // throws on invalid values, but the module metadata is evaluated before
+    // the constructor runs, so we validate here as a safety net.)
+    for (const key of required) {
+      const value = process.env[key];
+      if (value !== undefined && value !== '') {
+        const num = parseInt(value, 10);
+        if (isNaN(num) || num <= 0) {
+          throw new Error(
+            `Invalid rate-limit config: ${key}=${JSON.stringify(value)} is not a valid positive integer`,
+          );
+        }
+      }
     }
   }
 
