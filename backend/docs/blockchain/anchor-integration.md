@@ -160,17 +160,17 @@ pending → failed
 ## Status Mapping
 
 | Anchor Status               | Vespera Status |
-| --------------------------- | ------------- |
-| pending_user_transfer_start | pending       |
-| pending_anchor              | processing    |
-| pending_stellar             | processing    |
-| pending_external            | processing    |
-| pending_trust               | processing    |
-| pending_user                | processing    |
-| completed                   | completed     |
-| refunded                    | refunded      |
-| expired                     | failed        |
-| error                       | failed        |
+| --------------------------- | -------------- |
+| pending_user_transfer_start | pending        |
+| pending_anchor              | processing     |
+| pending_stellar             | processing     |
+| pending_external            | processing     |
+| pending_trust               | processing     |
+| pending_user                | processing     |
+| completed                   | completed      |
+| refunded                    | refunded       |
+| expired                     | failed         |
+| error                       | failed         |
 
 ## Supported Payment Methods
 
@@ -306,6 +306,7 @@ Key metrics to monitor:
 
 ## References
 
+- [Webhook and Stellar resilience](WEBHOOKS_AND_RESILIENCE.md)
 - [SEP-0024 Specification](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0024.md)
 - [USDC on Stellar](https://www.circle.com/en/usdc-multichain/stellar)
 - [Stellar Anchor Directory](https://anchors.stellar.org/)

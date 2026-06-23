@@ -581,6 +581,7 @@ describe('Email Queue Integration', () => {
 
 ## References
 
+- [Queue retry and backoff](RETRY_AND_BACKOFF.md)
 - [Bull Documentation](https://github.com/OptimalBits/bull)
 - [Redis Documentation](https://redis.io/documentation)
 - [NestJS Bull Integration](https://docs.nestjs.com/techniques/queues)
