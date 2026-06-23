@@ -95,6 +95,12 @@ $ pnpm run test:cov
 
 The backend also includes a comprehensive Makefile for CI/CD validation.
 
+### Operational Architecture
+
+- [Queue, webhook, and Stellar resilience](architecture/queue-webhook-stellar-resilience.md)
+  documents the backend queue model, payment webhook lifecycle, Stellar retry
+  rules, required environment variables, and recovery playbooks.
+
 #### Backend Quick Start
 
 ```bash
