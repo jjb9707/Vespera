@@ -128,7 +128,7 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM"
                 },
                 {
-                  "string": "prop_"
+                  "string": "prop_00000001"
                 }
               ]
             }
@@ -150,7 +150,7 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAITA4"
                 },
                 {
-                  "string": "prop_"
+                  "string": "prop_00000001"
                 }
               ]
             }
@@ -181,7 +181,7 @@
                   "symbol": "AdminProposal"
                 },
                 {
-                  "string": "prop_"
+                  "string": "prop_00000001"
                 }
               ]
             },
@@ -201,7 +201,7 @@
                       "symbol": "AdminProposal"
                     },
                     {
-                      "string": "prop_"
+                      "string": "prop_00000001"
                     }
                   ]
                 },
@@ -280,7 +280,7 @@
                         "symbol": "id"
                       },
                       "val": {
-                        "string": "prop_"
+                        "string": "prop_00000001"
                       }
                     },
                     {
