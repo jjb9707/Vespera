@@ -18,13 +18,19 @@ pub struct EscrowContract;
 impl EscrowContract {
     /// Initialize the contract with an admin address.
     pub fn initialize(env: Env, admin: Address) -> Result<(), EscrowError> {
-        if env.storage().persistent().has(&crate::types::DataKey::Initialized) {
+        if env
+            .storage()
+            .persistent()
+            .has(&crate::types::DataKey::Initialized)
+        {
             return Err(EscrowError::AlreadyInitialized);
         }
 
         admin.require_auth();
 
-        env.storage().persistent().set(&crate::types::DataKey::Initialized, &true);
+        env.storage()
+            .persistent()
+            .set(&crate::types::DataKey::Initialized, &true);
         env.storage()
             .persistent()
             .extend_ttl(&crate::types::DataKey::Initialized, 500000, 500000);
@@ -34,7 +40,9 @@ impl EscrowContract {
             initialized: true,
         };
 
-        env.storage().instance().set(&crate::types::DataKey::State, &state);
+        env.storage()
+            .instance()
+            .set(&crate::types::DataKey::State, &state);
         env.storage().instance().extend_ttl(500000, 500000);
 
         events::contract_initialized(&env, admin);
@@ -50,9 +58,9 @@ impl EscrowContract {
     /// Pause the contract (admin only).
     pub fn pause(env: Env, admin: Address, reason: soroban_sdk::String) -> Result<(), EscrowError> {
         let state = Self::get_state(env.clone()).ok_or(EscrowError::NotInitialized)?;
-        
+
         admin.require_auth();
-        
+
         if admin != state.admin {
             return Err(EscrowError::Unauthorized);
         }
@@ -80,9 +88,9 @@ impl EscrowContract {
     /// Unpause the contract (admin only).
     pub fn unpause(env: Env, admin: Address) -> Result<(), EscrowError> {
         let state = Self::get_state(env.clone()).ok_or(EscrowError::NotInitialized)?;
-        
+
         admin.require_auth();
-        
+
         if admin != state.admin {
             return Err(EscrowError::Unauthorized);
         }
@@ -91,7 +99,9 @@ impl EscrowContract {
             return Err(EscrowError::NotPaused);
         }
 
-        env.storage().instance().remove(&crate::types::DataKey::PauseState);
+        env.storage()
+            .instance()
+            .remove(&crate::types::DataKey::PauseState);
 
         events::unpaused(&env, admin);
         Ok(())
@@ -101,7 +111,9 @@ impl EscrowContract {
     pub fn is_paused(env: Env) -> bool {
         env.storage()
             .instance()
-            .get::<crate::types::DataKey, crate::types::PauseState>(&crate::types::DataKey::PauseState)
+            .get::<crate::types::DataKey, crate::types::PauseState>(
+                &crate::types::DataKey::PauseState,
+            )
             .map(|ps| ps.is_paused)
             .unwrap_or(false)
     }
@@ -109,9 +121,9 @@ impl EscrowContract {
     /// Propose a new admin (two-step transfer).
     pub fn propose_admin(env: Env, admin: Address, new_admin: Address) -> Result<(), EscrowError> {
         let state = Self::get_state(env.clone()).ok_or(EscrowError::NotInitialized)?;
-        
+
         admin.require_auth();
-        
+
         if admin != state.admin {
             return Err(EscrowError::Unauthorized);
         }
@@ -128,7 +140,7 @@ impl EscrowContract {
     /// Accept admin role (pending admin only).
     pub fn accept_admin(env: Env, new_admin: Address) -> Result<(), EscrowError> {
         let mut state = Self::get_state(env.clone()).ok_or(EscrowError::NotInitialized)?;
-        
+
         new_admin.require_auth();
 
         let pending_admin: Address = env
@@ -144,9 +156,13 @@ impl EscrowContract {
         let old_admin = state.admin.clone();
         state.admin = new_admin.clone();
 
-        env.storage().instance().set(&crate::types::DataKey::State, &state);
+        env.storage()
+            .instance()
+            .set(&crate::types::DataKey::State, &state);
         env.storage().instance().extend_ttl(500000, 500000);
-        env.storage().instance().remove(&crate::types::DataKey::PendingAdmin);
+        env.storage()
+            .instance()
+            .remove(&crate::types::DataKey::PendingAdmin);
 
         events::admin_transferred(&env, old_admin, new_admin);
         Ok(())
@@ -154,7 +170,9 @@ impl EscrowContract {
 
     /// Get the pending admin address if any.
     pub fn get_pending_admin(env: Env) -> Option<Address> {
-        env.storage().instance().get(&crate::types::DataKey::PendingAdmin)
+        env.storage()
+            .instance()
+            .get(&crate::types::DataKey::PendingAdmin)
     }
 
     /// Create a new escrow.
@@ -426,9 +444,9 @@ impl EscrowContract {
         config: TimeoutConfig,
     ) -> Result<(), EscrowError> {
         let state = Self::get_state(env.clone()).ok_or(EscrowError::NotInitialized)?;
-        
+
         caller.require_auth();
-        
+
         if caller != state.admin {
             return Err(EscrowError::Unauthorized);
         }

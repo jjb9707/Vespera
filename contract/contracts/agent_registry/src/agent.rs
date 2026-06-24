@@ -114,6 +114,8 @@ pub fn rate_agent(
         return Err(AgentError::NotInitialized);
     }
 
+    check_paused(env)?;
+
     rater.require_auth();
 
     if !(1..=5).contains(&score) {
@@ -203,6 +205,8 @@ pub fn register_transaction(
         return Err(AgentError::NotInitialized);
     }
 
+    check_paused(env)?;
+
     let agent_key = DataKey::Agent(agent.clone());
     if !env.storage().persistent().has(&agent_key) {
         return Err(AgentError::AgentNotFound);
@@ -235,6 +239,8 @@ pub fn complete_transaction(
     if !env.storage().persistent().has(&DataKey::Initialized) {
         return Err(AgentError::NotInitialized);
     }
+
+    check_paused(env)?;
 
     let txn_key = DataKey::Transaction(transaction_id.clone());
     let mut transaction: AgentTransaction = env

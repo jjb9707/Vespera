@@ -102,5 +102,9 @@ pub(crate) fn admin_proposed(env: &Env, current_admin: Address, pending_admin: A
 
 /// Helper function to emit admin transferred event
 pub(crate) fn admin_transferred(env: &Env, old_admin: Address, new_admin: Address) {
-    AdminTransferred { old_admin, new_admin }.publish(env);
+    AdminTransferred {
+        old_admin,
+        new_admin,
+    }
+    .publish(env);
 }

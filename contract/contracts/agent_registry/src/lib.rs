@@ -185,9 +185,9 @@ impl AgentRegistryContract {
     /// Pause the contract (admin only).
     pub fn pause(env: Env, admin: Address, reason: String) -> Result<(), AgentError> {
         let state = Self::get_state(env.clone()).ok_or(AgentError::NotInitialized)?;
-        
+
         admin.require_auth();
-        
+
         if admin != state.admin {
             return Err(AgentError::Unauthorized);
         }
@@ -215,9 +215,9 @@ impl AgentRegistryContract {
     /// Unpause the contract (admin only).
     pub fn unpause(env: Env, admin: Address) -> Result<(), AgentError> {
         let state = Self::get_state(env.clone()).ok_or(AgentError::NotInitialized)?;
-        
+
         admin.require_auth();
-        
+
         if admin != state.admin {
             return Err(AgentError::Unauthorized);
         }
@@ -244,9 +244,9 @@ impl AgentRegistryContract {
     /// Propose a new admin (two-step transfer).
     pub fn propose_admin(env: Env, admin: Address, new_admin: Address) -> Result<(), AgentError> {
         let state = Self::get_state(env.clone()).ok_or(AgentError::NotInitialized)?;
-        
+
         admin.require_auth();
-        
+
         if admin != state.admin {
             return Err(AgentError::Unauthorized);
         }
@@ -263,7 +263,7 @@ impl AgentRegistryContract {
     /// Accept admin role (pending admin only).
     pub fn accept_admin(env: Env, new_admin: Address) -> Result<(), AgentError> {
         let mut state = Self::get_state(env.clone()).ok_or(AgentError::NotInitialized)?;
-        
+
         new_admin.require_auth();
 
         let pending_admin: Address = env

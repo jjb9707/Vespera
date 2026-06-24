@@ -145,9 +145,9 @@ impl PropertyRegistryContract {
     /// * `AlreadyPaused` - If the contract is already paused
     pub fn pause(env: Env, admin: Address, reason: String) -> Result<(), PropertyError> {
         let state = Self::get_state(env.clone()).ok_or(PropertyError::NotInitialized)?;
-        
+
         admin.require_auth();
-        
+
         if admin != state.admin {
             return Err(PropertyError::Unauthorized);
         }
@@ -183,9 +183,9 @@ impl PropertyRegistryContract {
     /// * `NotPaused` - If the contract is not paused
     pub fn unpause(env: Env, admin: Address) -> Result<(), PropertyError> {
         let state = Self::get_state(env.clone()).ok_or(PropertyError::NotInitialized)?;
-        
+
         admin.require_auth();
-        
+
         if admin != state.admin {
             return Err(PropertyError::Unauthorized);
         }
@@ -221,11 +221,15 @@ impl PropertyRegistryContract {
     /// # Errors
     /// * `NotInitialized` - If the contract hasn't been initialized
     /// * `Unauthorized` - If the caller is not the current admin
-    pub fn propose_admin(env: Env, admin: Address, new_admin: Address) -> Result<(), PropertyError> {
+    pub fn propose_admin(
+        env: Env,
+        admin: Address,
+        new_admin: Address,
+    ) -> Result<(), PropertyError> {
         let state = Self::get_state(env.clone()).ok_or(PropertyError::NotInitialized)?;
-        
+
         admin.require_auth();
-        
+
         if admin != state.admin {
             return Err(PropertyError::Unauthorized);
         }
@@ -250,7 +254,7 @@ impl PropertyRegistryContract {
     /// * `NotPendingAdmin` - If the caller is not the pending admin
     pub fn accept_admin(env: Env, new_admin: Address) -> Result<(), PropertyError> {
         let mut state = Self::get_state(env.clone()).ok_or(PropertyError::NotInitialized)?;
-        
+
         new_admin.require_auth();
 
         let pending_admin: Address = env

@@ -296,9 +296,9 @@ impl DisputeResolutionContract {
     /// Pause the contract (admin only).
     pub fn pause(env: Env, admin: Address, reason: String) -> Result<(), DisputeError> {
         let state = Self::get_state(env.clone()).ok_or(DisputeError::NotInitialized)?;
-        
+
         admin.require_auth();
-        
+
         if admin != state.admin {
             return Err(DisputeError::Unauthorized);
         }
@@ -326,9 +326,9 @@ impl DisputeResolutionContract {
     /// Unpause the contract (admin only).
     pub fn unpause(env: Env, admin: Address) -> Result<(), DisputeError> {
         let state = Self::get_state(env.clone()).ok_or(DisputeError::NotInitialized)?;
-        
+
         admin.require_auth();
-        
+
         if admin != state.admin {
             return Err(DisputeError::Unauthorized);
         }
@@ -337,7 +337,9 @@ impl DisputeResolutionContract {
             return Err(DisputeError::NotPaused);
         }
 
-        env.storage().instance().remove(&storage::DataKey::PauseState);
+        env.storage()
+            .instance()
+            .remove(&storage::DataKey::PauseState);
 
         events::unpaused(&env, admin);
         Ok(())
@@ -355,9 +357,9 @@ impl DisputeResolutionContract {
     /// Propose a new admin (two-step transfer).
     pub fn propose_admin(env: Env, admin: Address, new_admin: Address) -> Result<(), DisputeError> {
         let state = Self::get_state(env.clone()).ok_or(DisputeError::NotInitialized)?;
-        
+
         admin.require_auth();
-        
+
         if admin != state.admin {
             return Err(DisputeError::Unauthorized);
         }
@@ -374,7 +376,7 @@ impl DisputeResolutionContract {
     /// Accept admin role (pending admin only).
     pub fn accept_admin(env: Env, new_admin: Address) -> Result<(), DisputeError> {
         let mut state = Self::get_state(env.clone()).ok_or(DisputeError::NotInitialized)?;
-        
+
         new_admin.require_auth();
 
         let pending_admin: Address = env
@@ -390,9 +392,13 @@ impl DisputeResolutionContract {
         let old_admin = state.admin.clone();
         state.admin = new_admin.clone();
 
-        env.storage().instance().set(&storage::DataKey::State, &state);
+        env.storage()
+            .instance()
+            .set(&storage::DataKey::State, &state);
         env.storage().instance().extend_ttl(500000, 500000);
-        env.storage().instance().remove(&storage::DataKey::PendingAdmin);
+        env.storage()
+            .instance()
+            .remove(&storage::DataKey::PendingAdmin);
 
         events::admin_transferred(&env, old_admin, new_admin);
         Ok(())
@@ -400,15 +406,21 @@ impl DisputeResolutionContract {
 
     /// Get the pending admin address if any.
     pub fn get_pending_admin(env: Env) -> Option<Address> {
-        env.storage().instance().get(&storage::DataKey::PendingAdmin)
+        env.storage()
+            .instance()
+            .get(&storage::DataKey::PendingAdmin)
     }
 
     /// Deactivate an arbiter (admin only). Prevents them from voting on new disputes.
-    pub fn deactivate_arbiter(env: Env, admin: Address, arbiter: Address) -> Result<(), DisputeError> {
+    pub fn deactivate_arbiter(
+        env: Env,
+        admin: Address,
+        arbiter: Address,
+    ) -> Result<(), DisputeError> {
         let state = Self::get_state(env.clone()).ok_or(DisputeError::NotInitialized)?;
-        
+
         admin.require_auth();
-        
+
         if admin != state.admin {
             return Err(DisputeError::Unauthorized);
         }
@@ -433,11 +445,15 @@ impl DisputeResolutionContract {
     }
 
     /// Reactivate an arbiter (admin only).
-    pub fn reactivate_arbiter(env: Env, admin: Address, arbiter: Address) -> Result<(), DisputeError> {
+    pub fn reactivate_arbiter(
+        env: Env,
+        admin: Address,
+        arbiter: Address,
+    ) -> Result<(), DisputeError> {
         let state = Self::get_state(env.clone()).ok_or(DisputeError::NotInitialized)?;
-        
+
         admin.require_auth();
-        
+
         if admin != state.admin {
             return Err(DisputeError::Unauthorized);
         }

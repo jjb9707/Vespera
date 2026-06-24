@@ -2,8 +2,6 @@ use soroban_sdk::{contracttype, Address, String};
 
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
-#[contracttype]
-#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum DataKey {
     Arbiter(Address),
     ArbiterList,

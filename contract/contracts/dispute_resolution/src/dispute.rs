@@ -6,7 +6,8 @@ use crate::rate_limit;
 use crate::storage::DataKey;
 use crate::types::{
     AppealStatus, AppealVote, Arbiter, ArbiterStats, ContractState, Dispute, DisputeAppeal,
-    DisputeOutcome, PauseState, TimeoutConfig, Vote, VotingWeight, WeightedDisputeVotes, WeightedVote,
+    DisputeOutcome, PauseState, TimeoutConfig, Vote, VotingWeight, WeightedDisputeVotes,
+    WeightedVote,
 };
 
 const APPEAL_WINDOW_SECONDS: u64 = 7 * 24 * 60 * 60;
