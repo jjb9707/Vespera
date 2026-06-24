@@ -125,8 +125,15 @@ export class PaymentService {
       throw new NotFoundException('Payment method not found');
     }
 
-    // Calculate fees (mock: 2% fee)
-    const transactionFee = dto.amount * 0.02;
+    // Currency comes from the DTO or falls back to the configured default
+    const currency =
+      dto.currency ??
+      this.configService.get<string>('PAYMENT_DEFAULT_CURRENCY') ??
+      'NGN';
+
+    // Fee rate is configurable via PAYMENT_FEE_RATE (default 0.02 = 2%)
+    const feeRate = this.configService.get<number>('PAYMENT_FEE_RATE') ?? 0.02;
+    const transactionFee = dto.amount * feeRate;
     const netAmount = dto.amount - transactionFee;
 
     const user = await this.usersService.getUserById(userId);
@@ -139,7 +146,7 @@ export class PaymentService {
       this.paymentGateway.chargePayment({
         paymentMethod,
         amount: dto.amount,
-        currency: 'NGN',
+        currency: currency,
         userEmail,
         decryptedMetadata,
         idempotencyKey,
@@ -153,7 +160,7 @@ export class PaymentService {
         amount: dto.amount,
         transactionFee,
         netAmount,
-        currency: 'NGN',
+        currency,
         status: PaymentStatus.FAILED,
         paymentMethod: paymentMethod.paymentType,
         paymentMethodRelationId: paymentMethod.id,
@@ -167,7 +174,7 @@ export class PaymentService {
       await this.notificationsService.notify(
         userId,
         'Payment failed',
-        `Your payment of ${dto.amount} NGN could not be processed.`,
+        `Your payment of ${dto.amount} ${currency} could not be processed.`,
         'PAYMENT_FAILED',
       );
       throw new BadRequestException('Payment processing failed');
@@ -180,7 +187,7 @@ export class PaymentService {
       amount: dto.amount,
       transactionFee,
       netAmount,
-      currency: 'NGN',
+      currency,
       status: PaymentStatus.COMPLETED,
       paymentMethod: paymentMethod.paymentType,
       paymentMethodRelationId: paymentMethod.id,
@@ -495,7 +502,10 @@ export class PaymentService {
       agreementId: dto.agreementId ?? null,
       paymentMethodId: paymentMethod.id,
       amount: dto.amount,
-      currency: dto.currency ?? 'NGN',
+      currency:
+        dto.currency ??
+        this.configService.get<string>('PAYMENT_DEFAULT_CURRENCY') ??
+        'NGN',
       interval: dto.interval,
       nextRunAt,
       maxRetries: dto.maxRetries ?? 3,

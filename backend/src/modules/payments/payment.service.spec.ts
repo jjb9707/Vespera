@@ -96,6 +96,8 @@ const mockIdempotencyService = {
 
 const configValues: Record<string, string | undefined> = {
   ALLOW_SERVER_SIDE_TENANT_SIGNING: 'true',
+  PAYMENT_FEE_RATE: '0.02',
+  PAYMENT_DEFAULT_CURRENCY: 'NGN',
 };
 const mockConfigService = {
   get: jest.fn((key: string) => configValues[key]),
@@ -287,6 +289,214 @@ describe('PaymentService', () => {
         'user_1',
         'Payment failed',
         expect.stringContaining('100'),
+        'PAYMENT_FAILED',
+      );
+    });
+  });
+
+  describe('recordPayment - multi-currency support', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('uses currency from DTO when provided', async () => {
+      (paymentRepository.findOne as jest.Mock).mockResolvedValue(null);
+      (paymentMethodRepository.findOne as jest.Mock).mockResolvedValue({
+        id: 1,
+        userId: 'user_1',
+        encryptedMetadata: null,
+      });
+      mockUsersService.getUserById.mockResolvedValue({
+        email: 'test@example.com',
+      });
+      mockPaymentGateway.chargePayment.mockResolvedValue({
+        success: true,
+        chargeId: 'charge_usd',
+      });
+
+      (paymentRepository.create as jest.Mock).mockImplementation(
+        (data: Partial<Payment>) => data as Payment,
+      );
+      (paymentRepository.save as jest.Mock).mockResolvedValue({
+        id: 'pay_usd',
+        amount: 100,
+        currency: 'USD',
+      });
+
+      const dto: CreatePaymentRecordDto = {
+        amount: 100,
+        paymentMethodId: '1',
+        currency: 'USD',
+      };
+
+      await service.recordPayment(dto, 'user_1');
+
+      // Verify the gateway was called with USD
+      expect(mockPaymentGateway.chargePayment).toHaveBeenCalledWith(
+        expect.objectContaining({ currency: 'USD' }),
+      );
+    });
+
+    it('falls back to configured default currency when DTO omits it', async () => {
+      configValues.PAYMENT_DEFAULT_CURRENCY = 'EUR';
+
+      (paymentRepository.findOne as jest.Mock).mockResolvedValue(null);
+      (paymentMethodRepository.findOne as jest.Mock).mockResolvedValue({
+        id: 1,
+        userId: 'user_1',
+        encryptedMetadata: null,
+      });
+      mockUsersService.getUserById.mockResolvedValue({
+        email: 'test@example.com',
+      });
+      mockPaymentGateway.chargePayment.mockResolvedValue({
+        success: true,
+        chargeId: 'charge_eur',
+      });
+
+      (paymentRepository.create as jest.Mock).mockImplementation(
+        (data: Partial<Payment>) => data as Payment,
+      );
+      (paymentRepository.save as jest.Mock).mockResolvedValue({
+        id: 'pay_eur',
+        amount: 50,
+        currency: 'EUR',
+      });
+
+      const dto: CreatePaymentRecordDto = {
+        amount: 50,
+        paymentMethodId: '1',
+      };
+
+      await service.recordPayment(dto, 'user_1');
+
+      expect(mockPaymentGateway.chargePayment).toHaveBeenCalledWith(
+        expect.objectContaining({ currency: 'EUR' }),
+      );
+
+      configValues.PAYMENT_DEFAULT_CURRENCY = 'NGN';
+    });
+
+    it('uses configurable fee rate from PAYMENT_FEE_RATE', async () => {
+      configValues.PAYMENT_FEE_RATE = '0.05'; // 5% fee
+
+      (paymentRepository.findOne as jest.Mock).mockResolvedValue(null);
+      (paymentMethodRepository.findOne as jest.Mock).mockResolvedValue({
+        id: 1,
+        userId: 'user_1',
+        encryptedMetadata: null,
+      });
+      mockUsersService.getUserById.mockResolvedValue({
+        email: 'test@example.com',
+      });
+      mockPaymentGateway.chargePayment.mockResolvedValue({
+        success: true,
+        chargeId: 'charge_fee',
+      });
+
+      const createdPayments: Partial<Payment>[] = [];
+      (paymentRepository.create as jest.Mock).mockImplementation(
+        (data: Partial<Payment>) => {
+          createdPayments.push(data);
+          return data as Payment;
+        },
+      );
+      (paymentRepository.save as jest.Mock).mockResolvedValue({
+        id: 'pay_fee',
+        amount: 100,
+        currency: 'NGN',
+      });
+
+      const dto: CreatePaymentRecordDto = {
+        amount: 100,
+        paymentMethodId: '1',
+      };
+
+      await service.recordPayment(dto, 'user_1');
+
+      // 5% of 100 = 5
+      expect(createdPayments[0].transactionFee).toBe(5);
+
+      configValues.PAYMENT_FEE_RATE = '0.02';
+    });
+
+    it('uses default 2% fee when PAYMENT_FEE_RATE is not set', async () => {
+      delete configValues.PAYMENT_FEE_RATE;
+
+      (paymentRepository.findOne as jest.Mock).mockResolvedValue(null);
+      (paymentMethodRepository.findOne as jest.Mock).mockResolvedValue({
+        id: 1,
+        userId: 'user_1',
+        encryptedMetadata: null,
+      });
+      mockUsersService.getUserById.mockResolvedValue({
+        email: 'test@example.com',
+      });
+      mockPaymentGateway.chargePayment.mockResolvedValue({
+        success: true,
+        chargeId: 'charge_default',
+      });
+
+      const createdPayments: Partial<Payment>[] = [];
+      (paymentRepository.create as jest.Mock).mockImplementation(
+        (data: Partial<Payment>) => {
+          createdPayments.push(data);
+          return data as Payment;
+        },
+      );
+      (paymentRepository.save as jest.Mock).mockResolvedValue({
+        id: 'pay_default',
+        amount: 200,
+        currency: 'NGN',
+      });
+
+      const dto: CreatePaymentRecordDto = {
+        amount: 200,
+        paymentMethodId: '1',
+      };
+
+      await service.recordPayment(dto, 'user_1');
+
+      // 2% of 200 = 4
+      expect(createdPayments[0].transactionFee).toBe(4);
+
+      configValues.PAYMENT_FEE_RATE = '0.02';
+    });
+
+    it('includes currency in failure notification message', async () => {
+      (paymentRepository.findOne as jest.Mock).mockResolvedValue(null);
+      (paymentMethodRepository.findOne as jest.Mock).mockResolvedValue({
+        id: 1,
+        userId: 'user_1',
+      });
+      mockUsersService.getUserById.mockResolvedValue({
+        email: 'test@example.com',
+      });
+      mockPaymentGateway.chargePayment.mockResolvedValue({
+        success: false,
+        error: 'insufficient funds',
+      });
+      (paymentRepository.create as jest.Mock).mockImplementation(
+        (data: Partial<Payment>) => data as Payment,
+      );
+      (paymentRepository.save as jest.Mock).mockResolvedValue({
+        id: 'pay_failed_cur',
+      });
+
+      const dto: CreatePaymentRecordDto = {
+        amount: 75,
+        paymentMethodId: '1',
+        currency: 'GBP',
+      };
+
+      await expect(service.recordPayment(dto, 'user_1')).rejects.toBeInstanceOf(
+        BadRequestException,
+      );
+
+      expect(mockNotificationsService.notify).toHaveBeenCalledWith(
+        'user_1',
+        'Payment failed',
+        expect.stringContaining('GBP'),
         'PAYMENT_FAILED',
       );
     });
