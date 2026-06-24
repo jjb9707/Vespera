@@ -1,9 +1,9 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
-import { Kyc } from '../src/modules/kyc/kyc.entity';
-import { EncryptionService } from '../src/modules/security/encryption.service';
+import { Kyc } from '../modules/kyc/kyc.entity';
+import { EncryptionService } from '../modules/security/encryption.service';
 import { ConfigService } from '@nestjs/config';
 
-export class EncryptExistingKycDataAtRest implements MigrationInterface {
+export class EncryptExistingKycDataAtRest1780000000000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     // Initialize config and encryption service
     const configService = new ConfigService();
