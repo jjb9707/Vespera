@@ -6,7 +6,8 @@ use crate::rate_limit;
 use crate::storage::DataKey;
 use crate::types::{
     AppealStatus, AppealVote, Arbiter, ArbiterStats, ContractState, Dispute, DisputeAppeal,
-    DisputeOutcome, TimeoutConfig, Vote, VotingWeight, WeightedDisputeVotes, WeightedVote,
+    DisputeOutcome, PauseState, TimeoutConfig, Vote, VotingWeight, WeightedDisputeVotes,
+    WeightedVote,
 };
 
 const APPEAL_WINDOW_SECONDS: u64 = 7 * 24 * 60 * 60;
@@ -30,6 +31,19 @@ const MAX_DISPUTES_RESOLVED: u32 = 100;
 /// rating and experience both capped at 200, the largest possible
 /// `total_weight` is `200 * 200 / 100 = 400`, comfortably inside u32.
 const MAX_MULTIPLIER: u32 = 200;
+
+fn check_paused(env: &Env) -> Result<(), DisputeError> {
+    if env
+        .storage()
+        .instance()
+        .get::<DataKey, PauseState>(&DataKey::PauseState)
+        .map(|ps| ps.is_paused)
+        .unwrap_or(false)
+    {
+        return Err(DisputeError::ContractPaused);
+    }
+    Ok(())
+}
 
 pub fn get_timeout_config(env: &Env) -> TimeoutConfig {
     env.storage()
@@ -122,6 +136,8 @@ pub fn add_arbiter(env: &Env, admin: Address, arbiter: Address) -> Result<(), Di
         .get(&DataKey::State)
         .ok_or(DisputeError::NotInitialized)?;
 
+    check_paused(env)?;
+
     admin.require_auth();
 
     if admin != state.admin {
@@ -173,6 +189,8 @@ pub fn raise_dispute(
     details_hash: String,
 ) -> Result<(), DisputeError> {
     raiser.require_auth();
+
+    check_paused(env)?;
 
     // Rate limiting check
     rate_limit::check_rate_limit(env, &raiser, "raise_dispute")?;

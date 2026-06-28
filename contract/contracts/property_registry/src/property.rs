@@ -3,7 +3,20 @@ use soroban_sdk::{Address, Env, String};
 use crate::errors::PropertyError;
 use crate::events;
 use crate::storage::DataKey;
-use crate::types::{ContractState, PropertyDetails};
+use crate::types::{ContractState, PauseState, PropertyDetails};
+
+fn check_paused(env: &Env) -> Result<(), PropertyError> {
+    if env
+        .storage()
+        .instance()
+        .get::<DataKey, PauseState>(&DataKey::PauseState)
+        .map(|ps| ps.is_paused)
+        .unwrap_or(false)
+    {
+        return Err(PropertyError::ContractPaused);
+    }
+    Ok(())
+}
 
 pub fn register_property(
     env: &Env,
@@ -14,6 +27,8 @@ pub fn register_property(
     if !env.storage().persistent().has(&DataKey::Initialized) {
         return Err(PropertyError::NotInitialized);
     }
+
+    check_paused(env)?;
 
     landlord.require_auth();
 
@@ -64,6 +79,8 @@ pub fn verify_property(
         .instance()
         .get(&DataKey::State)
         .ok_or(PropertyError::NotInitialized)?;
+
+    check_paused(env)?;
 
     admin.require_auth();
 

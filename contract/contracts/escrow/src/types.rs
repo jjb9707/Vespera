@@ -128,4 +128,30 @@ pub enum DataKey {
     UserCallCount(Address, String),
     /// Block call count for rate limiting: DataKey::BlockCallCount(block_number, function_name)
     BlockCallCount(u64, String),
+    /// Contract state (admin, initialized)
+    State,
+    /// Contract initialization flag
+    Initialized,
+    /// Pause state
+    PauseState,
+    /// Pending admin for two-step transfer
+    PendingAdmin,
+}
+
+/// Contract state tracking admin and initialization.
+#[derive(Clone, Debug, PartialEq, Eq)]
+#[contracttype]
+pub struct ContractState {
+    pub admin: Address,
+    pub initialized: bool,
+}
+
+/// Pause state tracking contract pause status.
+#[derive(Clone, Debug, PartialEq, Eq)]
+#[contracttype]
+pub struct PauseState {
+    pub is_paused: bool,
+    pub paused_at: u64,
+    pub paused_by: Address,
+    pub pause_reason: String,
 }

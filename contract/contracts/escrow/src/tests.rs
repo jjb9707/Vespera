@@ -8,10 +8,20 @@ use soroban_sdk::{Address, Env};
 use crate::escrow_impl::{EscrowContract, EscrowContractClient};
 use crate::types::{EscrowStatus, TimeoutConfig};
 
-fn setup_test(env: &Env) -> (EscrowContractClient<'_>, Address, Address, Address, Address) {
+fn setup_test(
+    env: &Env,
+) -> (
+    EscrowContractClient<'_>,
+    Address,
+    Address,
+    Address,
+    Address,
+    Address,
+) {
     let contract_id = env.register(EscrowContract, ());
     let client = EscrowContractClient::new(env, &contract_id);
 
+    let admin = Address::generate(env);
     let depositor = Address::generate(env);
     let beneficiary = Address::generate(env);
     let arbiter = Address::generate(env);
@@ -21,7 +31,17 @@ fn setup_test(env: &Env) -> (EscrowContractClient<'_>, Address, Address, Address
         .register_stellar_asset_contract_v2(token_admin)
         .address();
 
-    (client, depositor, beneficiary, arbiter, token_address)
+    // Initialize the contract with admin
+    client.initialize(&admin);
+
+    (
+        client,
+        admin,
+        depositor,
+        beneficiary,
+        arbiter,
+        token_address,
+    )
 }
 
 #[test]
@@ -29,7 +49,7 @@ fn test_escrow_lifecycle() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     // 1. Create Escrow
@@ -79,7 +99,7 @@ fn test_dispute_resolution() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -205,7 +225,8 @@ fn test_dispute_resolution_terminal_status_enforced() {
 #[test]
 fn test_unauthorized_funding() {
     let env = Env::default();
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    env.mock_all_auths();
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -285,7 +306,7 @@ fn test_duplicate_approval_rejected() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -311,7 +332,7 @@ fn test_approval_count_tracks_per_target() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -344,7 +365,7 @@ fn test_approval_count_tracks_per_target() {
 fn test_release_escrow_on_timeout_refunds_depositor() {
     let env = Env::default();
     env.mock_all_auths();
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let cfg = TimeoutConfig {
@@ -352,7 +373,7 @@ fn test_release_escrow_on_timeout_refunds_depositor() {
         dispute_timeout_days: 30,
         payment_timeout_days: 7,
     };
-    client.set_timeout_config(&depositor, &cfg);
+    client.set_timeout_config(&admin, &cfg);
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
     let token_admin = TokenAdminClient::new(&env, &token_address);
@@ -374,7 +395,7 @@ fn test_release_escrow_on_timeout_refunds_depositor() {
 fn test_release_escrow_on_timeout_before_deadline_fails() {
     let env = Env::default();
     env.mock_all_auths();
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let cfg = TimeoutConfig {
@@ -382,7 +403,7 @@ fn test_release_escrow_on_timeout_before_deadline_fails() {
         dispute_timeout_days: 30,
         payment_timeout_days: 7,
     };
-    client.set_timeout_config(&depositor, &cfg);
+    client.set_timeout_config(&admin, &cfg);
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
     let token_admin = TokenAdminClient::new(&env, &token_address);
@@ -398,7 +419,7 @@ fn test_release_escrow_on_timeout_before_deadline_fails() {
 fn test_resolve_dispute_on_timeout_refunds_depositor() {
     let env = Env::default();
     env.mock_all_auths();
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -416,7 +437,7 @@ fn test_resolve_dispute_on_timeout_refunds_depositor() {
         dispute_timeout_days: 1,
         payment_timeout_days: 7,
     };
-    client.set_timeout_config(&depositor, &cfg);
+    client.set_timeout_config(&admin, &cfg);
     env.ledger().with_mut(|li| li.timestamp += 2 * 86_400);
 
     client.resolve_dispute_on_timeout(&escrow_id);
@@ -433,7 +454,7 @@ fn test_partial_release_success() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
     let partial_amount = 300i128;
 
@@ -477,7 +498,7 @@ fn test_partial_release_insufficient_approvals() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
     let partial_amount = 300i128;
 
@@ -503,7 +524,7 @@ fn test_partial_release_exceeds_balance() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
     let excessive_amount = 1500i128;
 
@@ -530,7 +551,7 @@ fn test_multiple_partial_releases() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     // Create and fund escrow
@@ -578,7 +599,7 @@ fn test_damage_deduction_success() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
     let damage_amount = 200i128;
 
@@ -617,7 +638,7 @@ fn test_damage_deduction_full_amount() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
     let damage_amount = 1000i128; // Full damage
 
@@ -652,7 +673,7 @@ fn test_damage_deduction_no_damage() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
     let damage_amount = 0i128; // No damage
 
@@ -683,7 +704,7 @@ fn test_damage_deduction_exceeds_balance() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
     let damage_amount = 1500i128; // Exceeds balance
 
@@ -709,7 +730,7 @@ fn test_damage_deduction_insufficient_approvals() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
     let damage_amount = 200i128;
 
@@ -734,7 +755,7 @@ fn test_partial_release_invalid_recipient() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
     let invalid_recipient = Address::generate(&env);
 
@@ -756,7 +777,7 @@ fn test_partial_release_empty_reason() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     // Create and fund escrow
@@ -784,7 +805,7 @@ fn test_is_depositor_correct_address() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -798,7 +819,7 @@ fn test_is_depositor_incorrect_address() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
     let wrong_address = Address::generate(&env);
 
@@ -813,7 +834,7 @@ fn test_is_beneficiary_correct_address() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -827,7 +848,7 @@ fn test_is_beneficiary_incorrect_address() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
     let wrong_address = Address::generate(&env);
 
@@ -842,7 +863,7 @@ fn test_is_arbiter_correct_address() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -856,7 +877,7 @@ fn test_is_arbiter_incorrect_address() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
     let wrong_address = Address::generate(&env);
 
@@ -871,7 +892,7 @@ fn test_is_party_depositor() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -890,7 +911,7 @@ fn test_is_party_beneficiary() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -909,7 +930,7 @@ fn test_is_party_arbiter() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -926,7 +947,7 @@ fn test_is_party_non_party() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
     let non_party = Address::generate(&env);
 
@@ -944,13 +965,13 @@ fn test_is_party_non_party() {
 #[test]
 fn test_authorization_fund_escrow_depositor_only() {
     let env = Env::default();
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    env.mock_all_auths();
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
 
     // Only depositor can fund
-    env.mock_all_auths();
     let token_admin = TokenAdminClient::new(&env, &token_address);
     token_admin.mint(&depositor, &amount);
 
@@ -961,7 +982,8 @@ fn test_authorization_fund_escrow_depositor_only() {
 #[test]
 fn test_authorization_fund_escrow_beneficiary_fails() {
     let env = Env::default();
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    env.mock_all_auths();
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -974,7 +996,8 @@ fn test_authorization_fund_escrow_beneficiary_fails() {
 #[test]
 fn test_authorization_fund_escrow_arbiter_fails() {
     let env = Env::default();
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    env.mock_all_auths();
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -989,7 +1012,7 @@ fn test_authorization_initiate_dispute_beneficiary() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -1008,7 +1031,7 @@ fn test_authorization_initiate_dispute_depositor() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -1027,7 +1050,7 @@ fn test_authorization_initiate_dispute_arbiter_fails() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -1046,7 +1069,7 @@ fn test_authorization_resolve_dispute_arbiter_only() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -1069,7 +1092,7 @@ fn test_authorization_resolve_dispute_depositor_fails() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -1092,7 +1115,7 @@ fn test_authorization_resolve_dispute_beneficiary_fails() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);

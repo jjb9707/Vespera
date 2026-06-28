@@ -17,7 +17,7 @@ pub use agent::{
 };
 pub use errors::AgentError;
 pub use storage::DataKey;
-pub use types::{AgentInfo, AgentTransaction, ContractState};
+pub use types::{AgentInfo, AgentTransaction, ContractState, PauseState};
 
 #[contract]
 pub struct AgentRegistryContract;
@@ -180,5 +180,115 @@ impl AgentRegistryContract {
         agent: Address,
     ) -> Result<(), AgentError> {
         agent::complete_transaction(&env, transaction_id, agent)
+    }
+
+    /// Pause the contract (admin only).
+    pub fn pause(env: Env, admin: Address, reason: String) -> Result<(), AgentError> {
+        let state = Self::get_state(env.clone()).ok_or(AgentError::NotInitialized)?;
+
+        admin.require_auth();
+
+        if admin != state.admin {
+            return Err(AgentError::Unauthorized);
+        }
+
+        if Self::is_paused(env.clone()) {
+            return Err(AgentError::AlreadyPaused);
+        }
+
+        let pause_state = PauseState {
+            is_paused: true,
+            paused_at: env.ledger().timestamp(),
+            paused_by: admin.clone(),
+            pause_reason: reason.clone(),
+        };
+
+        env.storage()
+            .instance()
+            .set(&DataKey::PauseState, &pause_state);
+        env.storage().instance().extend_ttl(500000, 500000);
+
+        events::paused(&env, reason, admin);
+        Ok(())
+    }
+
+    /// Unpause the contract (admin only).
+    pub fn unpause(env: Env, admin: Address) -> Result<(), AgentError> {
+        let state = Self::get_state(env.clone()).ok_or(AgentError::NotInitialized)?;
+
+        admin.require_auth();
+
+        if admin != state.admin {
+            return Err(AgentError::Unauthorized);
+        }
+
+        if !Self::is_paused(env.clone()) {
+            return Err(AgentError::NotPaused);
+        }
+
+        env.storage().instance().remove(&DataKey::PauseState);
+
+        events::unpaused(&env, admin);
+        Ok(())
+    }
+
+    /// Check if the contract is paused.
+    pub fn is_paused(env: Env) -> bool {
+        env.storage()
+            .instance()
+            .get::<DataKey, PauseState>(&DataKey::PauseState)
+            .map(|ps| ps.is_paused)
+            .unwrap_or(false)
+    }
+
+    /// Propose a new admin (two-step transfer).
+    pub fn propose_admin(env: Env, admin: Address, new_admin: Address) -> Result<(), AgentError> {
+        let state = Self::get_state(env.clone()).ok_or(AgentError::NotInitialized)?;
+
+        admin.require_auth();
+
+        if admin != state.admin {
+            return Err(AgentError::Unauthorized);
+        }
+
+        env.storage()
+            .instance()
+            .set(&DataKey::PendingAdmin, &new_admin);
+        env.storage().instance().extend_ttl(500000, 500000);
+
+        events::admin_proposed(&env, admin, new_admin);
+        Ok(())
+    }
+
+    /// Accept admin role (pending admin only).
+    pub fn accept_admin(env: Env, new_admin: Address) -> Result<(), AgentError> {
+        let mut state = Self::get_state(env.clone()).ok_or(AgentError::NotInitialized)?;
+
+        new_admin.require_auth();
+
+        let pending_admin: Address = env
+            .storage()
+            .instance()
+            .get(&DataKey::PendingAdmin)
+            .ok_or(AgentError::NoPendingAdmin)?;
+
+        if new_admin != pending_admin {
+            return Err(AgentError::NotPendingAdmin);
+        }
+
+        let old_admin = state.admin.clone();
+        state.admin = new_admin.clone();
+
+        env.storage().instance().set(&DataKey::State, &state);
+        env.storage().instance().extend_ttl(500000, 500000);
+        env.storage().instance().remove(&DataKey::PendingAdmin);
+
+        events::admin_transferred(&env, old_admin, new_admin);
+        Ok(())
+    }
+
+    /// Get the pending admin address if any.
+    pub fn get_pending_admin(env: Env) -> Option<Address> {
+        env.storage().instance().get(&DataKey::PendingAdmin)
     }
 }

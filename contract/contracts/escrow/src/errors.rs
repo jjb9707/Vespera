@@ -40,4 +40,20 @@ pub enum EscrowError {
     RateLimitExceeded = 16,
     /// Cooldown period not met
     CooldownNotMet = 17,
+    /// Contract is not initialized
+    NotInitialized = 18,
+    /// Contract is already initialized
+    AlreadyInitialized = 19,
+    /// Contract is paused
+    ContractPaused = 20,
+    /// Contract is already paused
+    AlreadyPaused = 21,
+    /// Contract is not paused
+    NotPaused = 22,
+    /// No pending admin transfer
+    NoPendingAdmin = 23,
+    /// Caller is not the pending admin
+    NotPendingAdmin = 24,
+    /// Unauthorized operation
+    Unauthorized = 25,
 }
