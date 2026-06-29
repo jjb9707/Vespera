@@ -8,6 +8,35 @@ use soroban_sdk::{Address, Bytes, Env, String, Vec};
 
 const PROPOSAL_EXPIRY_SECONDS: u64 = 7 * 24 * 60 * 60; // 7 days
 
+// ─── ID Generation ────────────────────────────────────────────────────────────
+
+const HEX: [u8; 16] = *b"0123456789abcdef";
+
+/// Generate a unique proposal ID like "prop_0000001a" from a counter value.
+///
+/// Mirrors `timelock::make_action_id` so every proposal gets a distinct key.
+/// Without this each proposal reused the constant "prop_" key and overwrote
+/// the previous one.
+fn make_proposal_id(env: &Env, count: u32) -> String {
+    let b = count.to_be_bytes(); // 4 bytes big-endian
+    let encoded: [u8; 13] = [
+        b'p',
+        b'r',
+        b'o',
+        b'p',
+        b'_',
+        HEX[((b[0] >> 4) & 0xf) as usize],
+        HEX[(b[0] & 0xf) as usize],
+        HEX[((b[1] >> 4) & 0xf) as usize],
+        HEX[(b[1] & 0xf) as usize],
+        HEX[((b[2] >> 4) & 0xf) as usize],
+        HEX[(b[2] & 0xf) as usize],
+        HEX[((b[3] >> 4) & 0xf) as usize],
+        HEX[(b[3] & 0xf) as usize],
+    ];
+    String::from_bytes(env, &encoded)
+}
+
 /// Initialize multi-sig configuration
 pub fn initialize_multisig(
     env: &Env,
@@ -104,11 +133,11 @@ pub fn propose_action(
         .unwrap_or(0);
 
     proposal_count += 1;
-    // Create proposal ID using count + timestamp for uniqueness
-    // In Soroban, we can use a simple prefix + counter approach
-    let proposal_id = String::from_str(env, "prop_");
-    // Since we can't use format!, we use the counter as part of storage key
-    // The DataKey::AdminProposal will ensure uniqueness with the counter
+    // Derive a unique proposal ID from the incrementing counter so each
+    // proposal is stored under its own DataKey::AdminProposal key. Previously
+    // this was a constant "prop_", so every new proposal silently overwrote
+    // the prior one and approvals were attributed to the wrong proposal.
+    let proposal_id = make_proposal_id(env, proposal_count);
 
     // Create proposal with single approval from proposer
     let mut approvals = Vec::new(env);
