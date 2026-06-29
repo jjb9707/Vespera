@@ -235,6 +235,25 @@ pub fn execute_action(
         return Err(RentalError::InsufficientApprovals);
     }
 
+    // Execute governance action when it actually modifies admin config
+    match proposal.action_type {
+        ActionType::AddAdmin => {
+            let new_admin = proposal.target.clone().ok_or(RentalError::InvalidInput)?;
+            add_admin_internal(env, new_admin)?;
+        }
+        ActionType::RemoveAdmin => {
+            let admin_to_remove = proposal.target.clone().ok_or(RentalError::InvalidInput)?;
+            remove_admin_internal(env, admin_to_remove)?;
+        }
+        ActionType::UpdateRequiredSignatures => {
+            let new_required = parse_required_signatures(&proposal.data)?;
+            update_required_signatures_internal(env, new_required)?;
+        }
+        _ => {
+            // Other actions are managed elsewhere or are no-op in this module.
+        }
+    }
+
     // Mark as executed
     proposal.executed = true;
     env.storage()
@@ -261,6 +280,17 @@ pub fn execute_action(
     events::action_executed(env, proposal_id, proposal.action_type);
 
     Ok(())
+}
+
+fn parse_required_signatures(data: &Bytes) -> Result<u32, RentalError> {
+    if data.len() != 4 {
+        return Err(RentalError::InvalidInput);
+    }
+    let mut buf = [0u8; 4];
+    for (i, b) in buf.iter_mut().enumerate() {
+        *b = data.get(i as u32).ok_or(RentalError::InvalidInput)?;
+    }
+    Ok(u32::from_be_bytes(buf))
 }
 
 /// Reject/cancel a proposal (only proposer can do this before execution)
