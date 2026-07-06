@@ -662,6 +662,23 @@ impl Contract {
         deposit_interest::get_accrual_history(env, escrow_id)
     }
 
+    /// Fund the per-escrow interest reserve so accrued interest can be paid
+    /// without drawing on other agreements' pooled funds.
+    pub fn fund_interest_reserve(
+        env: Env,
+        escrow_id: String,
+        funder: Address,
+        amount: i128,
+    ) -> Result<(), RentalError> {
+        Self::check_paused(&env)?;
+        deposit_interest::fund_interest_reserve(env, escrow_id, funder, amount)
+    }
+
+    /// Read the funds currently reserved to pay an escrow's interest.
+    pub fn get_interest_reserve_balance(env: Env, escrow_id: String) -> Result<i128, RentalError> {
+        deposit_interest::get_interest_reserve_balance(env, escrow_id)
+    }
+
     /// Distribute all accrued interest to tenant / landlord per configuration.
     pub fn distribute_interest(env: Env, escrow_id: String) -> Result<(), RentalError> {
         Self::check_paused(&env)?;
@@ -846,27 +863,6 @@ impl Contract {
         proposal_id: String,
     ) -> Result<(), RentalError> {
         multi_sig::reject_action(&env, caller, proposal_id)
-    }
-
-    /// Add a new admin (must be called through proposal execution)
-    pub fn add_admin(env: Env, new_admin: Address) -> Result<(), RentalError> {
-        // This should only be called through execute_action after approval
-        // For now, we'll add a check for multi-sig admin
-        let caller = new_admin.clone(); // In real scenario, get from context
-        multi_sig::require_admin(&env, &caller)?;
-        multi_sig::add_admin_internal(&env, new_admin)
-    }
-
-    /// Remove an admin (must be called through proposal execution)
-    pub fn remove_admin(env: Env, admin_to_remove: Address) -> Result<(), RentalError> {
-        // This should only be called through execute_action after approval
-        multi_sig::remove_admin_internal(&env, admin_to_remove)
-    }
-
-    /// Update required signatures (must be called through proposal execution)
-    pub fn update_required_signatures(env: Env, new_required: u32) -> Result<(), RentalError> {
-        // This should only be called through execute_action after approval
-        multi_sig::update_required_signatures_internal(&env, new_required)
     }
 
     /// Get a proposal by ID

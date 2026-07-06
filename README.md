@@ -12,7 +12,7 @@
   <a href="https://github.com/vespera-labs/Vespera/actions"><img alt="CI" src="https://img.shields.io/badge/CI-passing-brightgreen"/></a>
   <a href="https://github.com/vespera-labs/Vespera/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/badge/license-MIT-blue"/></a>
   <img alt="Built on" src="https://img.shields.io/badge/built%20on-Stellar%20Soroban-7b4bd8"/>
-  <img alt="Stack" src="https://img.shields.io/badge/stack-Rust%20%7C%20Next.js%20%7C%20NestJS-1e4a72"/>
+  <img alt="Stack" src="https://img.shields.io/badge/stack-Rust%20%7C%20Next.js%2015%20%7C%20NestJS-1e4a72"/>
 </p>
 
 <p align="center">
@@ -74,10 +74,10 @@ vespera/
       database/       PostgreSQL access layer
       health/         readiness and liveness endpoints
       common/         shared utilities
-  frontend/           Next.js application (TypeScript, React)
-    app/              routes and pages
-    components/       UI components
-    contexts/         wallet and session contexts
+  frontend/           Next.js 15 application (TypeScript, React)
+    app/              App Router pages, layouts, providers, and health route
+    components/       layout and wallet UI components
+    lib/              Freighter, Stellar, formatting, and mock-data helpers
   scripts/            deployment and devnet tooling
 ```
 
@@ -105,8 +105,8 @@ All contracts are written in Rust with the Soroban SDK. They are tested with the
 
 - **Smart contracts**: Rust, Soroban SDK
 - **Backend**: NestJS, TypeScript, PostgreSQL, Horizon client
-- **Frontend**: Next.js 16, React, TanStack Query, Freighter wallet, Leaflet (maps), Framer Motion
-- **Tooling**: pnpm, Vitest, Storybook, Docker Compose, ESLint, Prettier
+- **Frontend**: Next.js 15, React 19 RC, TanStack Query, Freighter wallet, Tailwind CSS
+- **Tooling**: pnpm, Vitest, Docker Compose, ESLint, Prettier
 
 ## Getting started
 
@@ -186,7 +186,10 @@ We welcome contributions across the stack. Open issues are tagged by area (`cont
 4. Submit a pull request that references the issue number.
 5. A maintainer will review within 48 hours.
 
-Read [CONTRIBUTING.md](frontend/CONTRIBUTING.md) for full coding standards and review expectations.
+Read the area-specific guides for full coding standards and review expectations:
+[frontend/CONTRIBUTING.md](frontend/CONTRIBUTING.md),
+[backend/CONTRIBUTING.md](backend/CONTRIBUTING.md), and
+[contract/CONTRIBUTING.md](contract/CONTRIBUTING.md). Frontend setup notes live in [frontend/README.md](frontend/README.md).
 
 ## Security
 

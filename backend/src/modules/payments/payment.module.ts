@@ -15,6 +15,7 @@ import { PaymentSchedule } from './entities/payment-schedule.entity';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { UsersModule } from '../users/users.module';
 import { StellarModule } from '../stellar/stellar.module';
+import { WebhooksModule } from '../webhooks/webhooks.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { StellarModule } from '../stellar/stellar.module';
     NotificationsModule,
     UsersModule,
     StellarModule,
+    WebhooksModule,
   ],
   controllers: [
     PaymentController,

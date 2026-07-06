@@ -127,7 +127,7 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAITA4"
                 },
                 {
-                  "string": "prop_"
+                  "string": "prop_00000001"
                 }
               ]
             }
@@ -517,7 +517,7 @@
                 "symbol": "action_rejected"
               },
               {
-                "string": "prop_"
+                "string": "prop_00000001"
               }
             ],
             "data": {

@@ -22,6 +22,10 @@ export class CreatePaymentRecordDto {
 
   @IsString()
   @IsOptional()
+  currency?: string;
+
+  @IsString()
+  @IsOptional()
   referenceNumber?: string;
 
   @IsDateString()

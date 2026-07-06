@@ -17,4 +17,9 @@ pub enum AgentError {
     TransactionNotFound = 11,
     NotTransactionParty = 12,
     TransactionNotCompleted = 13,
+    ContractPaused = 14,
+    AlreadyPaused = 15,
+    NotPaused = 16,
+    NoPendingAdmin = 17,
+    NotPendingAdmin = 18,
 }

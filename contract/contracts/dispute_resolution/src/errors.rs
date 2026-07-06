@@ -33,4 +33,11 @@ pub enum DisputeError {
     RateLimitExceeded = 27,
     CooldownNotMet = 28,
     InvalidDisputesResolved = 29,
+    ContractPaused = 30,
+    AlreadyPaused = 31,
+    NotPaused = 32,
+    NoPendingAdmin = 33,
+    NotPendingAdmin = 34,
+    ArbiterAlreadyInactive = 35,
+    ArbiterAlreadyActive = 36,
 }

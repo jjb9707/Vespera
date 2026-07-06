@@ -9,4 +9,6 @@ pub enum DataKey {
     AgentCount,
     Transaction(String),
     AgentRating(Address, Address),
+    PauseState,
+    PendingAdmin,
 }

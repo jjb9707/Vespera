@@ -15,11 +15,7 @@ pub struct AgentInfo {
 
 impl AgentInfo {
     pub fn average_rating(&self) -> u32 {
-        if self.total_ratings == 0 {
-            0
-        } else {
-            self.total_score / self.total_ratings
-        }
+        self.total_score.checked_div(self.total_ratings).unwrap_or(0)
     }
 }
 
@@ -46,4 +42,13 @@ pub struct AgentTransaction {
     pub agent: Address,
     pub parties: Vec<Address>,
     pub completed: bool,
+}
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct PauseState {
+    pub is_paused: bool,
+    pub paused_at: u64,
+    pub paused_by: Address,
+    pub pause_reason: String,
 }

@@ -130,7 +130,7 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM"
                 },
                 {
-                  "string": "prop_"
+                  "string": "prop_00000001"
                 }
               ]
             }
@@ -152,7 +152,7 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMDR4"
                 },
                 {
-                  "string": "prop_"
+                  "string": "prop_00000001"
                 }
               ]
             }
@@ -174,7 +174,7 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAITA4"
                 },
                 {
-                  "string": "prop_"
+                  "string": "prop_00000001"
                 }
               ]
             }
@@ -204,7 +204,7 @@
                   "symbol": "AdminProposal"
                 },
                 {
-                  "string": "prop_"
+                  "string": "prop_00000001"
                 }
               ]
             },
@@ -224,7 +224,7 @@
                       "symbol": "AdminProposal"
                     },
                     {
-                      "string": "prop_"
+                      "string": "prop_00000001"
                     }
                   ]
                 },
@@ -306,7 +306,7 @@
                         "symbol": "id"
                       },
                       "val": {
-                        "string": "prop_"
+                        "string": "prop_00000001"
                       }
                     },
                     {
@@ -432,6 +432,9 @@
                                   },
                                   {
                                     "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMDR4"
+                                  },
+                                  {
+                                    "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOLZM"
                                   }
                                 ]
                               }
@@ -449,7 +452,7 @@
                                 "symbol": "total_admins"
                               },
                               "val": {
-                                "u32": 3
+                                "u32": 4
                               }
                             }
                           ]
@@ -770,10 +773,42 @@
           "v0": {
             "topics": [
               {
+                "symbol": "admin_added"
+              },
+              {
+                "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOLZM"
+              }
+            ],
+            "data": {
+              "map": [
+                {
+                  "key": {
+                    "symbol": "total_admins"
+                  },
+                  "val": {
+                    "u32": 4
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "failed_call": false
+    },
+    {
+      "event": {
+        "ext": "v0",
+        "contract_id": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
+        "type_": "contract",
+        "body": {
+          "v0": {
+            "topics": [
+              {
                 "symbol": "action_executed"
               },
               {
-                "string": "prop_"
+                "string": "prop_00000001"
               }
             ],
             "data": {

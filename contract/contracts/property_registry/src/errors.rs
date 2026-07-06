@@ -12,4 +12,9 @@ pub enum PropertyError {
     AlreadyVerified = 6,
     InvalidPropertyId = 7,
     InvalidMetadata = 8,
+    ContractPaused = 9,
+    AlreadyPaused = 10,
+    NotPaused = 11,
+    NoPendingAdmin = 12,
+    NotPendingAdmin = 13,
 }

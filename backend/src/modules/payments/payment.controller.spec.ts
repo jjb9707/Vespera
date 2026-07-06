@@ -1,5 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Reflector } from '@nestjs/core';
+import { ConfigService } from '@nestjs/config';
+import {
+  ExecutionContext,
+  ForbiddenException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import {
   PaymentController,
   PaymentMethodController,
@@ -20,6 +26,16 @@ import {
   PaymentGatewayWebhookDto,
   ProcessStellarRentGatewayDto,
 } from './dto/payment-gateway.dto';
+import { IS_PUBLIC_KEY } from '../auth/decorators/public.decorator';
+import { WEBHOOK_SECRET_METADATA_KEY } from '../webhooks/decorators/webhook-secret.decorator';
+import {
+  WEBHOOK_SIGNATURE_HEADER,
+  WEBHOOK_TIMESTAMP_HEADER,
+  WebhookSignatureService,
+} from '../webhooks/webhook-signature.service';
+import { WebhookSignatureGuard } from '../webhooks/guards/webhook-signature.guard';
+import { ROLES_KEY, RolesGuard } from '../auth/guards/roles.guard';
+import { UserRole } from '../users/entities/user.entity';
 
 const mockPaymentService = {
   recordPayment: jest.fn(),
@@ -79,6 +95,13 @@ describe('Payment Controllers', () => {
             get: jest.fn().mockReturnValue(undefined),
           },
         },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn(),
+          },
+        },
+        WebhookSignatureService,
       ],
     }).compile();
 
@@ -193,6 +216,53 @@ describe('Payment Controllers', () => {
     expect(mockPaymentService.processDueSchedules).toHaveBeenCalled();
   });
 
+  describe('process-due admin restriction', () => {
+    function buildContext(user?: { role?: UserRole }) {
+      return {
+        getHandler: () => paymentScheduleController.processDueSchedules,
+        getClass: () => PaymentScheduleController,
+        switchToHttp: () => ({
+          getRequest: () => ({ user }),
+        }),
+      } as unknown as ExecutionContext;
+    }
+
+    it('restricts process-due to the ADMIN role', () => {
+      const reflector = new Reflector();
+
+      expect(
+        reflector.getAllAndOverride<UserRole[]>(ROLES_KEY, [
+          paymentScheduleController.processDueSchedules,
+          PaymentScheduleController,
+        ]),
+      ).toEqual([UserRole.ADMIN]);
+    });
+
+    it('allows an administrator to invoke process-due', () => {
+      const guard = new RolesGuard(new Reflector());
+
+      expect(guard.canActivate(buildContext({ role: UserRole.ADMIN }))).toBe(
+        true,
+      );
+    });
+
+    it('forbids a standard authenticated user from invoking process-due', () => {
+      const guard = new RolesGuard(new Reflector());
+
+      expect(() =>
+        guard.canActivate(buildContext({ role: UserRole.USER })),
+      ).toThrow(ForbiddenException);
+    });
+
+    it('forbids an unauthenticated caller from invoking process-due', () => {
+      const guard = new RolesGuard(new Reflector());
+
+      expect(() => guard.canActivate(buildContext(undefined))).toThrow(
+        ForbiddenException,
+      );
+    });
+  });
+
   it('processes stellar rent payment with user id', async () => {
     const dto: ProcessStellarRentGatewayDto = {
       tenantAddress: 'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF',
@@ -231,10 +301,99 @@ describe('Payment Controllers', () => {
       paymentId: 'pay_1',
       status: 'completed',
     };
-    await paymentWebhookController.handleGatewayWebhook(dto, 'secret');
+    await paymentWebhookController.handleGatewayWebhook(dto);
     expect(mockPaymentService.handlePaymentGatewayWebhook).toHaveBeenCalledWith(
       dto,
-      'secret',
     );
+  });
+
+  describe('payment gateway webhook signature guard', () => {
+    const dto: PaymentGatewayWebhookDto = {
+      eventType: 'payment.completed',
+      paymentId: 'pay_1',
+      status: 'completed',
+    };
+    const secret = 'payment-webhook-test-secret';
+
+    function createGuardRequest(headers: Record<string, string> = {}) {
+      const reflector = new Reflector();
+      const signatureService = new WebhookSignatureService();
+      const guard = new WebhookSignatureGuard(
+        reflector,
+        {
+          get: jest.fn((key: string) =>
+            key === 'PAYMENT_WEBHOOK_SECRET' ? secret : undefined,
+          ),
+        } as unknown as ConfigService,
+        signatureService,
+      );
+      const context = {
+        getHandler: () => paymentWebhookController.handleGatewayWebhook,
+        getClass: () => PaymentWebhookController,
+        switchToHttp: () => ({
+          getRequest: () => ({
+            body: dto,
+            rawBody: JSON.stringify(dto),
+            header: (name: string) => headers[name.toLowerCase()],
+          }),
+        }),
+      } as unknown as ExecutionContext;
+
+      return { guard, context, signatureService };
+    }
+
+    it('marks the payment gateway webhook as public', () => {
+      const reflector = new Reflector();
+
+      expect(
+        reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+          paymentWebhookController.handleGatewayWebhook,
+          PaymentWebhookController,
+        ]),
+      ).toBe(true);
+    });
+
+    it('uses the payment webhook secret configuration key', () => {
+      const reflector = new Reflector();
+
+      expect(
+        reflector.getAllAndOverride<string>(WEBHOOK_SECRET_METADATA_KEY, [
+          paymentWebhookController.handleGatewayWebhook,
+          PaymentWebhookController,
+        ]),
+      ).toBe('PAYMENT_WEBHOOK_SECRET');
+    });
+
+    it('accepts a valid payment gateway webhook signature', () => {
+      const timestamp = Date.now().toString();
+      const { guard, signatureService } = createGuardRequest();
+      const signature = signatureService.generateSignature(
+        JSON.stringify(dto),
+        timestamp,
+        secret,
+      );
+      const signedContext = createGuardRequest({
+        [WEBHOOK_SIGNATURE_HEADER]: signature,
+        [WEBHOOK_TIMESTAMP_HEADER]: timestamp,
+      }).context;
+
+      expect(guard.canActivate(signedContext)).toBe(true);
+    });
+
+    it('rejects an invalid payment gateway webhook signature', () => {
+      const timestamp = Date.now().toString();
+      const { guard, context } = createGuardRequest({
+        [WEBHOOK_SIGNATURE_HEADER]: 'deadbeef',
+        [WEBHOOK_TIMESTAMP_HEADER]: timestamp,
+      });
+
+      expect(() => guard.canActivate(context)).toThrow(UnauthorizedException);
+    });
+
+    it('rejects a missing payment gateway webhook signature', () => {
+      const { guard, context } = createGuardRequest();
+
+      expect(() => guard.canActivate(context)).toThrow(UnauthorizedException);
+    });
   });
 });

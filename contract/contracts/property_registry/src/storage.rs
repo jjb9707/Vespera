@@ -7,4 +7,6 @@ pub enum DataKey {
     State,
     Initialized,
     PropertyCount,
+    PauseState,
+    PendingAdmin,
 }

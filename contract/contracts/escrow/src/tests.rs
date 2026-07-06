@@ -8,10 +8,20 @@ use soroban_sdk::{Address, Env};
 use crate::escrow_impl::{EscrowContract, EscrowContractClient};
 use crate::types::{EscrowStatus, TimeoutConfig};
 
-fn setup_test(env: &Env) -> (EscrowContractClient<'_>, Address, Address, Address, Address) {
+fn setup_test(
+    env: &Env,
+) -> (
+    EscrowContractClient<'_>,
+    Address,
+    Address,
+    Address,
+    Address,
+    Address,
+) {
     let contract_id = env.register(EscrowContract, ());
     let client = EscrowContractClient::new(env, &contract_id);
 
+    let admin = Address::generate(env);
     let depositor = Address::generate(env);
     let beneficiary = Address::generate(env);
     let arbiter = Address::generate(env);
@@ -21,7 +31,17 @@ fn setup_test(env: &Env) -> (EscrowContractClient<'_>, Address, Address, Address
         .register_stellar_asset_contract_v2(token_admin)
         .address();
 
-    (client, depositor, beneficiary, arbiter, token_address)
+    // Initialize the contract with admin
+    client.initialize(&admin);
+
+    (
+        client,
+        admin,
+        depositor,
+        beneficiary,
+        arbiter,
+        token_address,
+    )
 }
 
 #[test]
@@ -29,7 +49,7 @@ fn test_escrow_lifecycle() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     // 1. Create Escrow
@@ -79,7 +99,7 @@ fn test_dispute_resolution() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -100,7 +120,7 @@ fn test_dispute_resolution() {
     client.resolve_dispute(&escrow_id, &arbiter, &depositor);
 
     let escrow = client.get_escrow(&escrow_id);
-    assert_eq!(escrow.status, EscrowStatus::Released); // resolve_dispute currently sets status to Released regardless of target
+    assert_eq!(escrow.status, EscrowStatus::Refunded); // Status should be Refunded when funds go to depositor
 
     let token_client = TokenClient::new(&env, &token_address);
     assert_eq!(token_client.balance(&depositor), amount);
@@ -108,9 +128,105 @@ fn test_dispute_resolution() {
 }
 
 #[test]
+fn test_dispute_resolution_sets_correct_status() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    // Test 1: Resolution in favor of depositor should set status to Refunded
+    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let amount = 1000i128;
+
+    let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
+
+    let token_admin = TokenAdminClient::new(&env, &token_address);
+    token_admin.mint(&depositor, &amount);
+    client.fund_escrow(&escrow_id, &depositor);
+
+    // Initiate dispute
+    let reason = soroban_sdk::String::from_str(&env, "Service not delivered");
+    client.initiate_dispute(&escrow_id, &beneficiary, &reason);
+
+    // Resolve dispute in favor of depositor (refund)
+    client.resolve_dispute(&escrow_id, &arbiter, &depositor);
+
+    let escrow = client.get_escrow(&escrow_id);
+    assert_eq!(escrow.status, EscrowStatus::Refunded);
+    assert_eq!(escrow.dispute_reason, None);
+    assert_eq!(escrow.disputed_at, None);
+
+    let token_client = TokenClient::new(&env, &token_address);
+    assert_eq!(token_client.balance(&depositor), amount);
+
+    // Test 2: Resolution in favor of beneficiary should set status to Released
+    let (client2, depositor2, beneficiary2, arbiter2, token_address2) = setup_test(&env);
+    let amount2 = 2000i128;
+
+    let escrow_id2 = client2.create(
+        &depositor2,
+        &beneficiary2,
+        &arbiter2,
+        &amount2,
+        &token_address2,
+    );
+
+    let token_admin2 = TokenAdminClient::new(&env, &token_address2);
+    token_admin2.mint(&depositor2, &amount2);
+    client2.fund_escrow(&escrow_id2, &depositor2);
+
+    // Initiate dispute
+    let reason2 = soroban_sdk::String::from_str(&env, "Damage to property");
+    client2.initiate_dispute(&escrow_id2, &depositor2, &reason2);
+
+    // Resolve dispute in favor of beneficiary (release)
+    client2.resolve_dispute(&escrow_id2, &arbiter2, &beneficiary2);
+
+    let escrow2 = client2.get_escrow(&escrow_id2);
+    assert_eq!(escrow2.status, EscrowStatus::Released);
+    assert_eq!(escrow2.dispute_reason, None);
+    assert_eq!(escrow2.disputed_at, None);
+
+    let token_client2 = TokenClient::new(&env, &token_address2);
+    assert_eq!(token_client2.balance(&beneficiary2), amount2);
+}
+
+#[test]
+fn test_dispute_resolution_terminal_status_enforced() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let amount = 1000i128;
+
+    let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
+
+    let token_admin = TokenAdminClient::new(&env, &token_address);
+    token_admin.mint(&depositor, &amount);
+    client.fund_escrow(&escrow_id, &depositor);
+
+    // Initiate dispute
+    let reason = soroban_sdk::String::from_str(&env, "Service not delivered");
+    client.initiate_dispute(&escrow_id, &beneficiary, &reason);
+
+    // Resolve dispute in favor of depositor (Refunded status)
+    client.resolve_dispute(&escrow_id, &arbiter, &depositor);
+
+    let escrow = client.get_escrow(&escrow_id);
+    assert_eq!(escrow.status, EscrowStatus::Refunded);
+
+    // Try to resolve the dispute again (should fail because status is no longer Disputed)
+    let result = client.try_resolve_dispute(&escrow_id, &arbiter, &beneficiary);
+    assert!(result.is_err()); // Should fail with InvalidState
+
+    // Status should remain Refunded
+    let escrow = client.get_escrow(&escrow_id);
+    assert_eq!(escrow.status, EscrowStatus::Refunded);
+}
+
+#[test]
 fn test_unauthorized_funding() {
     let env = Env::default();
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    env.mock_all_auths();
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -190,7 +306,7 @@ fn test_duplicate_approval_rejected() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -216,7 +332,7 @@ fn test_approval_count_tracks_per_target() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -249,7 +365,7 @@ fn test_approval_count_tracks_per_target() {
 fn test_release_escrow_on_timeout_refunds_depositor() {
     let env = Env::default();
     env.mock_all_auths();
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let cfg = TimeoutConfig {
@@ -257,7 +373,7 @@ fn test_release_escrow_on_timeout_refunds_depositor() {
         dispute_timeout_days: 30,
         payment_timeout_days: 7,
     };
-    client.set_timeout_config(&depositor, &cfg);
+    client.set_timeout_config(&admin, &cfg);
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
     let token_admin = TokenAdminClient::new(&env, &token_address);
@@ -279,7 +395,7 @@ fn test_release_escrow_on_timeout_refunds_depositor() {
 fn test_release_escrow_on_timeout_before_deadline_fails() {
     let env = Env::default();
     env.mock_all_auths();
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let cfg = TimeoutConfig {
@@ -287,7 +403,7 @@ fn test_release_escrow_on_timeout_before_deadline_fails() {
         dispute_timeout_days: 30,
         payment_timeout_days: 7,
     };
-    client.set_timeout_config(&depositor, &cfg);
+    client.set_timeout_config(&admin, &cfg);
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
     let token_admin = TokenAdminClient::new(&env, &token_address);
@@ -303,7 +419,7 @@ fn test_release_escrow_on_timeout_before_deadline_fails() {
 fn test_resolve_dispute_on_timeout_refunds_depositor() {
     let env = Env::default();
     env.mock_all_auths();
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -321,7 +437,7 @@ fn test_resolve_dispute_on_timeout_refunds_depositor() {
         dispute_timeout_days: 1,
         payment_timeout_days: 7,
     };
-    client.set_timeout_config(&depositor, &cfg);
+    client.set_timeout_config(&admin, &cfg);
     env.ledger().with_mut(|li| li.timestamp += 2 * 86_400);
 
     client.resolve_dispute_on_timeout(&escrow_id);
@@ -338,7 +454,7 @@ fn test_partial_release_success() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
     let partial_amount = 300i128;
 
@@ -348,14 +464,20 @@ fn test_partial_release_success() {
     token_admin.mint(&depositor, &amount);
     client.fund_escrow(&escrow_id, &depositor);
 
-    // Get approvals for partial release to beneficiary (2-of-3)
-    client.approve_partial_release(&escrow_id, &depositor, &beneficiary);
-    client.approve_partial_release(&escrow_id, &arbiter, &beneficiary);
+    // Get approvals for partial release of exactly partial_amount to beneficiary (2-of-3)
+    client.approve_partial_release(&escrow_id, &depositor, &beneficiary, &partial_amount);
+    client.approve_partial_release(&escrow_id, &arbiter, &beneficiary, &partial_amount);
 
     let reason = soroban_sdk::String::from_str(&env, "Partial payment for services");
 
-    // Execute partial release
-    client.release_escrow_partial(&escrow_id, &partial_amount, &beneficiary, &reason);
+    // Execute partial release (caller must be a party)
+    client.release_escrow_partial(
+        &escrow_id,
+        &depositor,
+        &partial_amount,
+        &beneficiary,
+        &reason,
+    );
 
     // Verify escrow amount updated
     let escrow = client.get_escrow(&escrow_id);
@@ -382,7 +504,7 @@ fn test_partial_release_insufficient_approvals() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
     let partial_amount = 300i128;
 
@@ -393,13 +515,18 @@ fn test_partial_release_insufficient_approvals() {
     client.fund_escrow(&escrow_id, &depositor);
 
     // Only one approval
-    client.approve_partial_release(&escrow_id, &depositor, &beneficiary);
+    client.approve_partial_release(&escrow_id, &depositor, &beneficiary, &partial_amount);
 
     let reason = soroban_sdk::String::from_str(&env, "Partial payment");
 
     // Should fail with NotAuthorized
-    let result =
-        client.try_release_escrow_partial(&escrow_id, &partial_amount, &beneficiary, &reason);
+    let result = client.try_release_escrow_partial(
+        &escrow_id,
+        &depositor,
+        &partial_amount,
+        &beneficiary,
+        &reason,
+    );
     assert!(result.is_err());
 }
 
@@ -408,7 +535,7 @@ fn test_partial_release_exceeds_balance() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
     let excessive_amount = 1500i128;
 
@@ -418,15 +545,20 @@ fn test_partial_release_exceeds_balance() {
     token_admin.mint(&depositor, &amount);
     client.fund_escrow(&escrow_id, &depositor);
 
-    // Get approvals
-    client.approve_partial_release(&escrow_id, &depositor, &beneficiary);
-    client.approve_partial_release(&escrow_id, &arbiter, &beneficiary);
+    // Get approvals bound to the (excessive) amount; the release will still reject it.
+    client.approve_partial_release(&escrow_id, &depositor, &beneficiary, &excessive_amount);
+    client.approve_partial_release(&escrow_id, &arbiter, &beneficiary, &excessive_amount);
 
     let reason = soroban_sdk::String::from_str(&env, "Excessive payment");
 
     // Should fail with InsufficientFunds
-    let result =
-        client.try_release_escrow_partial(&escrow_id, &excessive_amount, &beneficiary, &reason);
+    let result = client.try_release_escrow_partial(
+        &escrow_id,
+        &depositor,
+        &excessive_amount,
+        &beneficiary,
+        &reason,
+    );
     assert!(result.is_err());
 }
 
@@ -435,7 +567,7 @@ fn test_multiple_partial_releases() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     // Create and fund escrow
@@ -445,20 +577,22 @@ fn test_multiple_partial_releases() {
     client.fund_escrow(&escrow_id, &depositor);
 
     // First partial release
-    client.approve_partial_release(&escrow_id, &depositor, &beneficiary);
-    client.approve_partial_release(&escrow_id, &arbiter, &beneficiary);
+    client.approve_partial_release(&escrow_id, &depositor, &beneficiary, &300i128);
+    client.approve_partial_release(&escrow_id, &arbiter, &beneficiary, &300i128);
     client.release_escrow_partial(
         &escrow_id,
+        &depositor,
         &300i128,
         &beneficiary,
         &soroban_sdk::String::from_str(&env, "First payment"),
     );
 
     // Second partial release
-    client.approve_partial_release(&escrow_id, &depositor, &beneficiary);
-    client.approve_partial_release(&escrow_id, &arbiter, &beneficiary);
+    client.approve_partial_release(&escrow_id, &depositor, &beneficiary, &200i128);
+    client.approve_partial_release(&escrow_id, &arbiter, &beneficiary, &200i128);
     client.release_escrow_partial(
         &escrow_id,
+        &depositor,
         &200i128,
         &beneficiary,
         &soroban_sdk::String::from_str(&env, "Second payment"),
@@ -483,7 +617,7 @@ fn test_damage_deduction_success() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
     let damage_amount = 200i128;
 
@@ -493,14 +627,15 @@ fn test_damage_deduction_success() {
     token_admin.mint(&depositor, &amount);
     client.fund_escrow(&escrow_id, &depositor);
 
-    // Get approvals for release to depositor (2-of-3)
-    client.approve_partial_release(&escrow_id, &beneficiary, &depositor);
-    client.approve_partial_release(&escrow_id, &arbiter, &depositor);
+    // Approve paying exactly damage_amount to the beneficiary (2-of-3); the remainder
+    // refunds the depositor automatically.
+    client.approve_partial_release(&escrow_id, &beneficiary, &beneficiary, &damage_amount);
+    client.approve_partial_release(&escrow_id, &arbiter, &beneficiary, &damage_amount);
 
     let reason = soroban_sdk::String::from_str(&env, "Damaged furniture");
 
-    // Execute damage deduction
-    client.release_with_deduction(&escrow_id, &damage_amount, &reason);
+    // Execute damage deduction (caller must be a party)
+    client.release_with_deduction(&escrow_id, &depositor, &damage_amount, &reason);
 
     // Verify escrow is fully released
     let escrow = client.get_escrow(&escrow_id);
@@ -522,7 +657,7 @@ fn test_damage_deduction_full_amount() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
     let damage_amount = 1000i128; // Full damage
 
@@ -532,14 +667,14 @@ fn test_damage_deduction_full_amount() {
     token_admin.mint(&depositor, &amount);
     client.fund_escrow(&escrow_id, &depositor);
 
-    // Get approvals
-    client.approve_partial_release(&escrow_id, &beneficiary, &depositor);
-    client.approve_partial_release(&escrow_id, &arbiter, &depositor);
+    // Get approvals bound to paying damage_amount to the beneficiary
+    client.approve_partial_release(&escrow_id, &beneficiary, &beneficiary, &damage_amount);
+    client.approve_partial_release(&escrow_id, &arbiter, &beneficiary, &damage_amount);
 
     let reason = soroban_sdk::String::from_str(&env, "Total property damage");
 
     // Execute full damage deduction
-    client.release_with_deduction(&escrow_id, &damage_amount, &reason);
+    client.release_with_deduction(&escrow_id, &depositor, &damage_amount, &reason);
 
     // Verify balances
     let token_client = TokenClient::new(&env, &token_address);
@@ -557,7 +692,7 @@ fn test_damage_deduction_no_damage() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
     let damage_amount = 0i128; // No damage
 
@@ -567,14 +702,14 @@ fn test_damage_deduction_no_damage() {
     token_admin.mint(&depositor, &amount);
     client.fund_escrow(&escrow_id, &depositor);
 
-    // Get approvals
-    client.approve_partial_release(&escrow_id, &beneficiary, &depositor);
-    client.approve_partial_release(&escrow_id, &arbiter, &depositor);
+    // Approve paying zero damage to the beneficiary (full refund to depositor)
+    client.approve_partial_release(&escrow_id, &beneficiary, &beneficiary, &damage_amount);
+    client.approve_partial_release(&escrow_id, &arbiter, &beneficiary, &damage_amount);
 
     let reason = soroban_sdk::String::from_str(&env, "No damage found");
 
     // Execute with no damage
-    client.release_with_deduction(&escrow_id, &damage_amount, &reason);
+    client.release_with_deduction(&escrow_id, &depositor, &damage_amount, &reason);
 
     // Verify full refund to depositor
     let token_client = TokenClient::new(&env, &token_address);
@@ -588,7 +723,7 @@ fn test_damage_deduction_exceeds_balance() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
     let damage_amount = 1500i128; // Exceeds balance
 
@@ -598,14 +733,14 @@ fn test_damage_deduction_exceeds_balance() {
     token_admin.mint(&depositor, &amount);
     client.fund_escrow(&escrow_id, &depositor);
 
-    // Get approvals
-    client.approve_partial_release(&escrow_id, &beneficiary, &depositor);
-    client.approve_partial_release(&escrow_id, &arbiter, &depositor);
+    // Approvals bound to the (excessive) damage amount; the release will still reject it.
+    client.approve_partial_release(&escrow_id, &beneficiary, &beneficiary, &damage_amount);
+    client.approve_partial_release(&escrow_id, &arbiter, &beneficiary, &damage_amount);
 
     let reason = soroban_sdk::String::from_str(&env, "Excessive damage");
 
     // Should fail with InsufficientFunds
-    let result = client.try_release_with_deduction(&escrow_id, &damage_amount, &reason);
+    let result = client.try_release_with_deduction(&escrow_id, &depositor, &damage_amount, &reason);
     assert!(result.is_err());
 }
 
@@ -614,7 +749,7 @@ fn test_damage_deduction_insufficient_approvals() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
     let damage_amount = 200i128;
 
@@ -625,12 +760,12 @@ fn test_damage_deduction_insufficient_approvals() {
     client.fund_escrow(&escrow_id, &depositor);
 
     // Only one approval
-    client.approve_partial_release(&escrow_id, &beneficiary, &depositor);
+    client.approve_partial_release(&escrow_id, &beneficiary, &beneficiary, &damage_amount);
 
     let reason = soroban_sdk::String::from_str(&env, "Damage");
 
     // Should fail with NotAuthorized
-    let result = client.try_release_with_deduction(&escrow_id, &damage_amount, &reason);
+    let result = client.try_release_with_deduction(&escrow_id, &depositor, &damage_amount, &reason);
     assert!(result.is_err());
 }
 
@@ -639,7 +774,7 @@ fn test_partial_release_invalid_recipient() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
     let invalid_recipient = Address::generate(&env);
 
@@ -652,7 +787,7 @@ fn test_partial_release_invalid_recipient() {
     // Get approvals (though it will fail)
     // This should fail at approve_partial_release due to invalid target
     let approve_result1 =
-        client.try_approve_partial_release(&escrow_id, &depositor, &invalid_recipient);
+        client.try_approve_partial_release(&escrow_id, &depositor, &invalid_recipient, &300i128);
     assert!(approve_result1.is_err()); // Should fail with InvalidApprovalTarget
 }
 
@@ -661,7 +796,7 @@ fn test_partial_release_empty_reason() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     // Create and fund escrow
@@ -671,15 +806,211 @@ fn test_partial_release_empty_reason() {
     client.fund_escrow(&escrow_id, &depositor);
 
     // Get approvals
-    client.approve_partial_release(&escrow_id, &depositor, &beneficiary);
-    client.approve_partial_release(&escrow_id, &arbiter, &beneficiary);
+    client.approve_partial_release(&escrow_id, &depositor, &beneficiary, &300i128);
+    client.approve_partial_release(&escrow_id, &arbiter, &beneficiary, &300i128);
 
     let empty_reason = soroban_sdk::String::from_str(&env, "");
 
     // Should fail with EmptyReleaseReason
-    let result =
-        client.try_release_escrow_partial(&escrow_id, &300i128, &beneficiary, &empty_reason);
+    let result = client.try_release_escrow_partial(
+        &escrow_id,
+        &depositor,
+        &300i128,
+        &beneficiary,
+        &empty_reason,
+    );
     assert!(result.is_err());
+}
+
+// ─── Issue #69: Release auth & approval-binding adversarial tests ───────────
+
+/// A non-party (random address) must not be able to trigger a partial release even
+/// when a valid 2-of-3 quorum has already approved the recipient and amount.
+#[test]
+fn test_partial_release_rejects_non_party_caller() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let amount = 1000i128;
+    let partial_amount = 300i128;
+
+    let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
+    let token_admin = TokenAdminClient::new(&env, &token_address);
+    token_admin.mint(&depositor, &amount);
+    client.fund_escrow(&escrow_id, &depositor);
+
+    client.approve_partial_release(&escrow_id, &depositor, &beneficiary, &partial_amount);
+    client.approve_partial_release(&escrow_id, &arbiter, &beneficiary, &partial_amount);
+
+    let stranger = Address::generate(&env);
+    let reason = soroban_sdk::String::from_str(&env, "Stranger tries to release");
+    let result = client.try_release_escrow_partial(
+        &escrow_id,
+        &stranger,
+        &partial_amount,
+        &beneficiary,
+        &reason,
+    );
+    assert!(result.is_err());
+
+    // No funds moved.
+    let token_client = TokenClient::new(&env, &token_address);
+    assert_eq!(token_client.balance(&beneficiary), 0);
+    assert_eq!(token_client.balance(&client.address), amount);
+}
+
+/// A non-party must not be able to trigger release_with_deduction either.
+#[test]
+fn test_deduction_rejects_non_party_caller() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let amount = 1000i128;
+    let damage_amount = 200i128;
+
+    let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
+    let token_admin = TokenAdminClient::new(&env, &token_address);
+    token_admin.mint(&depositor, &amount);
+    client.fund_escrow(&escrow_id, &depositor);
+
+    client.approve_partial_release(&escrow_id, &beneficiary, &beneficiary, &damage_amount);
+    client.approve_partial_release(&escrow_id, &arbiter, &beneficiary, &damage_amount);
+
+    let stranger = Address::generate(&env);
+    let reason = soroban_sdk::String::from_str(&env, "Stranger tries deduction");
+    let result = client.try_release_with_deduction(&escrow_id, &stranger, &damage_amount, &reason);
+    assert!(result.is_err());
+
+    let token_client = TokenClient::new(&env, &token_address);
+    assert_eq!(token_client.balance(&beneficiary), 0);
+    assert_eq!(token_client.balance(&depositor), 0);
+    assert_eq!(token_client.balance(&client.address), amount);
+}
+
+/// Core redirect bug from issue #69: a 2-of-3 quorum approving a refund TO THE
+/// DEPOSITOR must not be silently convertible into a damage payout to the beneficiary.
+#[test]
+fn test_deduction_cannot_redirect_depositor_approvals_to_beneficiary() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let amount = 1000i128;
+    let damage_amount = 200i128;
+
+    let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
+    let token_admin = TokenAdminClient::new(&env, &token_address);
+    token_admin.mint(&depositor, &amount);
+    client.fund_escrow(&escrow_id, &depositor);
+
+    // Two parties approve a full refund TO THE DEPOSITOR; no damage payout intended.
+    client.approve_partial_release(&escrow_id, &depositor, &depositor, &amount);
+    client.approve_partial_release(&escrow_id, &arbiter, &depositor, &amount);
+
+    // A damage deduction paying the beneficiary must be rejected: no quorum approved
+    // paying the beneficiary that amount.
+    let reason = soroban_sdk::String::from_str(&env, "Redirect attempt");
+    let result = client.try_release_with_deduction(&escrow_id, &depositor, &damage_amount, &reason);
+    assert!(result.is_err());
+
+    // Beneficiary received nothing; funds remain in escrow.
+    let token_client = TokenClient::new(&env, &token_address);
+    assert_eq!(token_client.balance(&beneficiary), 0);
+    assert_eq!(token_client.balance(&client.address), amount);
+}
+
+/// An approval bound to one amount cannot authorize releasing a different amount.
+#[test]
+fn test_partial_release_amount_binding_enforced() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let amount = 1000i128;
+
+    let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
+    let token_admin = TokenAdminClient::new(&env, &token_address);
+    token_admin.mint(&depositor, &amount);
+    client.fund_escrow(&escrow_id, &depositor);
+
+    // Quorum approves moving exactly 300 to the beneficiary.
+    client.approve_partial_release(&escrow_id, &depositor, &beneficiary, &300i128);
+    client.approve_partial_release(&escrow_id, &arbiter, &beneficiary, &300i128);
+
+    // Releasing a larger amount is unauthorized despite the existing quorum.
+    let reason = soroban_sdk::String::from_str(&env, "Over-release attempt");
+    let bad =
+        client.try_release_escrow_partial(&escrow_id, &depositor, &500i128, &beneficiary, &reason);
+    assert!(bad.is_err());
+
+    // Releasing the exact approved amount succeeds.
+    client.release_escrow_partial(&escrow_id, &depositor, &300i128, &beneficiary, &reason);
+    let token_client = TokenClient::new(&env, &token_address);
+    assert_eq!(token_client.balance(&beneficiary), 300i128);
+}
+
+/// Releasing from one escrow must not draw down funds held for a sibling escrow:
+/// each escrow's releasable amount is bounded by its own recorded balance.
+#[test]
+fn test_cross_escrow_isolation() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let beneficiary2 = Address::generate(&env);
+    let amount_a = 1000i128;
+    let amount_b = 500i128;
+
+    let escrow_a = client.create(
+        &depositor,
+        &beneficiary,
+        &arbiter,
+        &amount_a,
+        &token_address,
+    );
+    let escrow_b = client.create(
+        &depositor,
+        &beneficiary2,
+        &arbiter,
+        &amount_b,
+        &token_address,
+    );
+
+    let token_admin = TokenAdminClient::new(&env, &token_address);
+    token_admin.mint(&depositor, &(amount_a + amount_b));
+    client.fund_escrow(&escrow_a, &depositor);
+    client.fund_escrow(&escrow_b, &depositor);
+
+    // The contract now pools 1500 tokens across both escrows.
+    let token_client = TokenClient::new(&env, &token_address);
+    assert_eq!(token_client.balance(&client.address), amount_a + amount_b);
+
+    // Try to over-release from escrow_b beyond its own balance (would have to steal
+    // from escrow_a's pooled funds). It must be rejected.
+    let over = amount_b + 1;
+    client.approve_partial_release(&escrow_b, &depositor, &beneficiary2, &over);
+    client.approve_partial_release(&escrow_b, &arbiter, &beneficiary2, &over);
+    let reason = soroban_sdk::String::from_str(&env, "Cross-escrow drain attempt");
+    let result =
+        client.try_release_escrow_partial(&escrow_b, &depositor, &over, &beneficiary2, &reason);
+    assert!(result.is_err());
+
+    // Escrow_a remains fully intact and independently releasable.
+    client.approve_partial_release(&escrow_a, &depositor, &beneficiary, &amount_a);
+    client.approve_partial_release(&escrow_a, &arbiter, &beneficiary, &amount_a);
+    client.release_escrow_partial(
+        &escrow_a,
+        &depositor,
+        &amount_a,
+        &beneficiary,
+        &soroban_sdk::String::from_str(&env, "Full release of escrow A"),
+    );
+    assert_eq!(token_client.balance(&beneficiary), amount_a);
+    // Escrow_b's funds are untouched and still held by the contract.
+    assert_eq!(token_client.balance(&client.address), amount_b);
+    assert_eq!(client.get_escrow(&escrow_b).amount, amount_b);
 }
 
 // ─── Issue #650: Access Control Tests ──────────────────────────────────────
@@ -689,7 +1020,7 @@ fn test_is_depositor_correct_address() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -703,7 +1034,7 @@ fn test_is_depositor_incorrect_address() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
     let wrong_address = Address::generate(&env);
 
@@ -718,7 +1049,7 @@ fn test_is_beneficiary_correct_address() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -732,7 +1063,7 @@ fn test_is_beneficiary_incorrect_address() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
     let wrong_address = Address::generate(&env);
 
@@ -747,7 +1078,7 @@ fn test_is_arbiter_correct_address() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -761,7 +1092,7 @@ fn test_is_arbiter_incorrect_address() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
     let wrong_address = Address::generate(&env);
 
@@ -776,7 +1107,7 @@ fn test_is_party_depositor() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -795,7 +1126,7 @@ fn test_is_party_beneficiary() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -814,7 +1145,7 @@ fn test_is_party_arbiter() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -831,7 +1162,7 @@ fn test_is_party_non_party() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
     let non_party = Address::generate(&env);
 
@@ -849,13 +1180,13 @@ fn test_is_party_non_party() {
 #[test]
 fn test_authorization_fund_escrow_depositor_only() {
     let env = Env::default();
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    env.mock_all_auths();
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
 
     // Only depositor can fund
-    env.mock_all_auths();
     let token_admin = TokenAdminClient::new(&env, &token_address);
     token_admin.mint(&depositor, &amount);
 
@@ -866,7 +1197,8 @@ fn test_authorization_fund_escrow_depositor_only() {
 #[test]
 fn test_authorization_fund_escrow_beneficiary_fails() {
     let env = Env::default();
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    env.mock_all_auths();
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -879,7 +1211,8 @@ fn test_authorization_fund_escrow_beneficiary_fails() {
 #[test]
 fn test_authorization_fund_escrow_arbiter_fails() {
     let env = Env::default();
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    env.mock_all_auths();
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -894,7 +1227,7 @@ fn test_authorization_initiate_dispute_beneficiary() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -913,7 +1246,7 @@ fn test_authorization_initiate_dispute_depositor() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -932,7 +1265,7 @@ fn test_authorization_initiate_dispute_arbiter_fails() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -951,7 +1284,7 @@ fn test_authorization_resolve_dispute_arbiter_only() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -974,7 +1307,7 @@ fn test_authorization_resolve_dispute_depositor_fails() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);
@@ -997,7 +1330,7 @@ fn test_authorization_resolve_dispute_beneficiary_fails() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let (client, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
+    let (client, _admin, depositor, beneficiary, arbiter, token_address) = setup_test(&env);
     let amount = 1000i128;
 
     let escrow_id = client.create(&depositor, &beneficiary, &arbiter, &amount, &token_address);

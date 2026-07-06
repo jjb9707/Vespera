@@ -6,7 +6,8 @@ use crate::rate_limit;
 use crate::storage::DataKey;
 use crate::types::{
     AppealStatus, AppealVote, Arbiter, ArbiterStats, ContractState, Dispute, DisputeAppeal,
-    DisputeOutcome, TimeoutConfig, Vote, VotingWeight, WeightedDisputeVotes, WeightedVote,
+    DisputeOutcome, PauseState, TimeoutConfig, Vote, VotingWeight, WeightedDisputeVotes,
+    WeightedVote,
 };
 
 const APPEAL_WINDOW_SECONDS: u64 = 7 * 24 * 60 * 60;
@@ -30,6 +31,19 @@ const MAX_DISPUTES_RESOLVED: u32 = 100;
 /// rating and experience both capped at 200, the largest possible
 /// `total_weight` is `200 * 200 / 100 = 400`, comfortably inside u32.
 const MAX_MULTIPLIER: u32 = 200;
+
+fn check_paused(env: &Env) -> Result<(), DisputeError> {
+    if env
+        .storage()
+        .instance()
+        .get::<DataKey, PauseState>(&DataKey::PauseState)
+        .map(|ps| ps.is_paused)
+        .unwrap_or(false)
+    {
+        return Err(DisputeError::ContractPaused);
+    }
+    Ok(())
+}
 
 pub fn get_timeout_config(env: &Env) -> TimeoutConfig {
     env.storage()
@@ -122,6 +136,8 @@ pub fn add_arbiter(env: &Env, admin: Address, arbiter: Address) -> Result<(), Di
         .get(&DataKey::State)
         .ok_or(DisputeError::NotInitialized)?;
 
+    check_paused(env)?;
+
     admin.require_auth();
 
     if admin != state.admin {
@@ -173,6 +189,8 @@ pub fn raise_dispute(
     details_hash: String,
 ) -> Result<(), DisputeError> {
     raiser.require_auth();
+
+    check_paused(env)?;
 
     // Rate limiting check
     rate_limit::check_rate_limit(env, &raiser, "raise_dispute")?;
@@ -301,7 +319,32 @@ pub fn vote_on_dispute(
     Ok(())
 }
 
-pub fn resolve_dispute(env: &Env, agreement_id: String) -> Result<DisputeOutcome, DisputeError> {
+/// Authorize a dispute/appeal resolution.
+///
+/// Resolution moves real value, so it must be triggered by an authorized
+/// resolver: the contract `admin` or an arbiter that was assigned to (i.e.
+/// already cast a vote on) the dispute/appeal being resolved. The resolver
+/// must sign the call. Every other caller is rejected, closing the
+/// previously open resolution layer where *any* address could force an
+/// outcome the moment the vote threshold was met.
+fn ensure_resolver(
+    resolver: &Address,
+    admin: &Address,
+    assigned: &soroban_sdk::Vec<Address>,
+) -> Result<(), DisputeError> {
+    resolver.require_auth();
+    if resolver == admin || assigned.contains(resolver.clone()) {
+        Ok(())
+    } else {
+        Err(DisputeError::Unauthorized)
+    }
+}
+
+pub fn resolve_dispute(
+    env: &Env,
+    resolver: Address,
+    agreement_id: String,
+) -> Result<DisputeOutcome, DisputeError> {
     let state: ContractState = env
         .storage()
         .instance()
@@ -318,6 +361,8 @@ pub fn resolve_dispute(env: &Env, agreement_id: String) -> Result<DisputeOutcome
     if dispute.resolved {
         return Err(DisputeError::DisputeAlreadyResolved);
     }
+
+    ensure_resolver(&resolver, &state.admin, &dispute.voters)?;
 
     let total_votes = dispute.votes_favor_landlord + dispute.votes_favor_tenant;
 
@@ -571,6 +616,15 @@ pub fn vote_on_appeal(
         _ => {}
     }
 
+    // Appeal voting is bounded: votes are only admitted inside the
+    // `APPEAL_WINDOW_SECONDS` window that opens when the appeal is created.
+    // Without this, the appeal ballot never closes and a late arbiter could
+    // flip the tally long after the dispute should have settled.
+    let voting_deadline = appeal.created_at.saturating_add(APPEAL_WINDOW_SECONDS);
+    if env.ledger().timestamp() > voting_deadline {
+        return Err(DisputeError::AppealWindowExpired);
+    }
+
     if !appeal.appeal_arbiters.contains(arbiter.clone()) {
         return Err(DisputeError::ArbiterNotEligibleForAppeal);
     }
@@ -601,10 +655,12 @@ pub fn vote_on_appeal(
     Ok(())
 }
 
-pub fn resolve_appeal(env: &Env, appeal_id: String) -> Result<(), DisputeError> {
-    if !env.storage().persistent().has(&DataKey::Initialized) {
-        return Err(DisputeError::NotInitialized);
-    }
+pub fn resolve_appeal(env: &Env, resolver: Address, appeal_id: String) -> Result<(), DisputeError> {
+    let state: ContractState = env
+        .storage()
+        .instance()
+        .get(&DataKey::State)
+        .ok_or(DisputeError::NotInitialized)?;
 
     let appeal_key = DataKey::Appeal(appeal_id.clone());
     let mut appeal: DisputeAppeal = env
@@ -619,6 +675,8 @@ pub fn resolve_appeal(env: &Env, appeal_id: String) -> Result<(), DisputeError> 
         }
         _ => {}
     }
+
+    ensure_resolver(&resolver, &state.admin, &appeal.appeal_arbiters)?;
 
     if appeal.votes.len() < APPEAL_MIN_ARBITERS {
         return Err(DisputeError::InsufficientAppealVotes);
@@ -959,6 +1017,7 @@ pub fn vote_on_dispute_weighted(
 /// - Tie broken by the outcome of the first vote cast (first vote wins).
 pub fn resolve_dispute_weighted(
     env: &Env,
+    resolver: Address,
     dispute_id: String,
 ) -> Result<DisputeOutcome, DisputeError> {
     let state: ContractState = env
@@ -988,6 +1047,8 @@ pub fn resolve_dispute_weighted(
                 weighted_votes_favor_tenant: 0,
                 voters: soroban_sdk::Vec::new(env),
             });
+
+    ensure_resolver(&resolver, &state.admin, &wdisp.voters)?;
 
     if wdisp.voters.len() < state.min_votes_required {
         return Err(DisputeError::InsufficientVotes);

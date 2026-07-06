@@ -24,4 +24,7 @@ pub enum DataKey {
     RateLimitConfig,
     UserCallCount(Address, String),
     BlockCallCount(u64, String),
+    // Admin and Pause
+    PauseState,
+    PendingAdmin,
 }

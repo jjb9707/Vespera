@@ -118,6 +118,12 @@ pub enum DataKey {
     ApprovalCount(BytesN<32>, Address),
     /// Per-signer-per-target flag: DataKey::SignerApproved(escrow_id, signer, release_to) => bool
     SignerApproved(BytesN<32>, Address, Address),
+    /// Amount-bound approval count for partial/deduction releases:
+    /// DataKey::AmountApprovalCount(escrow_id, release_to, amount) => u32
+    AmountApprovalCount(BytesN<32>, Address, i128),
+    /// Amount-bound per-signer flag:
+    /// DataKey::AmountSignerApproved(escrow_id, signer, release_to, amount) => bool
+    AmountSignerApproved(BytesN<32>, Address, Address, i128),
     /// Contract-level timeout configuration
     TimeoutConfig,
     /// Store release history for an escrow: DataKey::ReleaseHistory(escrow_id)
@@ -128,4 +134,30 @@ pub enum DataKey {
     UserCallCount(Address, String),
     /// Block call count for rate limiting: DataKey::BlockCallCount(block_number, function_name)
     BlockCallCount(u64, String),
+    /// Contract state (admin, initialized)
+    State,
+    /// Contract initialization flag
+    Initialized,
+    /// Pause state
+    PauseState,
+    /// Pending admin for two-step transfer
+    PendingAdmin,
+}
+
+/// Contract state tracking admin and initialization.
+#[derive(Clone, Debug, PartialEq, Eq)]
+#[contracttype]
+pub struct ContractState {
+    pub admin: Address,
+    pub initialized: bool,
+}
+
+/// Pause state tracking contract pause status.
+#[derive(Clone, Debug, PartialEq, Eq)]
+#[contracttype]
+pub struct PauseState {
+    pub is_paused: bool,
+    pub paused_at: u64,
+    pub paused_by: Address,
+    pub pause_reason: String,
 }

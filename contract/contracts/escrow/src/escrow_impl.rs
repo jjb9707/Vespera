@@ -16,6 +16,165 @@ pub struct EscrowContract;
 
 #[contractimpl]
 impl EscrowContract {
+    /// Initialize the contract with an admin address.
+    pub fn initialize(env: Env, admin: Address) -> Result<(), EscrowError> {
+        if env
+            .storage()
+            .persistent()
+            .has(&crate::types::DataKey::Initialized)
+        {
+            return Err(EscrowError::AlreadyInitialized);
+        }
+
+        admin.require_auth();
+
+        env.storage()
+            .persistent()
+            .set(&crate::types::DataKey::Initialized, &true);
+        env.storage()
+            .persistent()
+            .extend_ttl(&crate::types::DataKey::Initialized, 500000, 500000);
+
+        let state = crate::types::ContractState {
+            admin: admin.clone(),
+            initialized: true,
+        };
+
+        env.storage()
+            .instance()
+            .set(&crate::types::DataKey::State, &state);
+        env.storage().instance().extend_ttl(500000, 500000);
+
+        events::contract_initialized(&env, admin);
+
+        Ok(())
+    }
+
+    /// Get the current contract state.
+    pub fn get_state(env: Env) -> Option<crate::types::ContractState> {
+        env.storage().instance().get(&crate::types::DataKey::State)
+    }
+
+    /// Pause the contract (admin only).
+    pub fn pause(env: Env, admin: Address, reason: soroban_sdk::String) -> Result<(), EscrowError> {
+        let state = Self::get_state(env.clone()).ok_or(EscrowError::NotInitialized)?;
+
+        admin.require_auth();
+
+        if admin != state.admin {
+            return Err(EscrowError::Unauthorized);
+        }
+
+        if Self::is_paused(env.clone()) {
+            return Err(EscrowError::AlreadyPaused);
+        }
+
+        let pause_state = crate::types::PauseState {
+            is_paused: true,
+            paused_at: env.ledger().timestamp(),
+            paused_by: admin.clone(),
+            pause_reason: reason.clone(),
+        };
+
+        env.storage()
+            .instance()
+            .set(&crate::types::DataKey::PauseState, &pause_state);
+        env.storage().instance().extend_ttl(500000, 500000);
+
+        events::paused(&env, reason, admin);
+        Ok(())
+    }
+
+    /// Unpause the contract (admin only).
+    pub fn unpause(env: Env, admin: Address) -> Result<(), EscrowError> {
+        let state = Self::get_state(env.clone()).ok_or(EscrowError::NotInitialized)?;
+
+        admin.require_auth();
+
+        if admin != state.admin {
+            return Err(EscrowError::Unauthorized);
+        }
+
+        if !Self::is_paused(env.clone()) {
+            return Err(EscrowError::NotPaused);
+        }
+
+        env.storage()
+            .instance()
+            .remove(&crate::types::DataKey::PauseState);
+
+        events::unpaused(&env, admin);
+        Ok(())
+    }
+
+    /// Check if the contract is paused.
+    pub fn is_paused(env: Env) -> bool {
+        env.storage()
+            .instance()
+            .get::<crate::types::DataKey, crate::types::PauseState>(
+                &crate::types::DataKey::PauseState,
+            )
+            .map(|ps| ps.is_paused)
+            .unwrap_or(false)
+    }
+
+    /// Propose a new admin (two-step transfer).
+    pub fn propose_admin(env: Env, admin: Address, new_admin: Address) -> Result<(), EscrowError> {
+        let state = Self::get_state(env.clone()).ok_or(EscrowError::NotInitialized)?;
+
+        admin.require_auth();
+
+        if admin != state.admin {
+            return Err(EscrowError::Unauthorized);
+        }
+
+        env.storage()
+            .instance()
+            .set(&crate::types::DataKey::PendingAdmin, &new_admin);
+        env.storage().instance().extend_ttl(500000, 500000);
+
+        events::admin_proposed(&env, admin, new_admin);
+        Ok(())
+    }
+
+    /// Accept admin role (pending admin only).
+    pub fn accept_admin(env: Env, new_admin: Address) -> Result<(), EscrowError> {
+        let mut state = Self::get_state(env.clone()).ok_or(EscrowError::NotInitialized)?;
+
+        new_admin.require_auth();
+
+        let pending_admin: Address = env
+            .storage()
+            .instance()
+            .get(&crate::types::DataKey::PendingAdmin)
+            .ok_or(EscrowError::NoPendingAdmin)?;
+
+        if new_admin != pending_admin {
+            return Err(EscrowError::NotPendingAdmin);
+        }
+
+        let old_admin = state.admin.clone();
+        state.admin = new_admin.clone();
+
+        env.storage()
+            .instance()
+            .set(&crate::types::DataKey::State, &state);
+        env.storage().instance().extend_ttl(500000, 500000);
+        env.storage()
+            .instance()
+            .remove(&crate::types::DataKey::PendingAdmin);
+
+        events::admin_transferred(&env, old_admin, new_admin);
+        Ok(())
+    }
+
+    /// Get the pending admin address if any.
+    pub fn get_pending_admin(env: Env) -> Option<Address> {
+        env.storage()
+            .instance()
+            .get(&crate::types::DataKey::PendingAdmin)
+    }
+
     /// Create a new escrow.
     ///
     /// CHECKS:
@@ -284,7 +443,13 @@ impl EscrowContract {
         caller: Address,
         config: TimeoutConfig,
     ) -> Result<(), EscrowError> {
+        let state = Self::get_state(env.clone()).ok_or(EscrowError::NotInitialized)?;
+
         caller.require_auth();
+
+        if caller != state.admin {
+            return Err(EscrowError::Unauthorized);
+        }
 
         if config.escrow_timeout_days == 0
             || config.dispute_timeout_days == 0
@@ -325,13 +490,22 @@ impl EscrowContract {
         ))
     }
 
-    /// Approve a partial release without auto-executing.
-    /// This is used for partial releases where we don't want automatic full release.
+    /// Approve a partial release or deduction without auto-executing.
+    ///
+    /// The approval is bound to the exact `(release_to, amount)` pair it authorizes, so a
+    /// signature for "refund `amount` to the depositor" can no longer be replayed by anyone
+    /// to move a different value or pay a different party. `release_escrow_partial` and
+    /// `release_with_deduction` only proceed when 2-of-3 parties approved the precise
+    /// recipient and amount they are about to move.
+    ///
+    /// For `release_with_deduction`, approve `(beneficiary, damage_amount)` — that is the
+    /// value leaving the escrow to the counterparty; the remainder refunds the depositor.
     pub fn approve_partial_release(
         env: Env,
         escrow_id: BytesN<32>,
         caller: Address,
         release_to: Address,
+        amount: i128,
     ) -> Result<(), EscrowError> {
         // CHECKS: Get and validate escrow
         let escrow = EscrowStorage::get(&env, &escrow_id).ok_or(EscrowError::EscrowNotFound)?;
@@ -352,14 +526,21 @@ impl EscrowContract {
             return Err(EscrowError::InvalidApprovalTarget);
         }
 
-        // Check for duplicate approval using O(1) storage lookup
-        if EscrowStorage::has_signer_approved(&env, &escrow_id, &caller, &release_to) {
+        // A negative approval amount is meaningless (a deduction may legitimately approve 0).
+        // The release functions remain the authoritative bound against the escrow balance.
+        if amount < 0 {
+            return Err(EscrowError::InvalidAmount);
+        }
+
+        // Check for duplicate approval of this exact (release_to, amount) pair.
+        if EscrowStorage::has_signer_approved_amount(&env, &escrow_id, &caller, &release_to, amount)
+        {
             return Err(EscrowError::AlreadySigned);
         }
 
-        // EFFECTS: Record the approval flag and increment the counter
-        EscrowStorage::set_signer_approved(&env, &escrow_id, &caller, &release_to);
-        EscrowStorage::increment_approval_count(&env, &escrow_id, &release_to);
+        // EFFECTS: Record the amount-bound approval flag and increment the counter.
+        EscrowStorage::set_signer_approved_amount(&env, &escrow_id, &caller, &release_to, amount);
+        EscrowStorage::increment_amount_approval_count(&env, &escrow_id, &release_to, amount);
 
         // Also persist the approval record for audit trail
         let new_approval = ReleaseApproval {
@@ -373,14 +554,16 @@ impl EscrowContract {
     }
 
     /// Release a partial amount from escrow to a recipient.
-    /// Requires multi-sig approval (2-of-3) via approve_partial_release.
+    /// Requires multi-sig approval (2-of-3) via approve_partial_release bound to the exact
+    /// `(recipient, amount)` being moved.
     ///
     /// CHECKS:
+    /// - Caller must be a party (depositor, beneficiary, or arbiter) and authenticate
     /// - Escrow must exist and be Funded
     /// - Amount must be positive and not exceed escrow balance
     /// - Recipient must be beneficiary or depositor
     /// - Reason must not be empty
-    /// - Must have 2-of-3 approval
+    /// - Must have 2-of-3 approval for this exact (recipient, amount)
     ///
     /// EFFECTS:
     /// - Update escrow amount
@@ -393,12 +576,18 @@ impl EscrowContract {
     pub fn release_escrow_partial(
         env: Env,
         escrow_id: BytesN<32>,
+        caller: Address,
         amount: i128,
         recipient: Address,
         reason: soroban_sdk::String,
     ) -> Result<(), EscrowError> {
         // CHECKS: Get and validate escrow
         let mut escrow = EscrowStorage::get(&env, &escrow_id).ok_or(EscrowError::EscrowNotFound)?;
+
+        // Verify the executor is a party to this escrow and authenticate them, so an
+        // unrelated address cannot trigger fund movement once approvals exist.
+        AccessControl::is_party(&escrow, &caller)?;
+        caller.require_auth();
 
         // Verify escrow is in Funded state
         if escrow.status != EscrowStatus::Funded {
@@ -424,9 +613,9 @@ impl EscrowContract {
             return Err(EscrowError::EmptyReleaseReason);
         }
 
-        // Check for 2-of-3 approval
+        // Check for 2-of-3 approval bound to this exact (recipient, amount).
         let approval_count =
-            EscrowStorage::get_approval_count_for_target(&env, &escrow_id, &recipient);
+            EscrowStorage::get_amount_approval_count(&env, &escrow_id, &recipient, amount);
         if approval_count < 2 {
             return Err(EscrowError::NotAuthorized);
         }
@@ -445,15 +634,14 @@ impl EscrowContract {
         };
         EscrowStorage::add_release_record(&env, &escrow_id, release_record);
 
-        // Clear approvals after execution
+        // Clear approvals after execution so the same signatures cannot be replayed.
         EscrowStorage::clear_approvals(&env, &escrow_id);
-        let targets = [escrow.beneficiary.clone(), escrow.depositor.clone()];
         let signers = [
             escrow.depositor.clone(),
             escrow.beneficiary.clone(),
             escrow.arbiter.clone(),
         ];
-        EscrowStorage::clear_approval_counts(&env, &escrow_id, &targets, &signers);
+        EscrowStorage::clear_amount_approval(&env, &escrow_id, &recipient, amount, &signers);
 
         // INTERACTIONS: Token transfer
         let token_client = token::Client::new(&env, &escrow.token);
@@ -468,13 +656,14 @@ impl EscrowContract {
     /// Release escrow with damage deduction.
     /// Deducts damage amount and releases the remainder to the depositor (guest).
     /// The damage amount goes to the beneficiary (landlord).
-    /// Requires multi-sig approval (2-of-3).
+    /// Requires multi-sig approval (2-of-3) bound to the exact value paid to the beneficiary.
     ///
     /// CHECKS:
+    /// - Caller must be a party (depositor, beneficiary, or arbiter) and authenticate
     /// - Escrow must exist and be Funded
     /// - Damage amount must be non-negative and not exceed escrow balance
     /// - Reason must not be empty
-    /// - Must have 2-of-3 approval for release to depositor
+    /// - Must have 2-of-3 approval for paying exactly `damage_amount` to the beneficiary
     ///
     /// EFFECTS:
     /// - Update escrow status to Released
@@ -487,11 +676,17 @@ impl EscrowContract {
     pub fn release_with_deduction(
         env: Env,
         escrow_id: BytesN<32>,
+        caller: Address,
         damage_amount: i128,
         reason: soroban_sdk::String,
     ) -> Result<(), EscrowError> {
         // CHECKS: Get and validate escrow
         let mut escrow = EscrowStorage::get(&env, &escrow_id).ok_or(EscrowError::EscrowNotFound)?;
+
+        // Verify the executor is a party to this escrow and authenticate them, so an
+        // unrelated address cannot trigger fund movement once approvals exist.
+        AccessControl::is_party(&escrow, &caller)?;
+        caller.require_auth();
 
         // Verify escrow is in Funded state
         if escrow.status != EscrowStatus::Funded {
@@ -512,9 +707,17 @@ impl EscrowContract {
             return Err(EscrowError::EmptyReleaseReason);
         }
 
-        // Check for 2-of-3 approval for release to depositor
-        let approval_count =
-            EscrowStorage::get_approval_count_for_target(&env, &escrow_id, &escrow.depositor);
+        // Check for 2-of-3 approval bound to paying exactly `damage_amount` to the
+        // beneficiary. Previously this read approvals for the depositor while paying the
+        // beneficiary, so a quorum that approved a refund-to-depositor could be silently
+        // redirected into a damage payout to the beneficiary. Binding the approval to the
+        // actual recipient and amount of the contested transfer closes that redirect.
+        let approval_count = EscrowStorage::get_amount_approval_count(
+            &env,
+            &escrow_id,
+            &escrow.beneficiary,
+            damage_amount,
+        );
         if approval_count < 2 {
             return Err(EscrowError::NotAuthorized);
         }
@@ -550,15 +753,20 @@ impl EscrowContract {
             EscrowStorage::add_release_record(&env, &escrow_id, refund_record);
         }
 
-        // Clear approvals after execution
+        // Clear approvals after execution so the same signatures cannot be replayed.
         EscrowStorage::clear_approvals(&env, &escrow_id);
-        let targets = [escrow.beneficiary.clone(), escrow.depositor.clone()];
         let signers = [
             escrow.depositor.clone(),
             escrow.beneficiary.clone(),
             escrow.arbiter.clone(),
         ];
-        EscrowStorage::clear_approval_counts(&env, &escrow_id, &targets, &signers);
+        EscrowStorage::clear_amount_approval(
+            &env,
+            &escrow_id,
+            &escrow.beneficiary,
+            damage_amount,
+            &signers,
+        );
 
         // INTERACTIONS: Token transfers
         let token_client = token::Client::new(&env, &escrow.token);

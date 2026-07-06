@@ -1272,6 +1272,8 @@ pnpm run build
 - [PostgreSQL Documentation](https://www.postgresql.org/docs)
 - [Jest Documentation](https://jestjs.io)
 - [Stellar SDK Documentation](https://developers.stellar.org)
+- [Queue retry and backoff](docs/queues/RETRY_AND_BACKOFF.md)
+- [Webhook and Stellar resilience](docs/blockchain/WEBHOOKS_AND_RESILIENCE.md)
 
 ---
 
