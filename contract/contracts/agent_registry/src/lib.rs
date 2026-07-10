@@ -17,7 +17,7 @@ pub use agent::{
 };
 pub use errors::AgentError;
 pub use storage::DataKey;
-pub use types::{AgentInfo, AgentTransaction, ContractState, PauseState};
+pub use types::{AgentInfo, AgentTransaction, ContractState, PauseState, Rating};
 
 #[contract]
 pub struct AgentRegistryContract;
@@ -25,12 +25,6 @@ pub struct AgentRegistryContract;
 #[contractimpl]
 impl AgentRegistryContract {
     /// Initialize the contract with an admin address.
-    ///
-    /// # Arguments
-    /// * `admin` - The address that will have admin privileges to verify agents
-    ///
-    /// # Errors
-    /// * `AlreadyInitialized` - If the contract has already been initialized
     pub fn initialize(env: Env, admin: Address) -> Result<(), AgentError> {
         if env.storage().persistent().has(&DataKey::Initialized) {
             return Err(AgentError::AlreadyInitialized);
@@ -56,24 +50,10 @@ impl AgentRegistryContract {
         Ok(())
     }
 
-    /// Get the current contract state.
-    ///
-    /// # Returns
-    /// * `Option<ContractState>` - The contract state if initialized
     pub fn get_state(env: Env) -> Option<ContractState> {
         env.storage().instance().get(&DataKey::State)
     }
 
-    /// Register a new agent on-chain.
-    ///
-    /// # Arguments
-    /// * `agent` - The address of the agent registering
-    /// * `external_profile_hash` - Hash reference to agent's external profile (IPFS, etc.)
-    ///
-    /// # Errors
-    /// * `NotInitialized` - If the contract hasn't been initialized
-    /// * `AgentAlreadyRegistered` - If the agent is already registered
-    /// * `InvalidProfileHash` - If the profile hash is empty
     pub fn register_agent(
         env: Env,
         agent: Address,
@@ -82,38 +62,10 @@ impl AgentRegistryContract {
         agent::register_agent(&env, agent, external_profile_hash)
     }
 
-    /// Verify a registered agent (admin only).
-    ///
-    /// # Arguments
-    /// * `admin` - The admin address performing the verification
-    /// * `agent` - The address of the agent to verify
-    ///
-    /// # Errors
-    /// * `NotInitialized` - If the contract hasn't been initialized
-    /// * `Unauthorized` - If the caller is not the admin
-    /// * `AgentNotFound` - If the agent doesn't exist
-    /// * `AlreadyVerified` - If the agent is already verified
     pub fn verify_agent(env: Env, admin: Address, agent: Address) -> Result<(), AgentError> {
         agent::verify_agent(&env, admin, agent)
     }
 
-    /// Rate an agent after completing a transaction (1-5 stars).
-    ///
-    /// # Arguments
-    /// * `rater` - The address of the person rating (tenant or landlord)
-    /// * `agent` - The address of the agent being rated
-    /// * `score` - The rating score (1-5)
-    /// * `transaction_id` - The ID of the completed transaction
-    ///
-    /// # Errors
-    /// * `NotInitialized` - If the contract hasn't been initialized
-    /// * `InvalidRatingScore` - If score is not between 1 and 5
-    /// * `AgentNotFound` - If the agent doesn't exist
-    /// * `AgentNotVerified` - If the agent is not verified
-    /// * `TransactionNotFound` - If the transaction doesn't exist
-    /// * `TransactionNotCompleted` - If the transaction is not marked as completed
-    /// * `NotTransactionParty` - If the rater wasn't part of the transaction
-    /// * `AlreadyRated` - If the rater has already rated this agent
     pub fn rate_agent(
         env: Env,
         rater: Address,
@@ -124,49 +76,22 @@ impl AgentRegistryContract {
         agent::rate_agent(&env, rater, agent, score, transaction_id)
     }
 
-    /// Get information about a registered agent.
-    ///
-    /// # Arguments
-    /// * `agent` - The address of the agent
-    ///
-    /// # Returns
-    /// * `Option<AgentInfo>` - The agent information if they exist
     pub fn get_agent_info(env: Env, agent: Address) -> Option<AgentInfo> {
         agent::get_agent_info(&env, agent)
     }
 
-    /// Get the total count of registered agents.
-    ///
-    /// # Returns
-    /// * `u32` - The total number of agents registered
     pub fn get_agent_count(env: Env) -> u32 {
         agent::get_agent_count(&env)
     }
 
-    /// Get the average rating for an agent, scaled by 100 (e.g. 450 = 4.5).
-    ///
-    /// # Arguments
-    /// * `agent` - The address of the agent
-    ///
-    /// # Returns
-    /// * `Option<u32>` - The scaled average rating, or None if the agent is not found
     pub fn get_agent_average_rating(env: Env, agent: Address) -> Option<u32> {
         agent::get_agent_average_rating(&env, agent)
     }
 
-    /// Get an individual rating left by a rater for an agent.
-    ///
-    /// # Arguments
-    /// * `agent` - The address of the agent
-    /// * `rater` - The address of the rater
-    ///
-    /// # Returns
-    /// * `Option<Rating>` - The Rating record if it exists
     pub fn get_rating(env: Env, agent: Address, rater: Address) -> Option<Rating> {
         agent::get_rating(&env, agent, rater)
     }
 
-    /// Register a transaction involving an agent.
     pub fn register_transaction(
         env: Env,
         transaction_id: String,
@@ -176,7 +101,6 @@ impl AgentRegistryContract {
         agent::register_transaction(&env, transaction_id, agent, parties)
     }
 
-    /// Mark a transaction as completed.
     pub fn complete_transaction(
         env: Env,
         transaction_id: String,
@@ -185,7 +109,6 @@ impl AgentRegistryContract {
         agent::complete_transaction(&env, transaction_id, agent)
     }
 
-    /// Pause the contract (admin only).
     pub fn pause(env: Env, admin: Address, reason: String) -> Result<(), AgentError> {
         let state = Self::get_state(env.clone()).ok_or(AgentError::NotInitialized)?;
 
@@ -215,7 +138,6 @@ impl AgentRegistryContract {
         Ok(())
     }
 
-    /// Unpause the contract (admin only).
     pub fn unpause(env: Env, admin: Address) -> Result<(), AgentError> {
         let state = Self::get_state(env.clone()).ok_or(AgentError::NotInitialized)?;
 
@@ -235,7 +157,6 @@ impl AgentRegistryContract {
         Ok(())
     }
 
-    /// Check if the contract is paused.
     pub fn is_paused(env: Env) -> bool {
         env.storage()
             .instance()
@@ -244,7 +165,6 @@ impl AgentRegistryContract {
             .unwrap_or(false)
     }
 
-    /// Propose a new admin (two-step transfer).
     pub fn propose_admin(env: Env, admin: Address, new_admin: Address) -> Result<(), AgentError> {
         let state = Self::get_state(env.clone()).ok_or(AgentError::NotInitialized)?;
 
@@ -263,7 +183,6 @@ impl AgentRegistryContract {
         Ok(())
     }
 
-    /// Accept admin role (pending admin only).
     pub fn accept_admin(env: Env, new_admin: Address) -> Result<(), AgentError> {
         let mut state = Self::get_state(env.clone()).ok_or(AgentError::NotInitialized)?;
 
@@ -290,7 +209,6 @@ impl AgentRegistryContract {
         Ok(())
     }
 
-    /// Get the pending admin address if any.
     pub fn get_pending_admin(env: Env) -> Option<Address> {
         env.storage().instance().get(&DataKey::PendingAdmin)
     }
