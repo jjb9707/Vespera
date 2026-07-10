@@ -12,8 +12,8 @@ mod types;
 mod tests;
 
 pub use agent::{
-    complete_transaction, get_agent_count, get_agent_info, rate_agent, register_agent,
-    register_transaction, verify_agent,
+    complete_transaction, get_agent_average_rating, get_agent_count, get_agent_info, get_rating,
+    rate_agent, register_agent, register_transaction, verify_agent,
 };
 pub use errors::AgentError;
 pub use storage::DataKey;
@@ -143,17 +143,30 @@ impl AgentRegistryContract {
         agent::get_agent_count(&env)
     }
 
-    /// Register a transaction involving an agent.
-    /// This is called when a rent agreement or property transaction is created.
+    /// Get the average rating for an agent, scaled by 100 (e.g. 450 = 4.5).
     ///
     /// # Arguments
-    /// * `transaction_id` - Unique identifier for the transaction
-    /// * `agent` - The agent involved in the transaction
-    /// * `parties` - Vector of addresses involved (tenant, landlord, etc.)
+    /// * `agent` - The address of the agent
     ///
-    /// # Errors
-    /// * `NotInitialized` - If the contract hasn't been initialized
-    /// * `AgentNotFound` - If the agent doesn't exist
+    /// # Returns
+    /// * `Option<u32>` - The scaled average rating, or None if the agent is not found
+    pub fn get_agent_average_rating(env: Env, agent: Address) -> Option<u32> {
+        agent::get_agent_average_rating(&env, agent)
+    }
+
+    /// Get an individual rating left by a rater for an agent.
+    ///
+    /// # Arguments
+    /// * `agent` - The address of the agent
+    /// * `rater` - The address of the rater
+    ///
+    /// # Returns
+    /// * `Option<Rating>` - The Rating record if it exists
+    pub fn get_rating(env: Env, agent: Address, rater: Address) -> Option<Rating> {
+        agent::get_rating(&env, agent, rater)
+    }
+
+    /// Register a transaction involving an agent.
     pub fn register_transaction(
         env: Env,
         transaction_id: String,
@@ -164,16 +177,6 @@ impl AgentRegistryContract {
     }
 
     /// Mark a transaction as completed.
-    /// This enables the parties to rate the agent.
-    ///
-    /// # Arguments
-    /// * `transaction_id` - The ID of the transaction to complete
-    /// * `agent` - The agent address (for verification)
-    ///
-    /// # Errors
-    /// * `NotInitialized` - If the contract hasn't been initialized
-    /// * `TransactionNotFound` - If the transaction doesn't exist
-    /// * `Unauthorized` - If the caller is not the agent for this transaction
     pub fn complete_transaction(
         env: Env,
         transaction_id: String,
